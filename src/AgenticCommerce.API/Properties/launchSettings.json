@@ -16,7 +16,16 @@
       "launchBrowser": false,
       "applicationUrl": "https://localhost:7098;http://localhost:5274",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Circle__ApiKey": "TEST_API_KEY:c9ad7682997f89121f570a2e75c3431b:69130b1f648bcc5852678a592c9fd71f",
+        "Circle__EntitySecret": "9ac357b8d740882d40017906388811fd9e99bc2a8f19124a9cea775e21dec023",
+        "Circle__WalletAddress": "0x6255d8dd3f84ec460fc8b07db58ab06384a2f487",
+        "Circle__WalletId": "5d6aac7c-8f5d-51be-8124-65413a3fac01",
+        "Circle__X402ApiKey": "YOUR_X402_API_KEY_HERE",
+
+        "Circle__WalletsApiUrl": "https://api.circle.com/v1/w3s",
+        "Circle__GatewayApiUrl": "https://gateway-api-testnet.circle.com/v1",
+        "Circle__X402FacilitatorApiUrl": "https://x402.org/facilitator"
       }
     }
   }

@@ -37,7 +37,7 @@ namespace AgenticCommerce.Core.Interfaces
         /// Get current gas price in USDC
         /// </summary>
         /// <returns></returns>
-        Task<decimal> GetGasPriceAysnc();
+        Task<decimal> GetGasPriceAsync();
 
         /// <summary>
         /// Sends a specified amount of USDC to the given blockchain address asynchronously.
@@ -47,7 +47,7 @@ namespace AgenticCommerce.Core.Interfaces
         /// <param name="gasLimit">An optional gas limit to use for the transaction. If null, a default gas limit will be applied.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the transaction hash as a string
         /// if the transfer is successful.</returns>
-        Task<string> SendUsdcAysnc(string toAddress, decimal amountUsdc, int? gasLimit = null);
+        Task<string> SendUsdcAsync(string toAddress, decimal amountUsdc, int? gasLimit = null);
 
         /// <summary>
         /// Get tansaction by hash
