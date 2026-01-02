@@ -1,5 +1,6 @@
-using AgenticCommerce.Infrastructure.Blockchain;
 using AgenticCommerce.Core.Interfaces;
+using AgenticCommerce.Infrastructure.Agents;
+using AgenticCommerce.Infrastructure.Blockchain;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +13,12 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions( options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -31,6 +37,7 @@ builder.Services.Configure<CircleOptions>(
 
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IArcClient, ArcClient>();
+builder.Services.AddSingleton<IAgentService, AgentService>();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();

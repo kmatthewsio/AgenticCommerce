@@ -27,10 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Agents\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="bin\Debug\net10.0\AgenticCommerce.Core.dll" />
     <None Include="bin\Debug\net10.0\AgenticCommerce.Core.pdb" />
     <None Include="bin\Debug\net10.0\AgenticCommerce.Infrastructure.dll" />

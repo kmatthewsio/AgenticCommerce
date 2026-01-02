@@ -91,7 +91,8 @@ namespace AgenticCommerce.Infrastructure.Blockchain
                 var balanceResponse = JsonSerializer.Deserialize<WalletBalanceResponse>(content);
 
                 var usdcBalance = balanceResponse?.Data?.TokenBalances?
-                    .FirstOrDefault(b => b.Token?.Symbol?.Equals("USDC", StringComparison.OrdinalIgnoreCase) ?? false);
+                    .FirstOrDefault(b =>
+                        b.Token?.Symbol?.Contains("USDC", StringComparison.OrdinalIgnoreCase) ?? false);
 
                 if (usdcBalance != null && decimal.TryParse(usdcBalance.Amount, out var balance))
                 {
@@ -136,11 +137,7 @@ namespace AgenticCommerce.Infrastructure.Blockchain
                     blockchain = "ARC-TESTNET",
                     destinationAddress = toAddress,
                     amounts = new[] { amountUsdc.ToString("F6") },
-                    fee = new
-                    {
-                        type = "level",
-                        config = new { feeLevel = "MEDIUM" }
-                    },
+                    feeLevel = "MEDIUM",
                     entitySecretCiphertext = entitySecretCiphertext
                 };
 
@@ -149,7 +146,13 @@ namespace AgenticCommerce.Infrastructure.Blockchain
                     "/developer/transactions/transfer",
                     transferRequest);
 
-                response.EnsureSuccessStatusCode();
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Circle API error: {StatusCode} - {Error}",
+                        response.StatusCode, errorBody);
+                    throw new Exception($"Circle API error: {errorBody}");
+                }
 
                 var content = await response.Content.ReadAsStringAsync();
                 var transferResponse = JsonSerializer.Deserialize<CircleTransferResponse>(content);
