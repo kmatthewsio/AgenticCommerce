@@ -1,37 +1,65 @@
 ﻿using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Collections.Concurrent;
+using static AgenticCommerce.Infrastructure.Agents.PaymentPlugin;
 
 namespace AgenticCommerce.Infrastructure.Agents;
 
 /// <summary>
-/// Service for managing autonomous AI agents with Circle wallets and Arc blockchain
+/// Service for managing autonomous AI agents with real reasoning capabilities
 /// </summary>
 public class AgentService : IAgentService
 {
     private readonly IArcClient _arcClient;
     private readonly ILogger<AgentService> _logger;
+    private readonly AIOptions _aiOptions;
+    private readonly Kernel? _kernel;
 
-    // In-memory storage (for prototype - replace with database later)
     private readonly ConcurrentDictionary<string, Agent> _agents = new();
     private readonly ConcurrentDictionary<string, List<string>> _agentTransactions = new();
 
-    public AgentService(IArcClient arcClient, ILogger<AgentService> logger)
+    public AgentService(
+        IArcClient arcClient,
+        ILogger<AgentService> logger,
+        IOptions<AIOptions> aiOptions)
     {
         _arcClient = arcClient;
         _logger = logger;
+        _aiOptions = aiOptions.Value;
+
+        // Initialize Semantic Kernel if API key is configured
+        if (!string.IsNullOrEmpty(_aiOptions.OpenAIApiKey))
+        {
+            var builder = Kernel.CreateBuilder();
+
+            builder.AddOpenAIChatCompletion(
+                modelId: _aiOptions.OpenAIModel!,
+                apiKey: _aiOptions.OpenAIApiKey!);
+
+            // Add plugins
+            builder.Plugins.AddFromObject(new PaymentPlugin(_arcClient), "Payment");
+            builder.Plugins.AddFromObject(new ResearchPlugin(), "Research");
+
+            _kernel = builder.Build();
+
+            _logger.LogInformation("AgentService initialized with OpenAI ({Model})", _aiOptions.OpenAIModel);
+        }
+        else
+        {
+            _logger.LogWarning("No AI API key configured - agents will use simulation mode");
+        }
     }
 
     public Task<Agent> CreateAgentAsync(AgentConfig config)
     {
         try
         {
-            // Generate unique agent ID
             var agentId = $"agent_{Guid.NewGuid():N}";
-
-            // For prototype, agents share the main wallet
-            // In production, each agent would have its own Circle wallet
             var walletAddress = _arcClient.GetAddress();
 
             var agent = new Agent
@@ -42,7 +70,7 @@ public class AgentService : IAgentService
                 Budget = config.Budget,
                 CurrentBalance = config.Budget,
                 WalletAddress = walletAddress,
-                WalletId = agentId, // Placeholder for now
+                WalletId = agentId,
                 Status = AgentStatus.Created,
                 CreatedAt = DateTime.UtcNow,
                 Capabilities = config.Capabilities
@@ -77,29 +105,40 @@ public class AgentService : IAgentService
 
             _logger.LogInformation("Agent {AgentId} starting task: {Task}", agentId, task);
 
-            // Update agent status
             agent.Status = AgentStatus.Busy;
             agent.LastActiveAt = DateTime.UtcNow;
 
-            // For prototype: Simple AI simulation
-            // In production: This would call Azure OpenAI with Microsoft Agent Framework
-            var result = await SimulateAgentTaskAsync(agent, task);
+            string result;
+            decimal amountSpent = 0m;
+            var transactionIds = new List<string>();
 
-            // Update agent status
+            if (_kernel != null)
+            {
+                // Execute with REAL AI
+                _logger.LogInformation("Executing task with AI reasoning");
+                (result, amountSpent, transactionIds) = await ExecuteWithAIAsync(agent, task);
+            }
+            else
+            {
+                // Fallback to simulation
+                _logger.LogWarning("AI not configured - using simulation mode");
+                result = $"[SIMULATED] Agent '{agent.Name}' analyzed task: '{task}'. Budget: ${agent.CurrentBalance:F2}. Ready to execute purchases.";
+            }
+
             agent.Status = AgentStatus.Active;
 
             _logger.LogInformation(
-                "Agent {AgentId} completed task. Spent: ${Amount}",
-                agentId, result.AmountSpent);
+                "Agent {AgentId} completed task. Result length: {Length} chars",
+                agentId, result.Length);
 
             return new AgentRunResult
             {
                 AgentId = agentId,
                 TaskDescription = task,
                 Success = true,
-                Result = result.Result,
-                AmountSpent = result.AmountSpent,
-                TransactionIds = result.TransactionIds,
+                Result = result,
+                AmountSpent = amountSpent,
+                TransactionIds = transactionIds,
                 StartedAt = startTime,
                 CompletedAt = DateTime.UtcNow
             };
@@ -138,13 +177,8 @@ public class AgentService : IAgentService
                 "Agent {AgentId} attempting purchase: ${Amount} to {Recipient}",
                 agentId, request.Amount, request.RecipientAddress);
 
-            // Check budget
             if (request.Amount > agent.CurrentBalance)
             {
-                _logger.LogWarning(
-                    "Agent {AgentId} insufficient balance. Requested: ${Amount}, Available: ${Balance}",
-                    agentId, request.Amount, agent.CurrentBalance);
-
                 return new PurchaseResult
                 {
                     Success = false,
@@ -152,16 +186,11 @@ public class AgentService : IAgentService
                 };
             }
 
-            // Execute purchase via Arc
-            var txId = await _arcClient.SendUsdcAsync(
-                request.RecipientAddress,
-                request.Amount);
+            var txId = await _arcClient.SendUsdcAsync(request.RecipientAddress, request.Amount);
 
-            // Update agent balance
             agent.CurrentBalance -= request.Amount;
             agent.LastActiveAt = DateTime.UtcNow;
 
-            // Track transaction
             if (_agentTransactions.TryGetValue(agentId, out var transactions))
             {
                 transactions.Add(txId);
@@ -182,7 +211,6 @@ public class AgentService : IAgentService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Agent {AgentId} purchase failed", agentId);
-
             return new PurchaseResult
             {
                 Success = false,
@@ -204,9 +232,7 @@ public class AgentService : IAgentService
             return Task.FromResult<AgentInfo?>(null);
         }
 
-        var transactionCount = _agentTransactions.TryGetValue(agentId, out var txs)
-            ? txs.Count
-            : 0;
+        var transactionCount = _agentTransactions.TryGetValue(agentId, out var txs) ? txs.Count : 0;
 
         var info = new AgentInfo
         {
@@ -226,9 +252,7 @@ public class AgentService : IAgentService
     {
         var agentInfos = _agents.Values.Select(agent =>
         {
-            var transactionCount = _agentTransactions.TryGetValue(agent.Id, out var txs)
-                ? txs.Count
-                : 0;
+            var transactionCount = _agentTransactions.TryGetValue(agent.Id, out var txs) ? txs.Count : 0;
 
             return new AgentInfo
             {
@@ -257,21 +281,64 @@ public class AgentService : IAgentService
     }
 
     /// <summary>
-    /// Simulate agent task execution (replace with real AI later)
+    /// Execute agent task with real AI reasoning and tool use
     /// </summary>
-    private Task<(string Result, decimal AmountSpent, List<string> TransactionIds)> SimulateAgentTaskAsync(
+    private async Task<(string Result, decimal AmountSpent, List<string> TransactionIds)> ExecuteWithAIAsync(
         Agent agent,
         string task)
     {
-        // For prototype: Return simulation
-        // In production: Call Azure OpenAI with Agent Framework
+        var chatCompletion = _kernel!.GetRequiredService<IChatCompletionService>();
 
-        _logger.LogInformation("Simulating AI task execution for agent {AgentId}", agent.Id);
+        var systemPrompt = $@"You are '{agent.Name}', an autonomous AI agent that can research and analyze options.
 
-        var result = $"[SIMULATED] Agent '{agent.Name}' analyzed task: '{task}'. " +
-                    $"Budget: ${agent.CurrentBalance}. " +
-                    $"Ready to execute purchases within budget.";
+YOUR PROFILE:
+- Name: {agent.Name}
+- Description: {agent.Description}
+- Budget: ${agent.CurrentBalance:F2} USDC
+- Capabilities: {string.Join(", ", agent.Capabilities)}
+- Wallet: {agent.WalletAddress}
 
-        return Task.FromResult((result, 0m, new List<string>()));
+YOUR TOOLS:
+You have access to these functions:
+- Payment.CheckBalance: Check current USDC balance
+- Payment.GetWalletAddress: Get your wallet address
+- Payment.CheckBudget: Verify if an amount is within budget
+- Research.ResearchAIProviders: Get AI/LLM API pricing info
+- Research.ResearchImageProviders: Get image generation API pricing
+- Research.CompareServices: Compare two service options
+- Research.CalculateCosts: Calculate usage cost estimates
+
+YOUR TASK:
+Analyze the user's request thoroughly:
+1. Use your research tools to gather information
+2. Compare options and calculate costs
+3. Provide a detailed recommendation with reasoning
+4. Be specific about which service to use and why
+5. Stay within your budget constraints
+
+Be thorough, analytical, and provide actionable recommendations.";
+
+        var chatHistory = new ChatHistory(systemPrompt);
+        chatHistory.AddUserMessage(task);
+
+        // Enable automatic function calling
+        var executionSettings = new OpenAIPromptExecutionSettings
+        {
+            ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
+        };
+
+        var response = await chatCompletion.GetChatMessageContentAsync(
+            chatHistory,
+            executionSettings,
+            _kernel);
+
+        var result = response.Content ?? "No response generated";
+
+        _logger.LogInformation("AI Response: {Response}",
+            result.Length > 200 ? result.Substring(0, 200) + "..." : result);
+
+        // For now, agents analyze but don't auto-purchase
+        // Future: Parse response and execute purchases if agent decides to
+        return (result, 0m, new List<string>());
     }
 }

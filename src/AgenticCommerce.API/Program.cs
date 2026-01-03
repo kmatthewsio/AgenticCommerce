@@ -35,6 +35,15 @@ builder.Services.AddCors( options =>
 builder.Services.Configure<CircleOptions>(
     builder.Configuration.GetSection("Circle"));
 
+// ========================================
+// CONFIGURE AI OPTIONS
+// ========================================
+builder.Services.Configure<AIOptions>(options =>
+{
+    options.OpenAIApiKey = builder.Configuration["OpenAI:ApiKey"];
+    options.OpenAIModel = builder.Configuration["OpenAI:Model"] ?? "gpt-4o";
+});
+
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IArcClient, ArcClient>();
 builder.Services.AddSingleton<IAgentService, AgentService>();
