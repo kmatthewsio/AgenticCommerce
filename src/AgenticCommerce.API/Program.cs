@@ -1,6 +1,8 @@
 using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Infrastructure.Agents;
 using AgenticCommerce.Infrastructure.Blockchain;
+using AgenticCommerce.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +34,12 @@ builder.Services.AddCors( options =>
     });
 });
 
+// ========================================
+// CONFIGURE DATABASE
+// ========================================
+builder.Services.AddDbContext<AgenticCommerceDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.Configure<CircleOptions>(
     builder.Configuration.GetSection("Circle"));
 
@@ -46,7 +54,7 @@ builder.Services.Configure<AIOptions>(options =>
 
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IArcClient, ArcClient>();
-builder.Services.AddSingleton<IAgentService, AgentService>();
+builder.Services.AddScoped<IAgentService, AgentService>();
 builder.Services.AddHttpClient<ICircleGatewayClient, CircleGatewayClient>();
 builder.Services.AddHealthChecks();
 

@@ -1,11 +1,13 @@
 ﻿using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
+using AgenticCommerce.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
-using System.Collections.Concurrent;
+using System.Text.Json;
 
 namespace AgenticCommerce.Infrastructure.Agents;
 
@@ -15,19 +17,19 @@ public class AgentService : IAgentService
     private readonly ILogger<AgentService> _logger;
     private readonly AIOptions _aiOptions;
     private readonly Kernel? _kernel;
-
-    private readonly ConcurrentDictionary<string, Agent> _agents = new();
-    private readonly ConcurrentDictionary<string, List<string>> _agentTransactions = new();
+    private readonly AgenticCommerceDbContext _dbContext;
 
     public AgentService(
         IArcClient arcClient,
         ILogger<AgentService> logger,
         IOptions<AIOptions> aiOptions,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory,
+        AgenticCommerceDbContext dbContext)
     {
         _arcClient = arcClient;
         _logger = logger;
         _aiOptions = aiOptions.Value;
+        _dbContext = dbContext;
 
         // Initialize Semantic Kernel if API key is configured
         if (!string.IsNullOrEmpty(_aiOptions.OpenAIApiKey))
@@ -38,7 +40,6 @@ public class AgentService : IAgentService
                 modelId: _aiOptions.OpenAIModel!,
                 apiKey: _aiOptions.OpenAIApiKey!);
 
-            // Add plugins with logger
             builder.Plugins.AddFromObject(
                 new PaymentPlugin(_arcClient, loggerFactory.CreateLogger<PaymentPlugin>()),
                 "Payment");
@@ -58,7 +59,7 @@ public class AgentService : IAgentService
     {
         var walletAddress = _arcClient.GetAddress();
 
-        var agent = new Agent
+        var agentEntity = new AgentEntity
         {
             Id = $"agent_{Guid.NewGuid():N}",
             Name = name,
@@ -66,35 +67,55 @@ public class AgentService : IAgentService
             Budget = budget,
             CurrentBalance = budget,
             WalletAddress = walletAddress,
-            Status = AgentStatus.Active,
-            Capabilities = capabilities,
+            WalletId = walletAddress, // Using same for now
+            Status = AgentStatus.Active.ToString(),
+            CapabilitiesJson = JsonSerializer.Serialize(capabilities),
             CreatedAt = DateTime.UtcNow
         };
 
-        _agents.TryAdd(agent.Id, agent);
-        _agentTransactions.TryAdd(agent.Id, new List<string>());
+        _dbContext.Agents.Add(agentEntity);
+        await _dbContext.SaveChangesAsync();
 
         _logger.LogInformation(
             "Created agent {AgentId} ({Name}) with budget ${Budget}",
-            agent.Id, agent.Name, agent.Budget);
+            agentEntity.Id, agentEntity.Name, agentEntity.Budget);
+
+        return MapToAgent(agentEntity);
+    }
+
+    public async Task<Agent?> GetAgentAsync(string agentId)
+    {
+        var agentEntity = await _dbContext.Agents
+            .Include(a => a.Transactions)  // ← This loads transactions
+            .FirstOrDefaultAsync(a => a.Id == agentId);
+
+        if (agentEntity == null)
+            return null;
+
+        var agent = MapToAgent(agentEntity);
+
+        // Add transaction IDs from database
+        agent.TransactionIds = agentEntity.Transactions
+            .Select(t => t.TransactionId)
+            .ToList();
 
         return agent;
     }
 
-    public Task<Agent?> GetAgentAsync(string agentId)
+    public async Task<List<Agent>> GetAllAgentsAsync()
     {
-        _agents.TryGetValue(agentId, out var agent);
-        return Task.FromResult(agent);
-    }
+        var agentEntities = await _dbContext.Agents
+            .Include(a => a.Transactions)
+            .ToListAsync();
 
-    public Task<List<Agent>> GetAllAgentsAsync()
-    {
-        return Task.FromResult(_agents.Values.ToList());
+        return agentEntities.Select(MapToAgent).ToList();
     }
 
     public async Task<AgentRunResult> RunAgentAsync(string agentId, string task)
     {
-        if (!_agents.TryGetValue(agentId, out var agent))
+        var agentEntity = await _dbContext.Agents.FindAsync(agentId);
+
+        if (agentEntity == null)
         {
             return new AgentRunResult
             {
@@ -102,6 +123,8 @@ public class AgentService : IAgentService
                 ErrorMessage = $"Agent {agentId} not found"
             };
         }
+
+        var agent = MapToAgent(agentEntity);
 
         if (agent.Status != AgentStatus.Active)
         {
@@ -113,8 +136,9 @@ public class AgentService : IAgentService
         }
 
         var startTime = DateTime.UtcNow;
-        agent.Status = AgentStatus.Working;
-        agent.LastActiveAt = startTime;
+        agentEntity.Status = AgentStatus.Working.ToString();
+        agentEntity.LastActiveAt = startTime;
+        await _dbContext.SaveChangesAsync();
 
         try
         {
@@ -132,14 +156,27 @@ public class AgentService : IAgentService
                 execution = await SimulateExecutionAsync(agent, task);
             }
 
-            // Track transactions
-            if (_agentTransactions.TryGetValue(agentId, out var txList))
+            // Save transactions to database
+            foreach (var txId in execution.transactionIds)
             {
-                txList.AddRange(execution.transactionIds);
+                var transaction = new TransactionEntity
+                {
+                    AgentId = agentId,
+                    TransactionId = txId,
+                    Amount = execution.amountSpent,
+                    Status = "Completed",
+                    CreatedAt = DateTime.UtcNow,
+                    CompletedAt = DateTime.UtcNow
+                };
+                _dbContext.Transactions.Add(transaction);
             }
 
-            agent.Status = AgentStatus.Active;
-            agent.LastActiveAt = DateTime.UtcNow;
+            // Update agent balance
+            agentEntity.CurrentBalance -= execution.amountSpent;
+            agentEntity.Status = AgentStatus.Active.ToString();
+            agentEntity.LastActiveAt = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
 
             return new AgentRunResult
             {
@@ -154,7 +191,9 @@ public class AgentService : IAgentService
         }
         catch (Exception ex)
         {
-            agent.Status = AgentStatus.Error;
+            agentEntity.Status = AgentStatus.Error.ToString();
+            await _dbContext.SaveChangesAsync();
+
             _logger.LogError(ex, "Agent {AgentId} task failed", agentId);
 
             return new AgentRunResult
@@ -168,22 +207,185 @@ public class AgentService : IAgentService
         }
     }
 
-    public Task<bool> DeleteAgentAsync(string agentId)
+    public async Task<bool> DeleteAgentAsync(string agentId)
     {
-        var removed = _agents.TryRemove(agentId, out var agent);
+        var agentEntity = await _dbContext.Agents.FindAsync(agentId);
 
-        if (removed)
-        {
-            _agentTransactions.TryRemove(agentId, out _);
-            _logger.LogInformation("Deleted agent {AgentId} ({Name})", agentId, agent!.Name);
-        }
+        if (agentEntity == null)
+            return false;
 
-        return Task.FromResult(removed);
+        _dbContext.Agents.Remove(agentEntity);
+        await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Deleted agent {AgentId} ({Name})", agentId, agentEntity.Name);
+        return true;
     }
 
-    /// <summary>
-    /// Execute agent task with real AI reasoning and tool use
-    /// </summary>
+    public async Task<Agent> CreateAgentAsync(AgentConfig config)
+    {
+        return await CreateAgentAsync(
+            config.Name,
+            config.Description ?? "Autonomous agent",
+            config.Budget,
+            config.Capabilities ?? new List<string> { "research", "analysis", "payments" }
+        );
+    }
+
+    public async Task<PurchaseResult> MakePurchaseAsync(string agentId, PurchaseRequest request)
+    {
+        var agentEntity = await _dbContext.Agents.FindAsync(agentId);
+
+        if (agentEntity == null)
+        {
+            return new PurchaseResult
+            {
+                Success = false,
+                ErrorMessage = $"Agent {agentId} not found"
+            };
+        }
+
+        try
+        {
+            if (request.Amount > agentEntity.CurrentBalance)
+            {
+                return new PurchaseResult
+                {
+                    Success = false,
+                    ErrorMessage = $"Insufficient budget. Required: ${request.Amount:F2}, Available: ${agentEntity.CurrentBalance:F2}"
+                };
+            }
+
+            _logger.LogInformation(
+                "Agent {AgentId} executing manual purchase: ${Amount} to {Recipient}",
+                agentId, request.Amount, request.RecipientAddress);
+
+            var txId = await _arcClient.SendUsdcAsync(request.RecipientAddress, request.Amount);
+
+            agentEntity.CurrentBalance -= request.Amount;
+
+            var transaction = new TransactionEntity
+            {
+                AgentId = agentId,
+                TransactionId = txId,
+                Amount = request.Amount,
+                RecipientAddress = request.RecipientAddress,
+                Description = request.Description,
+                Status = "Completed",
+                CreatedAt = DateTime.UtcNow,
+                CompletedAt = DateTime.UtcNow
+            };
+
+            _dbContext.Transactions.Add(transaction);
+            await _dbContext.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Agent {AgentId} purchase successful. TX: {TxId}, New balance: ${Balance}",
+                agentId, txId, agentEntity.CurrentBalance);
+
+            return new PurchaseResult
+            {
+                Success = true,
+                TransactionId = txId,
+                AmountSpent = request.Amount,
+                RecipientAddress = request.RecipientAddress,
+                RemainingBalance = agentEntity.CurrentBalance
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Agent {AgentId} purchase failed", agentId);
+
+            return new PurchaseResult
+            {
+                Success = false,
+                ErrorMessage = ex.Message
+            };
+        }
+    }
+
+    public async Task<AgentInfo?> GetAgentInfoAsync(string agentId)
+    {
+        var agentEntity = await _dbContext.Agents
+            .Include(a => a.Transactions)
+            .FirstOrDefaultAsync(a => a.Id == agentId);
+
+        if (agentEntity == null)
+            return null;
+
+        return new AgentInfo
+        {
+            Id = agentEntity.Id,
+            Name = agentEntity.Name,
+            Description = agentEntity.Description,
+            Budget = agentEntity.Budget,
+            CurrentBalance = agentEntity.CurrentBalance,
+            Status = agentEntity.Status,
+            WalletAddress = agentEntity.WalletAddress,
+            Capabilities = JsonSerializer.Deserialize<List<string>>(agentEntity.CapabilitiesJson ?? "[]") ?? new(),
+            TransactionCount = agentEntity.Transactions.Count,
+            TransactionIds = agentEntity.Transactions.Select(t => t.TransactionId).ToList(),
+            CreatedAt = agentEntity.CreatedAt,
+            LastActiveAt = agentEntity.LastActiveAt
+        };
+    }
+
+    public async Task<List<AgentInfo>> ListAgentsAsync()
+    {
+        var agentEntities = await _dbContext.Agents
+            .Include(a => a.Transactions)
+            .ToListAsync();
+
+        var agentInfos = new List<AgentInfo>();
+        foreach (var entity in agentEntities)
+        {
+            agentInfos.Add(new AgentInfo
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Description = entity.Description,
+                Budget = entity.Budget,
+                CurrentBalance = entity.CurrentBalance,
+                Status = entity.Status,
+                WalletAddress = entity.WalletAddress,
+                Capabilities = JsonSerializer.Deserialize<List<string>>(entity.CapabilitiesJson ?? "[]") ?? new(),
+                TransactionCount = entity.Transactions.Count,
+                TransactionIds = entity.Transactions.Select(t => t.TransactionId).ToList(),
+                CreatedAt = entity.CreatedAt,
+                LastActiveAt = entity.LastActiveAt
+            });
+        }
+
+        return agentInfos;
+    }
+
+    // Helper method to map AgentEntity to Agent
+    // Helper method to map AgentEntity to Agent
+    private Agent MapToAgent(AgentEntity entity)
+    {
+        return new Agent
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            Description = entity.Description,
+            Budget = entity.Budget,
+            CurrentBalance = entity.CurrentBalance,
+            WalletAddress = entity.WalletAddress,
+            WalletId = entity.WalletId,
+            Status = Enum.Parse<AgentStatus>(entity.Status),
+            Capabilities = !string.IsNullOrEmpty(entity.CapabilitiesJson)
+                ? JsonSerializer.Deserialize<List<string>>(entity.CapabilitiesJson) ?? new()
+                : new(),
+            CreatedAt = entity.CreatedAt,
+            LastActiveAt = entity.LastActiveAt,
+            Metadata = !string.IsNullOrEmpty(entity.MetadataJson)
+                ? JsonSerializer.Deserialize<Dictionary<string, object>>(entity.MetadataJson)
+                : null
+        };
+    }
+
+    // ExecuteWithAIAsync and SimulateExecutionAsync stay the same...
+    // (keeping the existing implementations)
+
     private async Task<(string Result, decimal AmountSpent, List<string> TransactionIds)> ExecuteWithAIAsync(
         Agent agent,
         string task)
@@ -238,7 +440,6 @@ Be autonomous, be smart, stay within budget.";
         var chatHistory = new ChatHistory(systemPrompt);
         chatHistory.AddUserMessage(task);
 
-        // Enable automatic function calling
         var executionSettings = new OpenAIPromptExecutionSettings
         {
             ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
@@ -246,7 +447,7 @@ Be autonomous, be smart, stay within budget.";
             MaxTokens = 2000
         };
 
-        _logger.LogInformation("Agent executing task with AI: {Task}", task);
+        _logger.LogInformation("🤖 Agent executing task with AI: {Task}", task);
 
         var response = await chatCompletion.GetChatMessageContentAsync(
             chatHistory,
@@ -255,17 +456,16 @@ Be autonomous, be smart, stay within budget.";
 
         var result = response.Content ?? "No response generated";
 
-        _logger.LogInformation("AI Response: {Response}",
+        _logger.LogInformation("🤖 AI Response: {Response}",
             result.Length > 200 ? result.Substring(0, 200) + "..." : result);
 
-        // Parse transaction IDs from the response if any purchases were made
         var transactionIds = new List<string>();
         decimal amountSpent = 0m;
 
-        // Extract transaction IDs from response (format: "Transaction ID: xxx")
+        // Extract transaction IDs - handle markdown and bullet points
         var txIdMatches = System.Text.RegularExpressions.Regex.Matches(
             result,
-           @"(?:\*\*)?Transaction ID(?:\*\*)?:\s*([a-f0-9-]+)",
+            @"(?:-\s*)?(?:\*\*)?Transaction ID(?:\*\*)?:\s*([a-f0-9-]+)",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
         foreach (System.Text.RegularExpressions.Match match in txIdMatches)
@@ -274,38 +474,31 @@ Be autonomous, be smart, stay within budget.";
             {
                 var txId = match.Groups[1].Value;
                 transactionIds.Add(txId);
-                _logger.LogInformation("Extracted transaction ID: {TxId}", txId);
+                _logger.LogInformation("✅ Extracted transaction ID: {TxId}", txId);
             }
         }
 
-        // Extract amount spent from response (format: "Amount: $xx.xx" or "xx.xx USDC")
+        // Extract amount - handle markdown, bullets, and "USDC" suffix
         var amountMatches = System.Text.RegularExpressions.Regex.Matches(
             result,
-             @"(?:-\s*)?(?:\*\*)?Amount(?:\*\*)?:\s*\$?(\d+(?:\.\d+)?)\s*(?:USDC)?",
+            @"(?:-\s*)?(?:\*\*)?Amount(?:\*\*)?:\s*\$?(\d+(?:\.\d+)?)\s*(?:USDC)?",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
         if (amountMatches.Count > 0 &&
             decimal.TryParse(amountMatches[0].Groups[1].Value, out var extractedAmount))
         {
             amountSpent = extractedAmount;
-            _logger.LogInformation("Extracted amount spent: ${Amount}", amountSpent);
-
-            // Update agent balance
-            agent.CurrentBalance -= amountSpent;
-            _logger.LogInformation("Agent balance updated: ${Balance}", agent.CurrentBalance);
+            _logger.LogInformation("💰 Extracted amount spent: ${Amount}", amountSpent);
         }
 
         return (result, amountSpent, transactionIds);
     }
 
-    /// <summary>
-    /// Simulate agent execution (fallback when no AI API key configured)
-    /// </summary>
     private async Task<(string Result, decimal AmountSpent, List<string> TransactionIds)> SimulateExecutionAsync(
         Agent agent,
         string task)
     {
-        await Task.Delay(2000); // Simulate thinking time
+        await Task.Delay(2000);
 
         var simulatedResult = $@"[SIMULATION MODE - No AI API key configured]
 
@@ -326,123 +519,5 @@ To enable real autonomous agents:
 Current Status: Simulation completed successfully";
 
         return (simulatedResult, 0m, new List<string>());
-    }
-
-    public async Task<Agent> CreateAgentAsync(AgentConfig config)
-    {
-        // Delegate to the main CreateAgentAsync method
-        return await CreateAgentAsync(
-            config.Name,
-            config.Description ?? "Autonomous agent",
-            config.Budget,
-            config.Capabilities ?? new List<string> { "research", "analysis", "payments" }
-        );
-    }
-
-    public async Task<PurchaseResult> MakePurchaseAsync(string agentId, PurchaseRequest request)
-    {
-        if (!_agents.TryGetValue(agentId, out var agent))
-        {
-            return new PurchaseResult
-            {
-                Success = false,
-                ErrorMessage = $"Agent {agentId} not found"
-            };
-        }
-
-        try
-        {
-            // Check budget
-            if (request.Amount > agent.CurrentBalance)
-            {
-                return new PurchaseResult
-                {
-                    Success = false,
-                    ErrorMessage = $"Insufficient budget. Required: ${request.Amount:F2}, Available: ${agent.CurrentBalance:F2}"
-                };
-            }
-
-            _logger.LogInformation(
-                "Agent {AgentId} executing manual purchase: ${Amount} to {Recipient}",
-                agentId, request.Amount, request.RecipientAddress);
-
-            // Execute transaction
-            var txId = await _arcClient.SendUsdcAsync(request.RecipientAddress, request.Amount);
-
-            // Update agent balance
-            agent.CurrentBalance -= request.Amount;
-
-            // Track transaction
-            if (_agentTransactions.TryGetValue(agentId, out var txList))
-            {
-                txList.Add(txId);
-            }
-
-            _logger.LogInformation(
-                "Agent {AgentId} purchase successful. TX: {TxId}, New balance: ${Balance}",
-                agentId, txId, agent.CurrentBalance);
-
-            return new PurchaseResult
-            {
-                Success = true,
-                TransactionId = txId,
-                AmountSpent = request.Amount,
-                RecipientAddress = request.RecipientAddress,
-                RemainingBalance = agent.CurrentBalance
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Agent {AgentId} purchase failed", agentId);
-
-            return new PurchaseResult
-            {
-                Success = false,
-                ErrorMessage = ex.Message
-            };
-        }
-    }
-
-    public async Task<AgentInfo?> GetAgentInfoAsync(string agentId)
-    {
-        var agent = await GetAgentAsync(agentId);
-
-        if (agent == null)
-            return null;
-
-        _agentTransactions.TryGetValue(agentId, out var transactions);
-
-        return new AgentInfo
-        {
-            Id = agent.Id,
-            Name = agent.Name,
-            Description = agent.Description,
-            Budget = agent.Budget,
-            CurrentBalance = agent.CurrentBalance,
-            Status = agent.Status.ToString(),
-            WalletAddress = agent.WalletAddress,
-            Capabilities = agent.Capabilities,
-            TransactionCount = transactions?.Count ?? 0,
-            TransactionIds = transactions ?? new List<string>(),
-            CreatedAt = agent.CreatedAt,
-            LastActiveAt = agent.LastActiveAt
-        };
-    }
-
-    public async Task<List<AgentInfo>> ListAgentsAsync()
-    {
-        var agents = await GetAllAgentsAsync();
-        var agentInfos = new List<AgentInfo>();
-
-        foreach (var agent in agents)
-        {
-            var info = await GetAgentInfoAsync(agent.Id);
-            if (info != null)
-            {
-                agentInfos.Add(info);
-            }
-        }
-
-        return agentInfos;
     }
 }
