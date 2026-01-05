@@ -1,51 +1,82 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.SemanticKernel;
+using System.ComponentModel;
 using AgenticCommerce.Core.Interfaces;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.Logging;
 
-namespace AgenticCommerce.Infrastructure.Agents
+namespace AgenticCommerce.Infrastructure.Agents;
+
+/// <summary>
+/// Payment operations that agents can perform
+/// </summary>
+public class PaymentPlugin
 {
-    public class PaymentPlugin
+    private readonly IArcClient _arcClient;
+    private readonly ILogger<PaymentPlugin> _logger;
+
+    public PaymentPlugin(IArcClient arcClient, ILogger<PaymentPlugin> logger)
     {
-        private readonly IArcClient _arcClient;
+        _arcClient = arcClient;
+        _logger = logger;
+    }
 
-        public PaymentPlugin(IArcClient arcClient)
+    [KernelFunction, Description("Check the current USDC balance in the wallet")]
+    public async Task<string> CheckBalance()
+    {
+        var balance = await _arcClient.GetBalanceAsync();
+        return $"Current wallet balance: {balance:F2} USDC";
+    }
+
+    [KernelFunction, Description("Get the wallet address for receiving payments")]
+    public string GetWalletAddress()
+    {
+        var address = _arcClient.GetAddress();
+        return $"Wallet address: {address}";
+    }
+
+    [KernelFunction, Description("Check if a specific amount is within budget")]
+    public string CheckBudget(decimal amount, decimal currentBudget)
+    {
+        if (amount <= currentBudget)
         {
-            _arcClient = arcClient;
+            return $"Amount ${amount:F2} is within budget (${currentBudget:F2} available)";
         }
+        return $"Amount ${amount:F2} exceeds budget (only ${currentBudget:F2} available)";
+    }
 
-        [KernelFunction, Description("Check the current USDC balance in the wallet")]
-        public async Task<string> CheckBalance()
+    [KernelFunction, Description("Execute a USDC payment to a recipient address")]
+    public async Task<string> ExecutePurchase(
+        string recipientAddress,
+        decimal amount,
+        string description)
+    {
+        try
         {
-            var balance = await _arcClient.GetBalanceAsync();
-            return $"Current wallet balance: {balance:F2} USDC";
+            _logger.LogInformation(
+                "Agent executing purchase: {Amount} USDC to {Recipient} - {Description}",
+                amount, recipientAddress, description);
+
+            // Execute the transaction
+            var txId = await _arcClient.SendUsdcAsync(recipientAddress, amount);
+
+            return $"Purchase successful! Transaction ID: {txId}. Amount: {amount} USDC sent to {recipientAddress}. Description: {description}";
         }
-
-        [KernelFunction, Description("Send USDC to a specified blockchain address")]
-        public string GetWalletAddress()
+        catch (Exception ex)
         {
-            var address = _arcClient.GetAddress();
-            return $"Wallet address: {address}";
+            _logger.LogError(ex, "Agent purchase failed");
+            return $"Purchase failed: {ex.Message}";
         }
+    }
+}
 
-        [KernelFunction, Description("Check if a specific amount is within budget")]
-        public string CheckBudget(decimal amount, decimal currentBudget)
-        {
-            if (amount <= currentBudget)
-            {
-                return $"✓ Amount ${amount:F2} is within budget (${currentBudget:F2} available)";
-            }
-            return $"✗ Amount ${amount:F2} exceeds budget (only ${currentBudget:F2} available)";
-        }
-
-        /// <summary>
-        /// Research and analysis capabilities for agents
-        /// </summary>
-        public class ResearchPlugin
-        {
-            [KernelFunction, Description("Research AI/LLM API providers and their current pricing")]
-            public string ResearchAIProviders()
-            {
-                return @"AI/LLM API Providers (January 2026 pricing):
+/// <summary>
+/// Research and analysis capabilities for agents
+/// </summary>
+public class ResearchPlugin
+{
+    [KernelFunction, Description("Research AI/LLM API providers and their current pricing")]
+    public string ResearchAIProviders()
+    {
+        return @"AI/LLM API Providers (January 2026 pricing):
 
 1. OpenAI
    - GPT-4o: $2.50/1M input tokens, $10/1M output tokens
@@ -70,12 +101,12 @@ Budget Recommendations:
 - $10: ~500K tokens with GPT-4o-mini
 - $50: ~2.5M tokens with Claude Haiku  
 - $100: ~5M tokens mixed usage";
-            }
+    }
 
-            [KernelFunction, Description("Research image generation API providers and pricing")]
-            public string ResearchImageProviders()
-            {
-                return @"Image Generation API Providers (January 2026):
+    [KernelFunction, Description("Research image generation API providers and pricing")]
+    public string ResearchImageProviders()
+    {
+        return @"Image Generation API Providers (January 2026):
 
 1. OpenAI DALL-E 3
    - Standard (1024x1024): $0.040 per image
@@ -101,21 +132,21 @@ Budget Recommendations:
 - $10: 250 DALL-E images OR 5,000 Stability images
 - $50: Full Midjourney month + extra credits
 - $100: Professional tier with custom models";
-            }
+    }
 
-            [KernelFunction, Description("Analyze and compare two service options based on requirements")]
-            public string CompareServices(
-                string service1Name,
-                decimal service1Cost,
-                string service2Name,
-                decimal service2Cost,
-                decimal budget,
-                string requirements)
-            {
-                var recommendation = service1Cost <= service2Cost ? service1Name : service2Name;
-                var savings = Math.Abs(service1Cost - service2Cost);
+    [KernelFunction, Description("Analyze and compare two service options based on requirements")]
+    public string CompareServices(
+        string service1Name,
+        decimal service1Cost,
+        string service2Name,
+        decimal service2Cost,
+        decimal budget,
+        string requirements)
+    {
+        var recommendation = service1Cost <= service2Cost ? service1Name : service2Name;
+        var savings = Math.Abs(service1Cost - service2Cost);
 
-                return $@"Service Comparison Analysis:
+        return $@"Service Comparison Analysis:
 
 Option 1: {service1Name} - ${service1Cost:F2}
 Option 2: {service2Name} - ${service2Cost:F2}
@@ -133,14 +164,14 @@ Next Steps:
 2. Check API availability and limits
 3. Consider trial period if available
 4. Make purchase decision";
-            }
+    }
 
-            [KernelFunction, Description("Calculate cost estimates for API usage")]
-            public string CalculateCosts(string serviceType, int estimatedUsage, decimal pricePerUnit)
-            {
-                var totalCost = estimatedUsage * pricePerUnit;
+    [KernelFunction, Description("Calculate cost estimates for API usage")]
+    public string CalculateCosts(string serviceType, int estimatedUsage, decimal pricePerUnit)
+    {
+        var totalCost = estimatedUsage * pricePerUnit;
 
-                return $@"Cost Estimation:
+        return $@"Cost Estimation:
 
 Service Type: {serviceType}
 Estimated Usage: {estimatedUsage:N0} units
@@ -152,9 +183,5 @@ Usage Tiers:
 - Light: {estimatedUsage * 0.5:N0} units = ${totalCost * 0.5m:F2}
 - Medium: {estimatedUsage:N0} units = ${totalCost:F2}
 - Heavy: {estimatedUsage * 2:N0} units = ${totalCost * 2:F2}";
-            }
-        }
-
-
     }
 }

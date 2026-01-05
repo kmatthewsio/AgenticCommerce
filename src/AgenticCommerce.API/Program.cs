@@ -47,6 +47,7 @@ builder.Services.Configure<AIOptions>(options =>
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IArcClient, ArcClient>();
 builder.Services.AddSingleton<IAgentService, AgentService>();
+builder.Services.AddHttpClient<ICircleGatewayClient, CircleGatewayClient>();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();

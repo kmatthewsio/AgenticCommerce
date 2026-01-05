@@ -9,10 +9,15 @@ public class TransactionsController : ControllerBase
 {
     private readonly IArcClient _arcClient;
     private readonly ILogger<TransactionsController> _logger;
+    private readonly ICircleGatewayClient _gatewayClient;
 
-    public TransactionsController(IArcClient arcClient, ILogger<TransactionsController> logger)
+    public TransactionsController(
+        IArcClient arcClient, 
+        ICircleGatewayClient gatewayClient,
+        ILogger<TransactionsController> logger)
     {
         _arcClient = arcClient;
+        _gatewayClient = gatewayClient;
         _logger = logger;
     }
 
@@ -37,6 +42,118 @@ public class TransactionsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get balance");
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get total USDC balance across all chains via Circle Gateway
+    /// </summary>
+    [HttpGet("balance/total")]
+    public async Task<ActionResult> GetTotalBalance()
+    {
+        try
+        {
+            _logger.LogInformation("Attempting to get total balance from Circle Gateway");
+
+            var total = await _gatewayClient.GetTotalBalanceAsync();
+
+            return Ok(new
+            {
+                totalBalance = total,
+                currency = "USDC",
+                source = "Circle Gateway (all chains)"
+            });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not available"))
+        {
+            _logger.LogWarning("Circle Gateway not available, falling back to Arc balance");
+
+            // Fallback to Arc balance only
+            var arcBalance = await _arcClient.GetBalanceAsync();
+
+            return Ok(new
+            {
+                totalBalance = arcBalance,
+                currency = "USDC",
+                source = "Arc only (Gateway not available on testnet)",
+                note = "Circle Gateway may not be available on testnet yet. Showing Arc balance only."
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get total balance");
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get USDC balance breakdown by blockchain
+    /// </summary>
+    [HttpGet("balance/by-chain")]
+    public async Task<ActionResult> GetBalancesByChain()
+    {
+        try
+        {
+            var balances = await _gatewayClient.GetBalancesByChainAsync();
+
+            return Ok(new
+            {
+                balances = balances,
+                total = balances.Values.Sum(),
+                currency = "USDC",
+                source = "Circle Gateway"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get balances by chain");
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get supported blockchains from Circle Gateway
+    /// </summary>
+    [HttpGet("chains")]
+    public async Task<ActionResult> GetSupportedChains()
+    {
+        try
+        {
+            var chains = await _gatewayClient.GetSupportedChainsAsync();
+
+            return Ok(new
+            {
+                supportedChains = chains,
+                count = chains.Count
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get supported chains");
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Check if Circle Gateway is available
+    /// </summary>
+    [HttpGet("gateway/status")]
+    public async Task<ActionResult> GetGatewayStatus()
+    {
+        try
+        {
+            var isAvailable = await _gatewayClient.IsAvailableAsync();
+
+            return Ok(new
+            {
+                available = isAvailable,
+                service = "Circle Gateway"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to check Gateway status");
             return StatusCode(500, new { error = ex.Message });
         }
     }

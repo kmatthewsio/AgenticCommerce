@@ -1,0 +1,45 @@
+
+  {
+    "name": "Autonomous Shopping Agent",
+    "description": "AI agent that autonomously purchases API credits and services",
+    "budget": 100.00,
+    "capabilities": [
+      "purchase",
+      "research",
+      "budget_management"
+    ]
+  }
+
+  {
+    "name": "Market Research Agent",
+    "description": "Researches competitors and market trends",
+    "---" "agent_b4c72afa7c214aee85eee449183382f3",
+    "budget": 50.00,
+    "capabilities": [
+      "web_search",
+      "data_analysis",
+      "purchase"
+    ]
+  }
+
+  {
+    "name": "Content Creation Agent",
+    "description": "Generates images, videos, and written content",
+    "budget": 200.00,
+    "capabilities": [
+      "image_generation",
+      "video_creation",
+      "purchase"
+    ]
+  }
+
+  {
+    "name": "Test Agent",
+    "description": "Simple agent for testing purchases",
+    "budget": 10.00,
+    "capabilities": [
+      "purchase"
+    ]
+  }
+
+

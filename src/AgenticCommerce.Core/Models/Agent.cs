@@ -24,12 +24,11 @@ public class Agent
 /// </summary>
 public enum AgentStatus
 {
-    Created,
     Active,
-    Busy,
+    Working,
     Paused,
-    Completed,
-    Failed
+    Error,
+    Deleted
 }
 
 /// <summary>
@@ -38,9 +37,9 @@ public enum AgentStatus
 public class AgentConfig
 {
     public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; } = string.Empty;
     public decimal Budget { get; set; }
-    public List<string> Capabilities { get; set; } = new();
+    public List<string>? Capabilities { get; set; } = new();
 }
 
 /// <summary>
@@ -48,7 +47,7 @@ public class AgentConfig
 /// </summary>
 public class AgentRunResult
 {
-    public string AgentId { get; set; } = string.Empty;
+    public string? AgentId { get; set; } = string.Empty;
     public string TaskDescription { get; set; } = string.Empty;
     public bool Success { get; set; }
     public string Result { get; set; } = string.Empty;
@@ -79,6 +78,7 @@ public class PurchaseResult
     public string TransactionId { get; set; } = string.Empty;
     public decimal AmountSpent { get; set; }
     public decimal RemainingBalance { get; set; }
+    public string? RecipientAddress { get; set; }
     public string? ErrorMessage { get; set; }
 }
 
@@ -89,9 +89,14 @@ public class AgentInfo
 {
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
     public decimal Budget { get; set; }
     public decimal CurrentBalance { get; set; }
-    public AgentStatus Status { get; set; }
-    public int TotalTransactions { get; set; }
-    public decimal TotalSpent { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string WalletAddress { get; set; } = string.Empty;
+    public List<string> Capabilities { get; set; } = new();
+    public int TransactionCount { get; set; }
+    public List<string> TransactionIds { get; set; } = new();
+    public DateTime CreatedAt { get; set; }
+    public DateTime? LastActiveAt { get; set; }
 }
