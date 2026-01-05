@@ -1,57 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <Compile Include="obj\Debug\net10.0\.NETCoreApp,Version=v10.0.AssemblyAttributes.cs" />
-    <Compile Include="obj\Debug\net10.0\AgenticCommerce.Infrastructure.AssemblyInfo.cs" />
-    <Compile Include="obj\Debug\net10.0\AgenticCommerce.Infrastructure.GlobalUsings.g.cs" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="bin\Debug\net10.0\AgenticCommerce.Infrastructure.deps.json" />
-    <Content Include="obj\AgenticCommerce.Infrastructure.csproj.nuget.dgspec.json" />
-    <Content Include="obj\Debug\net10.0\AgenticCommerce.Infrastructure.csproj.FileListAbsolute.txt" />
-    <Content Include="obj\project.assets.json" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Azure.AI.OpenAI" Version="2.1.0-beta.2" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+		<PackageReference Include="Microsoft.SemanticKernel" Version="1.30.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.30.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\AgenticCommerce.Core\AgenticCommerce.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0-beta.2" />
-    <PackageReference Include="Azure.Identity" Version="1.12.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.0" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.30.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.30.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="bin\Debug\net10.0\AgenticCommerce.Core.dll" />
-    <None Include="bin\Debug\net10.0\AgenticCommerce.Core.pdb" />
-    <None Include="bin\Debug\net10.0\AgenticCommerce.Infrastructure.dll" />
-    <None Include="bin\Debug\net10.0\AgenticCommerce.Infrastructure.pdb" />
-    <None Include="obj\AgenticCommerce.Infrastructure.csproj.nuget.g.props" />
-    <None Include="obj\AgenticCommerce.Infrastructure.csproj.nuget.g.targets" />
-    <None Include="obj\Debug\net10.0\AgenticC.CAAD2A23.Up2Date" />
-    <None Include="obj\Debug\net10.0\AgenticCommerce.Infrastructure.AssemblyInfoInputs.cache" />
-    <None Include="obj\Debug\net10.0\AgenticCommerce.Infrastructure.assets.cache" />
-    <None Include="obj\Debug\net10.0\AgenticCommerce.Infrastructure.csproj.AssemblyReference.cache" />
-    <None Include="obj\Debug\net10.0\AgenticCommerce.Infrastructure.csproj.CoreCompileInputs.cache" />
-    <None Include="obj\Debug\net10.0\AgenticCommerce.Infrastructure.dll" />
-    <None Include="obj\Debug\net10.0\AgenticCommerce.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig" />
-    <None Include="obj\Debug\net10.0\AgenticCommerce.Infrastructure.pdb" />
-    <None Include="obj\Debug\net10.0\refint\AgenticCommerce.Infrastructure.dll" />
-    <None Include="obj\Debug\net10.0\ref\AgenticCommerce.Infrastructure.dll" />
-    <None Include="obj\project.nuget.cache" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\AgenticCommerce.Core\AgenticCommerce.Core.csproj" />
+	</ItemGroup>
 
 </Project>

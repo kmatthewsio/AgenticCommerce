@@ -7,7 +7,7 @@ public class Agent
 {
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; } = string.Empty;
     public decimal Budget { get; set; }
     public decimal CurrentBalance { get; set; }
     public string WalletId { get; set; } = string.Empty;
@@ -17,6 +17,7 @@ public class Agent
     public DateTime? LastActiveAt { get; set; }
     public List<string> Capabilities { get; set; } = new();
     public Dictionary<string, object> Metadata { get; set; } = new();
+    public List<string> TransactionIds { get; set; } = new();
 }
 
 /// <summary>
