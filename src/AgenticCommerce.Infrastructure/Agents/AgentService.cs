@@ -2,12 +2,14 @@
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Text.Json;
+using static AgenticCommerce.Infrastructure.Agents.ResearchPlugin;
 
 namespace AgenticCommerce.Infrastructure.Agents;
 
@@ -20,11 +22,13 @@ public class AgentService : IAgentService
     private readonly AgenticCommerceDbContext _dbContext;
 
     public AgentService(
-        IArcClient arcClient,
-        ILogger<AgentService> logger,
-        IOptions<AIOptions> aiOptions,
-        ILoggerFactory loggerFactory,
-        AgenticCommerceDbContext dbContext)
+    IArcClient arcClient,
+    ILogger<AgentService> logger,
+    IOptions<AIOptions> aiOptions,
+    ILoggerFactory loggerFactory,
+    AgenticCommerceDbContext dbContext,
+    IHttpClientFactory httpClientFactory, 
+    IConfiguration configuration)  
     {
         _arcClient = arcClient;
         _logger = logger;
@@ -40,10 +44,23 @@ public class AgentService : IAgentService
                 modelId: _aiOptions.OpenAIModel!,
                 apiKey: _aiOptions.OpenAIApiKey!);
 
+            // Add payment plugin
             builder.Plugins.AddFromObject(
                 new PaymentPlugin(_arcClient, loggerFactory.CreateLogger<PaymentPlugin>()),
                 "Payment");
+
+            // Add research plugin
             builder.Plugins.AddFromObject(new ResearchPlugin(), "Research");
+
+            // Add HTTP plugin with auto-pay
+            var baseUrl = configuration["BaseUrl"] ?? "https://localhost:7098";
+            builder.Plugins.AddFromObject(
+                new HttpPlugin(
+                    httpClientFactory,
+                    _arcClient,
+                    loggerFactory.CreateLogger<HttpPlugin>(),
+                    baseUrl),
+                "Http");
 
             _kernel = builder.Build();
 
@@ -382,17 +399,13 @@ public class AgentService : IAgentService
                 : null
         };
     }
-
-    // ExecuteWithAIAsync and SimulateExecutionAsync stay the same...
-    // (keeping the existing implementations)
-
     private async Task<(string Result, decimal AmountSpent, List<string> TransactionIds)> ExecuteWithAIAsync(
         Agent agent,
         string task)
     {
         var chatCompletion = _kernel!.GetRequiredService<IChatCompletionService>();
 
-        var systemPrompt = $@"You are '{agent.Name}', an autonomous AI agent with the ability to execute purchases.
+        var systemPrompt = $@"You are '{agent.Name}', an autonomous AI agent with the ability to execute purchases and call APIs with automatic payment.
 
 YOUR PROFILE:
 - Name: {agent.Name}
@@ -403,37 +416,49 @@ YOUR PROFILE:
 
 YOUR TOOLS:
 You have access to these functions:
+
+PAYMENT TOOLS:
 - Payment.CheckBalance: Check current USDC balance
 - Payment.GetWalletAddress: Get your wallet address
 - Payment.CheckBudget: Verify if an amount is within budget
 - Payment.ExecutePurchase: Execute a USDC payment (recipientAddress, amount, description)
+
+RESEARCH TOOLS:
 - Research.ResearchAIProviders: Get AI/LLM API pricing info
 - Research.ResearchImageProviders: Get image generation API pricing
 - Research.CompareServices: Compare two service options
 - Research.CalculateCosts: Calculate usage cost estimates
 
-YOUR DECISION-MAKING AUTHORITY:
-When the user asks you to ""buy"", ""purchase"", or ""execute"" something:
-1. First, research and analyze options using your research tools
-2. Make an informed decision about the best option
-3. Verify it's within your budget using Payment.CheckBudget
-4. If approved, USE Payment.ExecutePurchase to complete the transaction
-5. Return the transaction ID and confirmation
+HTTP TOOLS WITH AUTO-PAY:
+- Http.GetWithAutoPay: Make HTTP GET request that automatically handles 402 payments
+  * If API returns 402 Payment Required, automatically pays and retries
+  * Handles payment verification
+  * Returns final API response
+  * Example: Http.GetWithAutoPay(""/api/x402-demo/ai-analysis"")
+
+YOUR x402 AUTO-PAY CAPABILITY:
+When you use Http.GetWithAutoPay:
+1. You make the HTTP request
+2. If API requires payment (402), you AUTOMATICALLY:
+   - Read payment requirements
+   - Pay the required amount
+   - Verify payment
+   - Retry request
+   - Get the data
+3. All payment handling is AUTOMATIC - you just call the endpoint!
 
 IMPORTANT RULES:
 - ALWAYS verify budget before purchasing
 - ALWAYS provide clear reasoning for your decisions
-- ONLY purchase if explicitly asked to (words like ""buy"", ""purchase"", ""get"")
-- For test purchases, you can use your own wallet address: {agent.WalletAddress}
+- Use Http.GetWithAutoPay for APIs that might require payment
+- For direct purchases, use Payment.ExecutePurchase
 - Be transparent about what you're doing
 
-Example autonomous flow:
-User: ""Research and buy the best AI API under $50""
-1. Research options (use Research tools)
-2. Analyze and decide (Gemini 1.5 Flash at $37.50)
-3. Check budget (Payment.CheckBudget with $37.50 and ${agent.CurrentBalance:F2})
-4. Execute purchase (Payment.ExecutePurchase with recipient address, amount, description)
-5. Report results with transaction ID
+Example autonomous x402 flow:
+User: ""Call the AI analysis API""
+You: Http.GetWithAutoPay(""/api/x402-demo/ai-analysis"")
+System: Automatically handles 402, pays $0.01, retries, returns data
+You: Report success with transaction details
 
 Be autonomous, be smart, stay within budget.";
 
@@ -447,7 +472,7 @@ Be autonomous, be smart, stay within budget.";
             MaxTokens = 2000
         };
 
-        _logger.LogInformation("🤖 Agent executing task with AI: {Task}", task);
+        _logger.LogInformation("Agent executing task with AI: {Task}", task);
 
         var response = await chatCompletion.GetChatMessageContentAsync(
             chatHistory,
@@ -456,7 +481,7 @@ Be autonomous, be smart, stay within budget.";
 
         var result = response.Content ?? "No response generated";
 
-        _logger.LogInformation("🤖 AI Response: {Response}",
+        _logger.LogInformation("AI Response: {Response}",
             result.Length > 200 ? result.Substring(0, 200) + "..." : result);
 
         var transactionIds = new List<string>();
@@ -474,7 +499,7 @@ Be autonomous, be smart, stay within budget.";
             {
                 var txId = match.Groups[1].Value;
                 transactionIds.Add(txId);
-                _logger.LogInformation("✅ Extracted transaction ID: {TxId}", txId);
+                _logger.LogInformation("Extracted transaction ID: {TxId}", txId);
             }
         }
 
@@ -488,7 +513,7 @@ Be autonomous, be smart, stay within budget.";
             decimal.TryParse(amountMatches[0].Groups[1].Value, out var extractedAmount))
         {
             amountSpent = extractedAmount;
-            _logger.LogInformation("💰 Extracted amount spent: ${Amount}", amountSpent);
+            _logger.LogInformation("Extracted amount spent: ${Amount}", amountSpent);
         }
 
         return (result, amountSpent, transactionIds);
