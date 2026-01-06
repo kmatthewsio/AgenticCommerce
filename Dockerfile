@@ -1,14 +1,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy solution and project files
-COPY AgenticCommerce.slnx .
+# Copy project files
 COPY src/AgenticCommerce.API/*.csproj src/AgenticCommerce.API/
 COPY src/AgenticCommerce.Core/*.csproj src/AgenticCommerce.Core/
 COPY src/AgenticCommerce.Infrastructure/*.csproj src/AgenticCommerce.Infrastructure/
 
-# Restore dependencies
-RUN dotnet restore
+# Restore from API project (references others)
+RUN dotnet restore src/AgenticCommerce.API/AgenticCommerce.API.csproj
 
 # Copy everything else
 COPY . .
