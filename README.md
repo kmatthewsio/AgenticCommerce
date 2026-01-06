@@ -50,6 +50,74 @@ Autonomous AI agents that can:
 - Budget monitoring
 - Comprehensive error handling
 
+### x402 Payment Protocol
+- Pay-per-call micropayments for APIs
+- Payment requirement generation (402 responses)
+- Payment proof verification
+- Usage-based autonomous spending
+- Demo endpoints for testing
+
+## 💳 x402 Payment Protocol Example
+
+### Step 1: API Returns Payment Requirement
+```bash
+GET /api/x402-demo/ai-analysis
+
+Response: 402 Payment Required
+{
+  "paymentId": "pay_abc123",
+  "amount": 0.01,
+  "recipientAddress": "0x...",
+  "description": "AI Analysis API Call - $0.01 per request",
+  "expiresAt": "2026-01-05T17:05:00Z"
+}
+```
+
+### Step 2: Agent Makes Payment
+```bash
+POST /api/agents/{agentId}/purchases
+{
+  "recipientAddress": "0x...",
+  "amount": 0.01,
+  "description": "x402 payment"
+}
+
+Response:
+{
+  "transactionId": "2ea0ed60-99b5-54ea-944f-ccf66cb4564d",
+  "success": true
+}
+```
+
+### Step 3: Verify Payment
+```bash
+POST /api/x402-demo/verify-payment
+{
+  "paymentId": "pay_abc123",
+  "transactionId": "2ea0ed60-99b5-54ea-944f-ccf66cb4564d",
+  "amount": 0.01
+}
+
+Response:
+{
+  "isValid": true,
+  "verifiedAt": "2026-01-05T16:00:00Z"
+}
+```
+
+### Step 4: Get API Response
+```bash
+GET /api/x402-demo/ai-analysis?paymentProof=verified
+
+Response: 200 OK
+{
+  "result": "AI analysis complete!",
+  "cost": 0.01
+}
+```
+
+**Enables true pay-per-call autonomous commerce.**
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -231,18 +299,31 @@ Autonomous agents that analyze markets and execute trades with built-in risk man
 - [x] Transaction history tracking
 - [x] Relational data model
 
-### 🚧 Phase 3: Advanced Features (Next)
-- [ ] x402 payment protocol integration
+### ✅ Phase 3: x402 Payment Protocol (Complete)
+- [x] Payment requirement generation (402 responses)
+- [x] Payment proof verification
+- [x] Micropayment tracking
+- [x] Pay-per-call API infrastructure
+- [x] Demo x402-enabled endpoint
+
+### 🚧 Phase 4: Agent Auto-Pay (Next)
+- [ ] Agent detects 402 responses automatically
+- [ ] Agent pays and retries with proof
+- [ ] Full autonomous pay-per-call workflow
+- [ ] Usage-based spending tracking
+
+### 📋 Phase 5: Production Features (Planned)
 - [ ] Enhanced error handling and retry logic
 - [ ] Rate limiting and quotas
 - [ ] Webhook notifications
 - [ ] Multi-agent orchestration
+- [ ] Analytics dashboard
 
-### 📋 Phase 4: Developer Experience (Planned)
+### 🎨 Phase 6: Developer Experience (Planned)
 - [ ] Web dashboard (React/Next.js)
 - [ ] Agent templates and presets
-- [ ] Analytics and reporting
 - [ ] Developer SDKs (Python, TypeScript)
+- [ ] Comprehensive documentation
 
 ## 🔐 Security
 
