@@ -1,7 +1,8 @@
-﻿using Microsoft.SemanticKernel;
-using System.ComponentModel;
-using AgenticCommerce.Core.Interfaces;
+﻿using AgenticCommerce.Core.Interfaces;
+using AgenticCommerce.Core.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel;
+using System.ComponentModel;
 
 namespace AgenticCommerce.Infrastructure.Agents;
 
@@ -183,5 +184,117 @@ Usage Tiers:
 - Light: {estimatedUsage * 0.5:N0} units = ${totalCost * 0.5m:F2}
 - Medium: {estimatedUsage:N0} units = ${totalCost:F2}
 - Heavy: {estimatedUsage * 2:N0} units = ${totalCost * 2:F2}";
+    }
+
+    /// <summary>
+    /// HTTP operations for agents with x402 auto-pay support
+    /// </summary>
+    public class HttpPlugin
+    {
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IArcClient _arcClient;
+        private readonly ILogger<HttpPlugin> _logger;
+        private readonly string _baseUrl;
+
+        public HttpPlugin(
+            IHttpClientFactory httpClientFactory,
+            IArcClient arcClient,
+            ILogger<HttpPlugin> logger,
+            string baseUrl)
+        {
+            _httpClientFactory = httpClientFactory;
+            _arcClient = arcClient;
+            _logger = logger;
+            _baseUrl = baseUrl;
+        }
+
+        [KernelFunction, Description("Make HTTP GET request with automatic x402 payment handling")]
+        public async Task<string> GetWithAutoPay(string endpoint)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var url = $"{_baseUrl}{endpoint}";
+
+            _logger.LogInformation("Agent making HTTP GET request to {Url}", url);
+
+            // First attempt - might get 402
+            var response = await client.GetAsync(url);
+
+            // Check for 402 Payment Required
+            if ((int)response.StatusCode == 402)
+            {
+                _logger.LogInformation("Received 402 Payment Required, initiating auto-pay");
+
+                // Parse payment requirement
+                var paymentReqJson = await response.Content.ReadAsStringAsync();
+                var paymentReq = System.Text.Json.JsonSerializer.Deserialize<PaymentRequirement>(
+                    paymentReqJson,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (paymentReq == null)
+                {
+                    return "Failed to parse payment requirement from 402 response";
+                }
+
+                _logger.LogInformation(
+                    "Payment required: {Amount} USDC to {Recipient} for {Description}",
+                    paymentReq.Amount, paymentReq.RecipientAddress, paymentReq.Description);
+
+                // Make payment
+                _logger.LogInformation("Auto-paying {Amount} USDC", paymentReq.Amount);
+                var txId = await _arcClient.SendUsdcAsync(paymentReq.RecipientAddress, paymentReq.Amount);
+
+                _logger.LogInformation("Payment complete. TX: {TxId}", txId);
+
+                // Create payment proof
+                var proof = new PaymentProof
+                {
+                    PaymentId = paymentReq.PaymentId,
+                    TransactionId = txId,
+                    Amount = paymentReq.Amount,
+                    SenderAddress = _arcClient.GetAddress(),
+                    RecipientAddress = paymentReq.RecipientAddress,
+                    PaidAt = DateTime.UtcNow
+                };
+
+                // Verify payment
+                var verifyUrl = $"{_baseUrl}/api/x402-demo/verify-payment";
+                var proofJson = System.Text.Json.JsonSerializer.Serialize(proof);
+                var proofContent = new StringContent(
+                    proofJson,
+                    System.Text.Encoding.UTF8,
+                    "application/json");
+
+                var verifyResponse = await client.PostAsync(verifyUrl, proofContent);
+                var verifyResult = await verifyResponse.Content.ReadAsStringAsync();
+
+                _logger.LogInformation("Payment verification: {Result}", verifyResult);
+
+                // Retry original request with proof
+                var retryUrl = $"{url}?paymentProof=verified";
+                var retryResponse = await client.GetAsync(retryUrl);
+
+                if (retryResponse.IsSuccessStatusCode)
+                {
+                    var result = await retryResponse.Content.ReadAsStringAsync();
+                    _logger.LogInformation("Auto-pay successful, received API response");
+
+                    return $"Auto-pay successful!\n\nPaid: {paymentReq.Amount} USDC\nTransaction: {txId}\n\nAPI Response:\n{result}";
+                }
+                else
+                {
+                    return $"Payment succeeded but API call failed: {retryResponse.StatusCode}";
+                }
+            }
+            else if (response.IsSuccessStatusCode)
+            {
+                // No payment required, return response
+                var result = await response.Content.ReadAsStringAsync();
+                return result;
+            }
+            else
+            {
+                return $"HTTP request failed: {response.StatusCode}";
+            }
+        }
     }
 }
