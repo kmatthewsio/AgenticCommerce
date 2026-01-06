@@ -2,6 +2,7 @@ using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Infrastructure.Agents;
 using AgenticCommerce.Infrastructure.Blockchain;
 using AgenticCommerce.Infrastructure.Data;
+using AgenticCommerce.Infrastructure.Payments;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -55,6 +56,8 @@ builder.Services.Configure<AIOptions>(options =>
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IArcClient, ArcClient>();
 builder.Services.AddScoped<IAgentService, AgentService>();
+// X402 Payment Service
+builder.Services.AddSingleton<IX402PaymentService, X402PaymentService>();
 builder.Services.AddHttpClient<ICircleGatewayClient, CircleGatewayClient>();
 builder.Services.AddHealthChecks();
 
