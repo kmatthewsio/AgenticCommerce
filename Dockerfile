@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy solution and project files
-COPY AgenticCommerce.sln .
+COPY AgenticCommerce.slnx .
 COPY src/AgenticCommerce.API/*.csproj src/AgenticCommerce.API/
 COPY src/AgenticCommerce.Core/*.csproj src/AgenticCommerce.Core/
 COPY src/AgenticCommerce.Infrastructure/*.csproj src/AgenticCommerce.Infrastructure/
