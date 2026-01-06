@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Dockerfile.txt" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/AgenticCommerce.API/AgenticCommerce.API.csproj" />
     <Project Path="src/AgenticCommerce.Core/AgenticCommerce.Core.csproj" />
