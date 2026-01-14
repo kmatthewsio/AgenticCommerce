@@ -186,12 +186,14 @@ namespace AgenticCommerce.Infrastructure.Blockchain
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
+                _logger.LogDebug("Circle transaction response: {Content}", content);
+
                 var txResponse = JsonSerializer.Deserialize<CircleTransactionResponse>(content);
 
-                if (txResponse?.Data == null)
+                if (txResponse?.Data?.Transaction == null)
                     return null;
 
-                var tx = txResponse.Data;
+                var tx = txResponse.Data.Transaction;
 
                 return new TransactionInfo
                 {
@@ -228,10 +230,10 @@ namespace AgenticCommerce.Infrastructure.Blockchain
                 var content = await response.Content.ReadAsStringAsync();
                 var txResponse = JsonSerializer.Deserialize<CircleTransactionResponse>(content);
 
-                if (txResponse?.Data == null)
+                if (txResponse?.Data?.Transaction == null)
                     return null;
 
-                var tx = txResponse.Data;
+                var tx = txResponse.Data.Transaction;
                 var isConfirmed = tx.State == "COMPLETE" || tx.State == "CONFIRMED";
                 var isFailed = tx.State == "FAILED";
                 var status = isConfirmed ? 1 : (isFailed ? 0 : -1);
@@ -428,7 +430,13 @@ namespace AgenticCommerce.Infrastructure.Blockchain
     internal class CircleTransactionResponse
     {
         [JsonPropertyName("data")]
-        public CircleTransaction? Data { get; set; }
+        public CircleTransactionData? Data { get; set; }
+    }
+
+    internal class CircleTransactionData
+    {
+        [JsonPropertyName("transaction")]
+        public CircleTransaction? Transaction { get; set; }
     }
 
     internal class CircleTransaction
