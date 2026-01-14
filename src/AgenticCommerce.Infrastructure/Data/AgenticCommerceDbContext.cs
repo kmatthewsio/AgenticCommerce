@@ -12,6 +12,7 @@ public class AgenticCommerceDbContext : DbContext
 
     public DbSet<AgentEntity> Agents => Set<AgentEntity>();
     public DbSet<TransactionEntity> Transactions => Set<TransactionEntity>();
+    public DbSet<X402PaymentEntity> X402Payments => Set<X402PaymentEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,6 +35,17 @@ public class AgenticCommerceDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.AgentId);
             entity.HasIndex(e => e.TransactionId);
+        });
+
+        modelBuilder.Entity<X402PaymentEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.PaymentId).IsUnique();
+            entity.HasIndex(e => e.PayerAddress);
+            entity.HasIndex(e => e.TransactionHash);
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.CreatedAt);
+            entity.HasIndex(e => e.Network);
         });
     }
 }

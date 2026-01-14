@@ -9,20 +9,129 @@ Built with Circle Developer Controlled Wallets, Arc blockchain, and OpenAI GPT-4
 [![Arc](https://img.shields.io/badge/Arc-Blockchain-4A90E2)](https://www.circle.com/en/pressroom/circle-announces-arc)
 [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-412991?logo=openai)](https://openai.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org/)
+[![x402](https://img.shields.io/badge/x402-V2%20Spec-FF6B35)](https://www.x402.org/)
 
-## 🎯 What This Does
+## What This Does
 
 Autonomous AI agents that can:
-- 🧠 **Research options** using built-in knowledge bases
-- 💡 **Make informed decisions** via GPT-4o reasoning
-- 💰 **Execute USDC payments** on Arc blockchain
-- 📊 **Manage budgets** with constraint enforcement
-- ⚡ **Settle instantly** with sub-second finality
-- 💾 **Persist forever** with PostgreSQL database
+- **Research options** using built-in knowledge bases
+- **Make informed decisions** via GPT-4o reasoning
+- **Execute USDC payments** on Arc blockchain
+- **Manage budgets** with constraint enforcement
+- **Settle instantly** with sub-second finality
+- **Persist forever** with PostgreSQL database
+- **Pay for APIs** using x402 protocol (HTTP 402 payments)
 
 **No human intervention required. Built for the institutional settlement model.**
 
-## ✨ Key Features
+## x402 Payment Protocol (V2 Spec-Compliant)
+
+This platform implements the [x402 protocol](https://www.x402.org/) - an HTTP payment standard by Coinbase/Cloudflare that enables AI agents to pay for API access using cryptocurrency.
+
+### How x402 Works
+
+```
+┌─────────────┐                              ┌─────────────┐
+│   AI Agent  │                              │  API Server │
+└──────┬──────┘                              └──────┬──────┘
+       │                                            │
+       │  1. GET /api/x402/protected/analysis       │
+       │ ─────────────────────────────────────────► │
+       │                                            │
+       │  2. 402 Payment Required                   │
+       │     X-PAYMENT-REQUIRED: <base64>           │
+       │ ◄───────────────────────────────────────── │
+       │                                            │
+       │  3. Sign EIP-3009 authorization            │
+       │     (transferWithAuthorization)            │
+       │                                            │
+       │  4. GET /api/x402/protected/analysis       │
+       │     X-PAYMENT: <signed_payload>            │
+       │ ─────────────────────────────────────────► │
+       │                                            │
+       │  5. Verify signature, settle on-chain      │
+       │                                            │
+       │  6. 200 OK + X-PAYMENT-RESPONSE            │
+       │     { paid content }                       │
+       │ ◄───────────────────────────────────────── │
+```
+
+### x402 Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/x402/protected/analysis` | Paid endpoint - $0.01 USDC per request |
+| `GET /api/x402/protected/data` | Micropayment endpoint - $0.001 USDC |
+| `GET /api/x402/pricing` | Get pricing info for all endpoints |
+| `POST /api/x402/facilitator/verify` | Verify payment payloads |
+| `POST /api/x402/facilitator/settle` | Execute payment settlement on-chain |
+| `GET /api/x402/payments` | Payment history with filtering |
+| `GET /api/x402/stats` | Aggregated payment statistics |
+
+### x402 Example Flow
+
+**Step 1: Request paid resource (no payment)**
+```bash
+curl https://your-api.com/api/x402/protected/analysis
+
+# Response: 402 Payment Required
+# Header: X-PAYMENT-REQUIRED: eyJ4NDAyVmVyc2lvbiI6Miwi...
+{
+  "x402Version": 2,
+  "accepts": [{
+    "scheme": "exact",
+    "network": "arc-testnet",
+    "maxAmountRequired": "10000",
+    "resource": "/api/x402/protected/analysis",
+    "description": "AI Analysis API - $0.01 per request",
+    "payTo": "0x6255d8dd3f84ec460fc8b07db58ab06384a2f487"
+  }]
+}
+```
+
+**Step 2: Agent signs payment and retries**
+```bash
+curl https://your-api.com/api/x402/protected/analysis \
+  -H "X-PAYMENT: eyJ4NDAyVmVyc2lvbiI6Miwic2NoZW1lIjoi..."
+
+# Response: 200 OK
+# Header: X-PAYMENT-RESPONSE: {"success":true,"transactionHash":"..."}
+{
+  "result": "AI analysis complete!",
+  "analysis": "Premium AI-powered analysis data",
+  "costUsdc": 0.01,
+  "transactionHash": "58026c24-3874-55e9-8e76-6ab6d50fb7d8"
+}
+```
+
+### Test Endpoints (Development)
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/x402/test/wallet-status` | Check Circle wallet configuration |
+| `GET /api/x402/test/generate-payload` | Generate test payloads for facilitator |
+| `POST /api/x402/test/execute-payment` | Execute real payment on Arc testnet |
+
+### x402 Payment Persistence
+
+All x402 payments are persisted to PostgreSQL:
+
+```sql
+SELECT * FROM x402_payments;
+
+-- Example record:
+-- payment_id: x402_abc123_639039159723714890
+-- resource: /api/x402/protected/analysis
+-- network: arc-testnet
+-- amount_usdc: 0.01
+-- payer_address: 0xAgent...
+-- recipient_address: 0xMerchant...
+-- transaction_hash: 58026c24-3874-55e9-8e76-6ab6d50fb7d8
+-- status: Settled
+-- created_at: 2026-01-13T15:46:12Z
+```
+
+## Key Features
 
 ### Autonomous Decision-Making
 - AI-powered research and analysis
@@ -37,88 +146,21 @@ Autonomous AI agents that can:
 - Predictable USDC-based gas fees
 - No volatile gas tokens required
 
+### x402 Facilitator Service
+- Spec-compliant V2 implementation
+- Payment verification and settlement
+- EIP-3009 transferWithAuthorization support
+- Multi-network support (Arc, Base, Ethereum)
+- Payment history and analytics
+
 ### Production-Ready Database
 - PostgreSQL persistence with EF Core
 - Agents survive application restarts
 - Complete transaction history tracking
+- x402 payment audit trail
 - Relational data model with migrations
 
-### Production-Ready API
-- RESTful endpoints with OpenAPI/Swagger
-- Agent lifecycle management
-- Transaction tracking and receipts
-- Budget monitoring
-- Comprehensive error handling
-
-### x402 Payment Protocol
-- Pay-per-call micropayments for APIs
-- Payment requirement generation (402 responses)
-- Payment proof verification
-- Usage-based autonomous spending
-- Demo endpoints for testing
-
-## 💳 x402 Payment Protocol Example
-
-### Step 1: API Returns Payment Requirement
-```bash
-GET /api/x402-demo/ai-analysis
-
-Response: 402 Payment Required
-{
-  "paymentId": "pay_abc123",
-  "amount": 0.01,
-  "recipientAddress": "0x...",
-  "description": "AI Analysis API Call - $0.01 per request",
-  "expiresAt": "2026-01-05T17:05:00Z"
-}
-```
-
-### Step 2: Agent Makes Payment
-```bash
-POST /api/agents/{agentId}/purchases
-{
-  "recipientAddress": "0x...",
-  "amount": 0.01,
-  "description": "x402 payment"
-}
-
-Response:
-{
-  "transactionId": "2ea0ed60-99b5-54ea-944f-ccf66cb4564d",
-  "success": true
-}
-```
-
-### Step 3: Verify Payment
-```bash
-POST /api/x402-demo/verify-payment
-{
-  "paymentId": "pay_abc123",
-  "transactionId": "2ea0ed60-99b5-54ea-944f-ccf66cb4564d",
-  "amount": 0.01
-}
-
-Response:
-{
-  "isValid": true,
-  "verifiedAt": "2026-01-05T16:00:00Z"
-}
-```
-
-### Step 4: Get API Response
-```bash
-GET /api/x402-demo/ai-analysis?paymentProof=verified
-
-Response: 200 OK
-{
-  "result": "AI analysis complete!",
-  "cost": 0.01
-}
-```
-
-**Enables true pay-per-call autonomous commerce.**
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -144,244 +186,170 @@ docker run --name agenticcommerce-db \
 
 ### 3. Configure Secrets
 
-Create `src/AgenticCommerce.API/appsettings.Development.json`:
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=agenticcommerce;Username=postgres;Password=dev_password_change_in_prod"
-  },
-  "Circle": {
-    "ApiKey": "your-circle-api-key",
-    "EntitySecret": "your-entity-secret",
-    "WalletAddress": "your-wallet-address",
-    "WalletId": "your-wallet-id",
-    "WalletsApiUrl": "https://api.circle.com/v1/w3s",
-    "GatewayApiUrl": "https://gateway-api-testnet.circle.com/v1"
-  },
-  "OpenAI": {
-    "ApiKey": "your-openai-api-key",
-    "Model": "gpt-4o"
-  }
-}
-```
-
-> **Note:** Never commit this file. It's already in `.gitignore`.
-
-### 4. Apply Database Migrations
+**Option A: User Secrets (Recommended for Development)**
 ```bash
 cd src/AgenticCommerce.API
-dotnet ef database update --project ../AgenticCommerce.Infrastructure --startup-project .
+
+# Circle Configuration
+dotnet user-secrets set "Circle:ApiKey" "your-circle-api-key"
+dotnet user-secrets set "Circle:EntitySecret" "your-entity-secret-hex"
+dotnet user-secrets set "Circle:WalletAddress" "0xYourWalletAddress"
+dotnet user-secrets set "Circle:WalletId" "your-wallet-id"
+
+# OpenAI Configuration
+dotnet user-secrets set "OpenAI:ApiKey" "your-openai-api-key"
+dotnet user-secrets set "OpenAI:Model" "gpt-4o"
 ```
 
-### 5. Run the Application
+**Option B: Environment Variables (Production)**
 ```bash
-dotnet restore
-dotnet build
-dotnet run
+# Use double underscore for nested config
+export Circle__ApiKey="your-circle-api-key"
+export Circle__EntitySecret="your-entity-secret-hex"
+export Circle__WalletAddress="0xYourWalletAddress"
+export Circle__WalletId="your-wallet-id"
+export OpenAI__ApiKey="your-openai-api-key"
+```
+
+### 4. Run the Application
+```bash
+cd src/AgenticCommerce.API
+dotnet run --launch-profile https
 ```
 
 Navigate to `https://localhost:7098/swagger` to explore the API.
 
-## 📖 Usage Examples
+## Architecture
 
-### Create an Autonomous Agent
-```bash
-POST /api/agents
-{
-  "name": "Research Agent",
-  "description": "Autonomous AI agent for API research and procurement",
-  "budget": 100.0,
-  "capabilities": ["research", "analysis", "payments"]
-}
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  AgenticCommerce.API                         │
+│         (REST API + Swagger + x402 Controllers)              │
+└─────────────────────────┬───────────────────────────────────┘
+                          │
+┌─────────────────────────▼───────────────────────────────────┐
+│              AgenticCommerce.Infrastructure                   │
+│                                                               │
+│  ┌──────────────────┐    ┌────────────────────────────────┐ │
+│  │  Agent Service   │    │     x402 Payment Service       │ │
+│  │  • Lifecycle     │    │     • Verify payments          │ │
+│  │  • AI Execution  │    │     • Settle on-chain          │ │
+│  │  • Budget Mgmt   │    │     • Payment persistence      │ │
+│  └──────────────────┘    └────────────────────────────────┘ │
+│                                                               │
+│  ┌──────────────────┐    ┌────────────────────────────────┐ │
+│  │  Circle/Arc      │    │       Database (EF Core)       │ │
+│  │  • ArcClient     │    │       • Agents                 │ │
+│  │  • USDC Transfers│    │       • Transactions           │ │
+│  │  • Wallet API    │    │       • x402 Payments          │ │
+│  └──────────────────┘    └────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                          │
+┌─────────────────────────▼───────────────────────────────────┐
+│                  AgenticCommerce.Core                         │
+│           (Domain Models + Interfaces + x402 Spec)           │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Run Autonomous Task
-```bash
-POST /api/agents/{agentId}/run
-{
-  "task": "Research AI API providers under $50 and buy the best option for $1 as a test"
-}
-```
-
-**The agent will:**
-1. Research AI API providers autonomously
-2. Compare pricing and features
-3. Make an informed decision
-4. Validate against budget constraints
-5. Execute USDC payment on Arc blockchain
-6. Save transaction to database
-7. Return transaction proof
-
-### Example Response
-```json
-{
-  "success": true,
-  "result": "Research complete. Selected Google Gemini 1.5 Flash ($0.075/1M tokens).\n\nPurchase executed:\n- Amount: $1 USDC\n- Transaction ID: 62c6bf40-c7a5-5e84-9fb9-f6e8fbb45630\n- Recipient: 0x6255d8dd3f84ec460fc8b07db58ab06384a2f487",
-  "amountSpent": 1.0,
-  "transactionIds": ["62c6bf40-c7a5-5e84-9fb9-f6e8fbb45630"],
-  "completedAt": "2026-01-05T15:54:40Z"
-}
-```
-
-**Transaction proof on Arc testnet:** ✅
-
-**Agent persists across restarts:** ✅
-
-## 🏗️ Architecture
-```
-┌─────────────────────────────────────────────────┐
-│           AgenticCommerce.API                    │
-│  (REST API + Swagger + Controllers)             │
-└─────────────────┬───────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────┐
-│      AgenticCommerce.Infrastructure              │
-│                                                   │
-│  ┌──────────────┐  ┌────────────────────────┐  │
-│  │ AgentService │  │ AI Reasoning Engine    │  │
-│  │              │  │ (Semantic Kernel +     │  │
-│  │ • Lifecycle  │  │  OpenAI GPT-4o)        │  │
-│  │ • Execution  │  └────────────────────────┘  │
-│  │ • Budget     │                               │
-│  └──────────────┘  ┌────────────────────────┐  │
-│                    │ Circle Integration      │  │
-│  ┌──────────────┐  │ • Arc Client            │  │
-│  │ Database     │  │ • Gateway Client        │  │
-│  │ • PostgreSQL │  │ • USDC Transactions     │  │
-│  │ • EF Core    │  └────────────────────────┘  │
-│  │ • Migrations │                               │
-│  └──────────────┘                               │
-└───────────────────────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────┐
-│         AgenticCommerce.Core                     │
-│  (Domain Models + Interfaces)                    │
-└──────────────────────────────────────────────────┘
-```
-
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Backend:** ASP.NET Core 8.0 / C#
 - **Database:** PostgreSQL 16 + Entity Framework Core 8
 - **Blockchain:** Circle Developer Controlled Wallets + Arc
 - **AI:** OpenAI GPT-4o + Microsoft Semantic Kernel 1.30.0
-- **Authentication:** RSA-OAEP-SHA256 encryption
+- **Payments:** x402 V2 Protocol (EIP-3009)
 - **API:** REST with OpenAPI/Swagger documentation
 
-## 🎯 Use Cases
+## Use Cases
+
+### x402 API Monetization
+Monetize your APIs with micropayments. AI agents pay per request automatically.
 
 ### Corporate Procurement
 AI agents that research vendors, compare pricing, and execute purchases within approved budgets.
 
-### API Credit Management
-Agents that monitor usage, optimize provider selection, and automatically purchase credits.
+### x402 Facilitator Service
+Offer payment verification and settlement as a service for other API providers.
 
 ### Autonomous Treasury
 Agents that manage corporate funds, execute payments, and maintain budget compliance.
 
-### Trading Bots
-Autonomous agents that analyze markets and execute trades with built-in risk management.
+## Roadmap
 
-## 🗺️ Roadmap
-
-### ✅ Phase 1: Core Infrastructure (Complete)
+### Phase 1: Core Infrastructure
 - [x] Circle API integration
 - [x] Arc blockchain settlement
 - [x] AI agent reasoning (GPT-4o)
 - [x] Autonomous execution
 - [x] Budget management
-- [x] Transaction tracking
 
-### ✅ Phase 2: Production Database (Complete)
+### Phase 2: Production Database
 - [x] PostgreSQL with Docker
 - [x] Entity Framework Core migrations
-- [x] Agent persistence across restarts
+- [x] Agent persistence
 - [x] Transaction history tracking
-- [x] Relational data model
 
-### ✅ Phase 3: x402 Payment Protocol (Complete)
-- [x] Payment requirement generation (402 responses)
-- [x] Payment proof verification
-- [x] Micropayment tracking
-- [x] Pay-per-call API infrastructure
-- [x] Demo x402-enabled endpoint
+### Phase 3: x402 V2 Protocol
+- [x] Spec-compliant implementation
+- [x] Payment verification (EIP-3009)
+- [x] On-chain settlement via Arc
+- [x] Facilitator endpoints (verify/settle)
+- [x] Payment persistence & analytics
+- [x] Test endpoints for development
 
-### 🚧 Phase 4: Agent Auto-Pay (Next)
-- [ ] Agent detects 402 responses automatically
-- [ ] Agent pays and retries with proof
-- [ ] Full autonomous pay-per-call workflow
-- [ ] Usage-based spending tracking
-
-### 📋 Phase 5: Production Features (Planned)
-- [ ] Enhanced error handling and retry logic
-- [ ] Rate limiting and quotas
-- [ ] Webhook notifications
-- [ ] Multi-agent orchestration
+### Phase 4: SaaS Features (Next)
+- [ ] Multi-tenant support
+- [ ] API key management
+- [ ] Usage-based billing
+- [ ] Merchant onboarding
 - [ ] Analytics dashboard
 
-### 🎨 Phase 6: Developer Experience (Planned)
-- [ ] Web dashboard (React/Next.js)
-- [ ] Agent templates and presets
-- [ ] Developer SDKs (Python, TypeScript)
-- [ ] Comprehensive documentation
+### Phase 5: Agent Auto-Pay
+- [ ] Agent detects 402 responses
+- [ ] Automatic payment signing
+- [ ] Full autonomous pay-per-call
 
-## 🔐 Security
+## Security
 
 - API keys encrypted at rest
 - RSA-OAEP-SHA256 for Circle authentication
 - Budget constraints enforced cryptographically
-- Transaction validation before execution
+- EIP-3009 signature verification
 - Database with proper foreign keys and constraints
 - Comprehensive audit logging
 
-## 💡 Design Philosophy
-
-**Built on the institutional settlement model:**
-- Business logic stays private (in your API)
-- Blockchain is for settlement only (like BlackRock's BUIDL)
-- Arc provides what institutions need: deterministic finality, known validators, stable gas
-- No unnecessary smart contracts - just fast, certain USDC transfers
-
-**Mirrors Circle's StableFX approach:**
-- Offchain decision-making (AI reasoning, budget validation)
-- Onchain settlement (USDC transfers with instant finality)
-- Same infrastructure banks use, but for autonomous agents
-
-## 📊 Performance
+## Performance
 
 - **Transaction Finality:** <1 second (Arc deterministic finality)
 - **Agent Decision Time:** 5-15 seconds (GPT-4o reasoning)
+- **x402 Verification:** <50ms
 - **Database Queries:** <50ms (indexed PostgreSQL)
-- **API Response Time:** <100ms (without AI execution)
 
-## 🤝 Contributing
+## Contributing
 
-This is a personal project demonstrating autonomous agent commerce on institutional settlement infrastructure. Feedback and suggestions welcome!
+This is a personal project demonstrating autonomous agent commerce and x402 payment facilitation. Feedback and suggestions welcome!
 
-## 📄 License
+## License
 
 MIT License - See [LICENSE](LICENSE) file for details
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Built with:
 - [Circle](https://www.circle.com/) - USDC infrastructure and Arc blockchain
 - [OpenAI](https://openai.com/) - GPT-4o for agent reasoning
-- [Microsoft Semantic Kernel](https://github.com/microsoft/semantic-kernel) - AI orchestration
+- [x402.org](https://www.x402.org/) - Payment protocol specification
+- [Coinbase](https://github.com/coinbase/x402) - x402 reference implementation
 - [PostgreSQL](https://www.postgresql.org/) - Production-grade database
 
-Special thanks to the Circle Developer Relations team for Arc and Gateway documentation.
-
-## 📞 Contact
+## Contact
 
 Questions? Reach out:
-- GitHub Issues: [Create an issue](https://github.com/yourusername/AgenticCommerce/issues)
+- GitHub Issues: [Create an issue](https://github.com/kmatthewsio/AgenticCommerce/issues)
 - Twitter: https://x.com/kevlondonbtc
 
 ---
 
 **Built in January 2026 using AI-assisted development.**
 
-**Autonomous commerce on institutional settlement infrastructure.** 🚀
-
-**Phase 1 + Phase 2 complete. Agents persist. Transactions finalized. Production-ready.**
+**Autonomous commerce + x402 payments on institutional settlement infrastructure.**

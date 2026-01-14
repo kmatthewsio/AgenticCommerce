@@ -56,8 +56,9 @@ builder.Services.Configure<AIOptions>(options =>
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IArcClient, ArcClient>();
 builder.Services.AddScoped<IAgentService, AgentService>();
-// X402 Payment Service
-builder.Services.AddSingleton<IX402PaymentService, X402PaymentService>();
+// X402 Payment Services
+builder.Services.AddSingleton<IX402PaymentService, X402PaymentService>(); // Legacy
+builder.Services.AddX402Payments(); // V2 Spec-compliant with attribute support
 builder.Services.AddHttpClient<ICircleGatewayClient, CircleGatewayClient>();
 builder.Services.AddHealthChecks();
 
