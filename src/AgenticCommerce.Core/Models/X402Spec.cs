@@ -285,6 +285,19 @@ public static class X402Networks
     public const string BaseMainnet = "base-mainnet";
     public const string EthereumSepolia = "ethereum-sepolia";
     public const string EthereumMainnet = "ethereum-mainnet";
+
+    /// <summary>
+    /// Chain IDs for each network (used in EIP-712 domain separator)
+    /// </summary>
+    public static readonly Dictionary<string, int> ChainIds = new()
+    {
+        [ArcTestnet] = 5042002,   // Arc testnet (official)
+        [ArcMainnet] = 0,         // Arc mainnet - not yet launched (expected 2026)
+        [BaseSepolia] = 84532,
+        [BaseMainnet] = 8453,
+        [EthereumSepolia] = 11155111,
+        [EthereumMainnet] = 1
+    };
 }
 
 /// <summary>
@@ -292,12 +305,25 @@ public static class X402Networks
 /// </summary>
 public static class X402Assets
 {
+    /// <summary>
+    /// USDC contract addresses by network.
+    /// Note: On Arc, USDC is the native gas token with an ERC-20 interface at a special address.
+    /// </summary>
     public static readonly Dictionary<string, string> UsdcContracts = new()
     {
-        [X402Networks.ArcTestnet] = "0x...", // TODO: Add Arc USDC address
+        [X402Networks.ArcTestnet] = "0x3600000000000000000000000000000000000000", // Arc native USDC (ERC-20 interface)
+        [X402Networks.ArcMainnet] = "0x3600000000000000000000000000000000000000", // Expected same address on mainnet
         [X402Networks.BaseSepolia] = "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
         [X402Networks.BaseMainnet] = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
         [X402Networks.EthereumMainnet] = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    };
+
+    /// <summary>
+    /// EURC (Euro Coin) contract addresses by network
+    /// </summary>
+    public static readonly Dictionary<string, string> EurcContracts = new()
+    {
+        [X402Networks.ArcTestnet] = "0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a"
     };
 }
 

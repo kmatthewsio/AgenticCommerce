@@ -16,16 +16,19 @@ public class X402Service : IX402Service
     private readonly IArcClient _arcClient;
     private readonly ILogger<X402Service> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IEip3009SignatureVerifier _signatureVerifier;
     private readonly JsonSerializerOptions _jsonOptions;
 
     public X402Service(
         IArcClient arcClient,
         ILogger<X402Service> logger,
-        IServiceScopeFactory scopeFactory)
+        IServiceScopeFactory scopeFactory,
+        IEip3009SignatureVerifier signatureVerifier)
     {
         _arcClient = arcClient;
         _logger = logger;
         _scopeFactory = scopeFactory;
+        _signatureVerifier = signatureVerifier;
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -184,7 +187,7 @@ public class X402Service : IX402Service
             };
         }
 
-        // Validate signature (in production, this would verify EIP-3009 signature)
+        // Validate signature exists
         if (string.IsNullOrEmpty(payload.Payload.Signature))
         {
             return new X402VerifyResponse
@@ -194,17 +197,35 @@ public class X402Service : IX402Service
             };
         }
 
-        // TODO: In production, verify signature on-chain or via facilitator
-        // For now, we trust the signature format is correct
+        // Verify EIP-3009 signature cryptographically
+        var tokenContract = GetUsdcAddress(payload.Network);
+        var signatureResult = _signatureVerifier.Verify(
+            auth,
+            payload.Payload.Signature,
+            payload.Network,
+            tokenContract);
+
+        if (!signatureResult.IsValid)
+        {
+            _logger.LogWarning(
+                "EIP-3009 signature verification failed: {Error}",
+                signatureResult.ErrorMessage);
+
+            return new X402VerifyResponse
+            {
+                IsValid = false,
+                InvalidReason = signatureResult.ErrorMessage ?? "Invalid signature"
+            };
+        }
 
         _logger.LogInformation(
-            "x402 payment verified: {Amount} from {Payer}",
-            auth.Value, auth.From);
+            "x402 payment verified: {Amount} from {Payer} (signature verified)",
+            auth.Value, signatureResult.RecoveredAddress);
 
         return new X402VerifyResponse
         {
             IsValid = true,
-            Payer = auth.From
+            Payer = signatureResult.RecoveredAddress ?? auth.From
         };
     }
 

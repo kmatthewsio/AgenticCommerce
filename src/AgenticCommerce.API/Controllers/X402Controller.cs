@@ -1,8 +1,11 @@
+using System.Numerics;
 using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Nethereum.Signer;
+using Nethereum.Util;
 using System.Text.Json;
 
 namespace AgenticCommerce.API.Controllers;
@@ -414,6 +417,190 @@ public class X402Controller : ControllerBase
             })
         });
     }
+
+    /// <summary>
+    /// Generate a REAL verifiable payment payload using a test private key.
+    /// This creates a cryptographically valid signature that will pass verification.
+    /// Uses Hardhat test account #0 (NEVER use in production - key is publicly known).
+    /// </summary>
+    /// <param name="amountUsdc">Amount in USDC (default: 0.01)</param>
+    [HttpGet("test/generate-signed-payload")]
+    [ProducesResponseType(typeof(TestPayloadResponse), StatusCodes.Status200OK)]
+    public IActionResult GenerateSignedTestPayload([FromQuery] decimal amountUsdc = 0.01m)
+    {
+        // Well-known Hardhat test private key (account #0) - NEVER use in production!
+        const string testPrivateKey = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+        const string testAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+
+        // Use Base Sepolia since it has a real USDC contract we can reference
+        const string network = X402Networks.BaseSepolia;
+        var tokenContract = X402Assets.UsdcContracts[network];
+
+        var payToAddress = _x402Service.GetPayToAddress();
+        var amountSmallestUnit = ((long)(amountUsdc * 1_000_000)).ToString();
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        // Generate proper 32-byte nonce
+        var nonceBytes = Guid.NewGuid().ToByteArray().Concat(Guid.NewGuid().ToByteArray()).ToArray();
+        var nonce = "0x" + BitConverter.ToString(nonceBytes).Replace("-", "").ToLowerInvariant();
+
+        var authorization = new X402Eip3009Authorization
+        {
+            From = testAddress,
+            To = payToAddress,
+            Value = amountSmallestUnit,
+            ValidAfter = 0,
+            ValidBefore = now + 3600, // Valid for 1 hour
+            Nonce = nonce
+        };
+
+        // Sign using EIP-712
+        var signature = SignEip3009Authorization(authorization, testPrivateKey, network, tokenContract);
+
+        var payload = new X402PaymentPayload
+        {
+            X402Version = 2,
+            Scheme = "exact",
+            Network = network,
+            Payload = new X402EvmPayload
+            {
+                Signature = signature,
+                Authorization = authorization
+            }
+        };
+
+        var requirement = new X402PaymentRequirement
+        {
+            Scheme = "exact",
+            Network = network,
+            MaxAmountRequired = amountSmallestUnit,
+            Resource = "/api/x402/test",
+            Description = $"Test payment of {amountUsdc} USDC",
+            PayTo = payToAddress,
+            Asset = tokenContract
+        };
+
+        var verifyRequest = new X402VerifyRequest
+        {
+            PaymentPayload = payload,
+            PaymentRequirements = requirement
+        };
+
+        return Ok(new
+        {
+            message = "This payload has a REAL cryptographic signature and will pass verification!",
+            instructions = "Copy the 'verifyRequestBody' and POST it to /api/x402/facilitator/verify",
+            testAccount = testAddress,
+            warning = "Test key only - never use in production",
+            verifyRequestBody = verifyRequest
+        });
+    }
+
+    #region EIP-712 Signing Helpers (for test endpoint only)
+
+    private static string SignEip3009Authorization(
+        X402Eip3009Authorization auth,
+        string privateKey,
+        string network,
+        string tokenContract)
+    {
+        var sha3 = new Sha3Keccack();
+        var chainId = X402Networks.ChainIds.TryGetValue(network, out var id) ? id : 1;
+
+        var domainSeparator = BuildDomainSeparator(sha3, "USD Coin", "2", chainId, tokenContract);
+        var structHash = BuildStructHash(sha3, auth);
+        var digest = BuildEip712Digest(sha3, domainSeparator, structHash);
+
+        var key = new EthECKey(privateKey);
+        var signature = key.SignAndCalculateV(digest);
+
+        var sigBytes = new byte[65];
+        Array.Copy(signature.R, 0, sigBytes, 32 - signature.R.Length, signature.R.Length);
+        Array.Copy(signature.S, 0, sigBytes, 64 - signature.S.Length, signature.S.Length);
+        sigBytes[64] = signature.V[0];
+
+        return "0x" + BitConverter.ToString(sigBytes).Replace("-", "").ToLowerInvariant();
+    }
+
+    private static byte[] BuildDomainSeparator(Sha3Keccack sha3, string name, string version, int chainId, string verifyingContract)
+    {
+        var domainTypeHash = sha3.CalculateHash(
+            System.Text.Encoding.UTF8.GetBytes("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"));
+        var nameHash = sha3.CalculateHash(System.Text.Encoding.UTF8.GetBytes(name));
+        var versionHash = sha3.CalculateHash(System.Text.Encoding.UTF8.GetBytes(version));
+
+        var encoded = new byte[32 * 5];
+        Array.Copy(domainTypeHash, 0, encoded, 0, 32);
+        Array.Copy(nameHash, 0, encoded, 32, 32);
+        Array.Copy(versionHash, 0, encoded, 64, 32);
+
+        var chainIdBytes = new BigInteger(chainId).ToByteArray(isUnsigned: true, isBigEndian: true);
+        Array.Copy(chainIdBytes, 0, encoded, 96 + (32 - chainIdBytes.Length), chainIdBytes.Length);
+
+        var contractBytes = HexToBytes(verifyingContract);
+        Array.Copy(contractBytes, 0, encoded, 128 + (32 - contractBytes.Length), contractBytes.Length);
+
+        return sha3.CalculateHash(encoded);
+    }
+
+    private static byte[] BuildStructHash(Sha3Keccack sha3, X402Eip3009Authorization auth)
+    {
+        var typeHash = sha3.CalculateHash(
+            System.Text.Encoding.UTF8.GetBytes("TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)"));
+
+        var encoded = new byte[32 * 7];
+        Array.Copy(typeHash, 0, encoded, 0, 32);
+
+        var fromBytes = HexToBytes(auth.From);
+        Array.Copy(fromBytes, 0, encoded, 32 + (32 - fromBytes.Length), fromBytes.Length);
+
+        var toBytes = HexToBytes(auth.To);
+        Array.Copy(toBytes, 0, encoded, 64 + (32 - toBytes.Length), toBytes.Length);
+
+        var valueBytes = BigInteger.Parse(auth.Value).ToByteArray(isUnsigned: true, isBigEndian: true);
+        Array.Copy(valueBytes, 0, encoded, 96 + (32 - valueBytes.Length), valueBytes.Length);
+
+        var validAfterBytes = new BigInteger(auth.ValidAfter).ToByteArray(isUnsigned: true, isBigEndian: true);
+        Array.Copy(validAfterBytes, 0, encoded, 128 + (32 - validAfterBytes.Length), validAfterBytes.Length);
+
+        var validBeforeBytes = new BigInteger(auth.ValidBefore).ToByteArray(isUnsigned: true, isBigEndian: true);
+        Array.Copy(validBeforeBytes, 0, encoded, 160 + (32 - validBeforeBytes.Length), validBeforeBytes.Length);
+
+        var nonceBytes = HexToBytes(auth.Nonce);
+        if (nonceBytes.Length < 32)
+        {
+            var paddedNonce = new byte[32];
+            Array.Copy(nonceBytes, 0, paddedNonce, 32 - nonceBytes.Length, nonceBytes.Length);
+            nonceBytes = paddedNonce;
+        }
+        Array.Copy(nonceBytes, 0, encoded, 192, 32);
+
+        return sha3.CalculateHash(encoded);
+    }
+
+    private static byte[] BuildEip712Digest(Sha3Keccack sha3, byte[] domainSeparator, byte[] structHash)
+    {
+        var message = new byte[66];
+        message[0] = 0x19;
+        message[1] = 0x01;
+        Array.Copy(domainSeparator, 0, message, 2, 32);
+        Array.Copy(structHash, 0, message, 34, 32);
+        return sha3.CalculateHash(message);
+    }
+
+    private static byte[] HexToBytes(string hex)
+    {
+        if (string.IsNullOrEmpty(hex)) return Array.Empty<byte>();
+        if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase)) hex = hex[2..];
+        if (hex.Length % 2 != 0) hex = "0" + hex;
+
+        var bytes = new byte[hex.Length / 2];
+        for (int i = 0; i < bytes.Length; i++)
+            bytes[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
+        return bytes;
+    }
+
+    #endregion
 
     /// <summary>
     /// Execute a full test payment flow using Arc testnet.

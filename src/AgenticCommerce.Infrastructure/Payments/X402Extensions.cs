@@ -18,8 +18,17 @@ public static class X402Extensions
     /// </summary>
     public static IServiceCollection AddX402Payments(this IServiceCollection services)
     {
+        // EIP-3009 signature verifier for cryptographic validation
+        services.AddSingleton<IEip3009SignatureVerifier, Eip3009SignatureVerifier>();
+
+        // EIP-3009 signer for creating signed authorizations
+        services.AddSingleton<IEip3009Signer, Eip3009Signer>();
+
         // Core x402 service
         services.AddSingleton<IX402Service, X402Service>();
+
+        // x402 client for making paid API requests
+        services.AddTransient<X402Client>();
 
         // Filter for attribute-based payments (must be transient for per-request configuration)
         services.AddTransient<X402PaymentFilter>();
