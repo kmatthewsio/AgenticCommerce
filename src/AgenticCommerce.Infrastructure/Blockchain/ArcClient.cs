@@ -295,6 +295,67 @@ namespace AgenticCommerce.Infrastructure.Blockchain
             return _circleOptions.WalletAddress;
         }
 
+        /// <summary>
+        /// Sign EIP-712 typed data using Circle's Developer Controlled Wallets API
+        /// </summary>
+        public async Task<string> SignTypedDataAsync(string typedData)
+        {
+            try
+            {
+                _logger.LogInformation("Signing EIP-712 typed data via Circle API");
+
+                // Fetch Circle's public key if not cached
+                if (_circlePublicKey == null)
+                {
+                    _circlePublicKey = await GetCirclePublicKeyAsync();
+                }
+
+                // Encrypt entity secret
+                var entitySecretCiphertext = EncryptEntitySecret(_circlePublicKey, _circleOptions.EntitySecret);
+
+                var signRequest = new
+                {
+                    walletId = _circleOptions.WalletId,
+                    data = typedData,
+                    entitySecretCiphertext = entitySecretCiphertext
+                };
+
+                var response = await MakeCircleRequestAsync(
+                    HttpMethod.Post,
+                    "/developer/sign/typedData",
+                    signRequest);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Circle signing API error: {StatusCode} - {Error}",
+                        response.StatusCode, errorBody);
+                    throw new Exception($"Circle signing API error: {errorBody}");
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                var signResponse = JsonSerializer.Deserialize<JsonElement>(content);
+
+                var signature = signResponse
+                    .GetProperty("data")
+                    .GetProperty("signature")
+                    .GetString();
+
+                if (string.IsNullOrEmpty(signature))
+                {
+                    throw new Exception("No signature returned from Circle API");
+                }
+
+                _logger.LogInformation("Successfully signed typed data");
+                return signature;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to sign typed data");
+                throw;
+            }
+        }
+
         private async Task<HttpResponseMessage> MakeCircleRequestAsync(
             HttpMethod method,
             string endpoint,

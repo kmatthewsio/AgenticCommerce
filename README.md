@@ -109,7 +109,8 @@ curl https://your-api.com/api/x402/protected/analysis \
 | Endpoint | Description |
 |----------|-------------|
 | `GET /api/x402/test/wallet-status` | Check Circle wallet configuration |
-| `GET /api/x402/test/generate-payload` | Generate test payloads for facilitator |
+| `GET /api/x402/test/generate-payload` | Generate mock test payloads |
+| `GET /api/x402/test/generate-signed-payload` | Generate real EIP-712 signed payload (verifiable) |
 | `POST /api/x402/test/execute-payment` | Execute real payment on Arc testnet |
 
 ### x402 Payment Persistence
@@ -255,9 +256,10 @@ Navigate to `https://localhost:7098/swagger` to explore the API.
 
 - **Backend:** ASP.NET Core 8.0 / C#
 - **Database:** PostgreSQL 16 + Entity Framework Core 8
-- **Blockchain:** Circle Developer Controlled Wallets + Arc
+- **Blockchain:** Circle Developer Controlled Wallets + Arc (Chain ID: 5042002)
 - **AI:** OpenAI GPT-4o + Microsoft Semantic Kernel 1.30.0
-- **Payments:** x402 V2 Protocol (EIP-3009)
+- **Payments:** x402 V2 Protocol (EIP-3009/EIP-712)
+- **Crypto:** Nethereum.Signer for ECDSA signatures
 - **API:** REST with OpenAPI/Swagger documentation
 
 ## Use Cases
@@ -291,11 +293,12 @@ Agents that manage corporate funds, execute payments, and maintain budget compli
 
 ### Phase 3: x402 V2 Protocol
 - [x] Spec-compliant implementation
-- [x] Payment verification (EIP-3009)
+- [x] Payment verification (EIP-3009/EIP-712)
 - [x] On-chain settlement via Arc
 - [x] Facilitator endpoints (verify/settle)
 - [x] Payment persistence & analytics
 - [x] Test endpoints for development
+- [x] Real EIP-712 signature generation & verification
 
 ### Phase 4: SaaS Features (Next)
 - [ ] Multi-tenant support
@@ -314,7 +317,8 @@ Agents that manage corporate funds, execute payments, and maintain budget compli
 - API keys encrypted at rest
 - RSA-OAEP-SHA256 for Circle authentication
 - Budget constraints enforced cryptographically
-- EIP-3009 signature verification
+- EIP-712 typed data signing (tamper-proof)
+- EIP-3009 signature verification (ECDSA recovery)
 - Database with proper foreign keys and constraints
 - Comprehensive audit logging
 
@@ -341,6 +345,7 @@ Built with:
 - [x402.org](https://www.x402.org/) - Payment protocol specification
 - [Coinbase](https://github.com/coinbase/x402) - x402 reference implementation
 - [PostgreSQL](https://www.postgresql.org/) - Production-grade database
+- [Nethereum](https://nethereum.com/) - .NET Ethereum library for EIP-712 signing
 
 ## Contact
 

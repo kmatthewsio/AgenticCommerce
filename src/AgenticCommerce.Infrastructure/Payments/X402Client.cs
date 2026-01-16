@@ -16,16 +16,19 @@ public class X402Client
 {
     private readonly HttpClient _httpClient;
     private readonly IArcClient _arcClient;
+    private readonly IEip3009Signer _signer;
     private readonly ILogger<X402Client> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
 
     public X402Client(
         HttpClient httpClient,
         IArcClient arcClient,
+        IEip3009Signer signer,
         ILogger<X402Client> logger)
     {
         _httpClient = httpClient;
         _arcClient = arcClient;
+        _signer = signer;
         _logger = logger;
         _jsonOptions = new JsonSerializerOptions
         {
@@ -171,18 +174,45 @@ public class X402Client
     }
 
     /// <summary>
-    /// Create a payment payload for the given requirement
-    /// In production, this would sign an EIP-3009 authorization
+    /// Create a payment payload for the given requirement with real EIP-3009 signature
     /// </summary>
     private async Task<X402PaymentPayload?> CreatePaymentPayloadAsync(X402PaymentRequirement requirement)
     {
         try
         {
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            var nonce = Guid.NewGuid().ToString("N");
+            var validBefore = now + 300; // 5 minutes validity
 
-            // For Arc network, we'll use Circle's transfer API
-            // In full x402, this would be an EIP-3009 signed authorization
+            // Generate unique nonce (bytes32)
+            var nonceBytes = new byte[32];
+            using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(nonceBytes);
+            }
+            var nonce = "0x" + BitConverter.ToString(nonceBytes).Replace("-", "").ToLowerInvariant();
+
+            var fromAddress = _arcClient.GetAddress();
+
+            // Get token contract for the network
+            var tokenContract = X402Assets.UsdcContracts.TryGetValue(requirement.Network, out var contract)
+                ? contract
+                : requirement.Asset;
+
+            _logger.LogInformation(
+                "Creating EIP-3009 authorization: {Value} from {From} to {To} on {Network}",
+                requirement.MaxAmountRequired, fromAddress, requirement.PayTo, requirement.Network);
+
+            // Sign the EIP-3009 authorization using Circle's signing API
+            var signature = await _signer.SignTransferAuthorizationAsync(
+                fromAddress,
+                requirement.PayTo,
+                requirement.MaxAmountRequired,
+                0, // validAfter
+                validBefore,
+                nonce,
+                requirement.Network,
+                tokenContract);
+
             var payload = new X402PaymentPayload
             {
                 X402Version = 2,
@@ -190,20 +220,20 @@ public class X402Client
                 Network = requirement.Network,
                 Payload = new X402EvmPayload
                 {
-                    // In production: actual EIP-3009 signature
-                    Signature = $"0x{nonce}",
+                    Signature = signature,
                     Authorization = new X402Eip3009Authorization
                     {
-                        From = _arcClient.GetAddress(),
+                        From = fromAddress,
                         To = requirement.PayTo,
                         Value = requirement.MaxAmountRequired,
                         ValidAfter = 0,
-                        ValidBefore = now + 300, // 5 minutes
-                        Nonce = $"0x{nonce}"
+                        ValidBefore = validBefore,
+                        Nonce = nonce
                     }
                 }
             };
 
+            _logger.LogInformation("Successfully created signed payment payload");
             return payload;
         }
         catch (Exception ex)

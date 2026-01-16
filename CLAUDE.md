@@ -66,6 +66,7 @@ src/
 | `X402PaymentAttribute.cs` | `[X402Payment(0.01)]` decorator for endpoints |
 | `X402Client.cs` | HTTP client that auto-handles 402 responses |
 | `X402Controller.cs` | REST endpoints for payments, facilitator, analytics |
+| `Eip3009SignatureVerifier.cs` | EIP-712 typed data hashing & ECDSA signature recovery |
 
 ### x402 Flow
 
@@ -97,28 +98,20 @@ public IActionResult Premium()
     AlternativeNetworks = "base-sepolia,ethereum-sepolia")]
 ```
 
-## Known TODOs
+## Arc Integration (Completed)
 
-### 1. EIP-3009 Signature Verification
-**Location:** `X402Service.cs:197`
-```csharp
-// TODO: In production, verify signature on-chain or via facilitator
-```
-Currently only checks signature format/presence, not cryptographic validity.
+### EIP-3009 Signature Verification
+- `Eip3009SignatureVerifier.cs` - Off-chain verification using EIP-712 typed data hashing
+- Uses Nethereum.Signer for ECDSA signature recovery
 
-### 2. Arc USDC Contract Address
-**Location:** `X402Spec.cs:297`
-```csharp
-[X402Networks.ArcTestnet] = "0x...", // TODO: Add Arc USDC address
-```
-Needs real USDC contract address for Arc testnet/mainnet.
+### EIP-3009 Signing
+- `Eip3009Signer.cs` - Signs TransferWithAuthorization using Circle's Developer Controlled Wallets API
+- Builds EIP-712 typed data and calls `/developer/sign/typedData` endpoint
 
-### 3. Real EIP-3009 Signing in Client
-**Location:** `X402Client.cs:194`
-```csharp
-Signature = $"0x{nonce}",  // Mock signature for testing
-```
-Client generates mock signatures; needs real EIP-3009 implementation.
+### Arc Network Configuration
+- Chain ID: 5042002 (testnet)
+- USDC Contract: `0x3600000000000000000000000000000000000000` (native gas token with ERC-20 interface)
+- Mainnet: Not yet launched (expected 2026)
 
 ## Commands
 
@@ -187,8 +180,8 @@ PostgreSQL with auto-migration on startup. Key tables:
 
 | Network | Chain ID | Environment |
 |---------|----------|-------------|
-| arc-testnet | - | Development |
-| arc-mainnet | - | Production |
+| arc-testnet | 5042002 | Development |
+| arc-mainnet | TBD | Production |
 | base-sepolia | 84532 | Development |
 | base-mainnet | 8453 | Production |
 | ethereum-sepolia | 11155111 | Development |

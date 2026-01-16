@@ -78,5 +78,12 @@ namespace AgenticCommerce.Core.Interfaces
         /// </summary>
         /// <returns></returns>
         string GetAddress();
+
+        /// <summary>
+        /// Sign EIP-712 typed data using Circle's signing API
+        /// </summary>
+        /// <param name="typedData">The EIP-712 typed data as JSON string</param>
+        /// <returns>The signature as a hex string (0x prefixed, 65 bytes)</returns>
+        Task<string> SignTypedDataAsync(string typedData);
     }
 }
