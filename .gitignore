@@ -33,6 +33,10 @@ bld/
 ## Claude Code
 .claude/
 
+## Enterprise (private repo - do not commit to public)
+src/AgenticCommerce.Enterprise/
+AgenticCommerce.Full.slnx
+
 ## Rider
 .idea/
 
