@@ -5,6 +5,7 @@ WORKDIR /src
 COPY src/AgenticCommerce.API/*.csproj src/AgenticCommerce.API/
 COPY src/AgenticCommerce.Core/*.csproj src/AgenticCommerce.Core/
 COPY src/AgenticCommerce.Infrastructure/*.csproj src/AgenticCommerce.Infrastructure/
+COPY src/AgenticCommerce.Enterprise/*.csproj src/AgenticCommerce.Enterprise/
 
 # Restore from API project (references others)
 RUN dotnet restore src/AgenticCommerce.API/AgenticCommerce.API.csproj
