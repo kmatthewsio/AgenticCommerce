@@ -23,7 +23,12 @@
 	<ItemGroup>
 		<ProjectReference Include="..\AgenticCommerce.Core\AgenticCommerce.Core.csproj" />
 		<ProjectReference Include="..\AgenticCommerce.Infrastructure\AgenticCommerce.Infrastructure.csproj" />
-		<ProjectReference Include="..\AgenticCommerce.Enterprise\AgenticCommerce.Enterprise.csproj" />
+		<ProjectReference Include="..\AgenticCommerce.Enterprise\AgenticCommerce.Enterprise.csproj" Condition="Exists('..\AgenticCommerce.Enterprise\AgenticCommerce.Enterprise.csproj')" />
 	</ItemGroup>
+
+	<!-- Define ENTERPRISE symbol when Enterprise project exists -->
+	<PropertyGroup Condition="Exists('..\AgenticCommerce.Enterprise\AgenticCommerce.Enterprise.csproj')">
+		<DefineConstants>$(DefineConstants);ENTERPRISE</DefineConstants>
+	</PropertyGroup>
 
 </Project>
