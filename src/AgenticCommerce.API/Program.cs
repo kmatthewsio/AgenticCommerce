@@ -1,14 +1,21 @@
 using AgenticCommerce.Core.Interfaces;
+using AgenticCommerce.Enterprise;
 using AgenticCommerce.Infrastructure.Agents;
 using AgenticCommerce.Infrastructure.Blockchain;
 using AgenticCommerce.Infrastructure.Data;
+using AgenticCommerce.Infrastructure.Logging;
 using AgenticCommerce.Infrastructure.Payments;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Get connection string for database logging
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Initial logger (console + file only, database added after app build)
 Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
     .WriteTo.Console()
     .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
@@ -62,6 +69,14 @@ builder.Services.AddX402Payments(); // V2 Spec-compliant with attribute support
 builder.Services.AddHttpClient<ICircleGatewayClient, CircleGatewayClient>();
 builder.Services.AddHealthChecks();
 
+// Database logging service
+builder.Services.AddScoped<IDbLogger, DbLogger>();
+
+// ========================================
+// ENTERPRISE FEATURES (Policy Engine)
+// ========================================
+builder.Services.AddEnterpriseServices(connectionString!);
+
 var app = builder.Build();
 
 // Auto-migrate database on startup
@@ -70,6 +85,9 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AgenticCommerceDbContext>();
     db.Database.Migrate();
 }
+
+// Apply enterprise migrations (Policy Engine tables)
+await app.Services.ApplyEnterpriseMigrationsAsync();
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
@@ -91,19 +109,21 @@ app.UseCors();
 app.MapGet("/", () => new
 {
     service = "Agentic Commerce Backend",
-    Version = "v1.0.0",
+    Version = "v1.1.0",
     status = "Running",
     features = new[]
     {
-        "Circele Arc Blockchain",
+        "Circle Arc Blockchain",
         "Circle Gateway (cross-chain USDC)",
         "X402 Payment Facilitation",
-        "AI Agent Orchestration"
+        "AI Agent Orchestration",
+        "Policy Engine (Enterprise)"
     },
     endpoints = new
     {
         swagger = "/swagger",
-        health = "/health"
+        health = "/health",
+        policies = "/api/policies"
     }
 });
 

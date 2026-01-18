@@ -16,12 +16,14 @@
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="5.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+		<PackageReference Include="Serilog.Sinks.PostgreSQL" Version="2.3.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\AgenticCommerce.Core\AgenticCommerce.Core.csproj" />
 		<ProjectReference Include="..\AgenticCommerce.Infrastructure\AgenticCommerce.Infrastructure.csproj" />
+		<ProjectReference Include="..\AgenticCommerce.Enterprise\AgenticCommerce.Enterprise.csproj" />
 	</ItemGroup>
 
 </Project>
