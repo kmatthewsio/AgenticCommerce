@@ -13,6 +13,7 @@ public class AgenticCommerceDbContext : DbContext
     public DbSet<AgentEntity> Agents => Set<AgentEntity>();
     public DbSet<TransactionEntity> Transactions => Set<TransactionEntity>();
     public DbSet<X402PaymentEntity> X402Payments => Set<X402PaymentEntity>();
+    public DbSet<LogEntry> AppLogs => Set<LogEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,6 +47,14 @@ public class AgenticCommerceDbContext : DbContext
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.CreatedAt);
             entity.HasIndex(e => e.Network);
+        });
+
+        modelBuilder.Entity<LogEntry>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Timestamp);
+            entity.HasIndex(e => e.Level);
+            entity.HasIndex(e => e.Source);
         });
     }
 }
