@@ -1,5 +1,4 @@
 using AgenticCommerce.Core.Interfaces;
-using AgenticCommerce.Enterprise;
 using AgenticCommerce.Infrastructure.Agents;
 using AgenticCommerce.Infrastructure.Blockchain;
 using AgenticCommerce.Infrastructure.Data;
@@ -7,6 +6,9 @@ using AgenticCommerce.Infrastructure.Logging;
 using AgenticCommerce.Infrastructure.Payments;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+#if ENTERPRISE
+using AgenticCommerce.Enterprise;
+#endif
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,7 +77,9 @@ builder.Services.AddScoped<IDbLogger, DbLogger>();
 // ========================================
 // ENTERPRISE FEATURES (Policy Engine)
 // ========================================
+#if ENTERPRISE
 builder.Services.AddEnterpriseServices(connectionString!);
+#endif
 
 var app = builder.Build();
 
@@ -87,7 +91,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Apply enterprise migrations (Policy Engine tables)
+#if ENTERPRISE
 await app.Services.ApplyEnterpriseMigrationsAsync();
+#endif
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
@@ -109,21 +115,30 @@ app.UseCors();
 app.MapGet("/", () => new
 {
     service = "Agentic Commerce Backend",
-    Version = "v1.1.0",
+    version = "v1.1.0",
     status = "Running",
+#if ENTERPRISE
+    edition = "Enterprise",
+#else
+    edition = "Standard",
+#endif
     features = new[]
     {
         "Circle Arc Blockchain",
         "Circle Gateway (cross-chain USDC)",
         "X402 Payment Facilitation",
         "AI Agent Orchestration",
+#if ENTERPRISE
         "Policy Engine (Enterprise)"
+#endif
     },
     endpoints = new
     {
         swagger = "/swagger",
         health = "/health",
+#if ENTERPRISE
         policies = "/api/policies"
+#endif
     }
 });
 
