@@ -2,6 +2,7 @@ using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Agents;
 using AgenticCommerce.Infrastructure.Data;
+using AgenticCommerce.Infrastructure.Payments;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +17,6 @@ public class AgentServiceTests : IDisposable
     private readonly Mock<IArcClient> _arcClientMock;
     private readonly Mock<ILogger<AgentService>> _loggerMock;
     private readonly Mock<ILoggerFactory> _loggerFactoryMock;
-    private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
     private readonly Mock<IConfiguration> _configurationMock;
     private readonly AgenticCommerceDbContext _dbContext;
     private readonly AgentService _service;
@@ -28,7 +28,6 @@ public class AgentServiceTests : IDisposable
         _arcClientMock = new Mock<IArcClient>();
         _loggerMock = new Mock<ILogger<AgentService>>();
         _loggerFactoryMock = new Mock<ILoggerFactory>();
-        _httpClientFactoryMock = new Mock<IHttpClientFactory>();
         _configurationMock = new Mock<IConfiguration>();
 
         _arcClientMock.Setup(x => x.GetAddress()).Returns(TestWalletAddress);
@@ -49,14 +48,24 @@ public class AgentServiceTests : IDisposable
             OpenAIModel = "gpt-4o"
         });
 
+        // Create mock X402Client (not used in simulation mode)
+        var httpClient = new HttpClient();
+        var x402LoggerMock = new Mock<ILogger<X402Client>>();
+        var signerMock = new Mock<IEip3009Signer>();
+        var x402Client = new X402Client(
+            httpClient,
+            _arcClientMock.Object,
+            signerMock.Object,
+            x402LoggerMock.Object);
+
         _service = new AgentService(
             _arcClientMock.Object,
             _loggerMock.Object,
             aiOptions,
             _loggerFactoryMock.Object,
             _dbContext,
-            _httpClientFactoryMock.Object,
-            _configurationMock.Object);
+            _configurationMock.Object,
+            x402Client);
     }
 
     public void Dispose()
