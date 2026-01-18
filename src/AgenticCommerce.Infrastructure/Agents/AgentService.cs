@@ -1,6 +1,7 @@
 ﻿using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
+using AgenticCommerce.Infrastructure.Payments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,7 +10,6 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Text.Json;
-using static AgenticCommerce.Infrastructure.Agents.ResearchPlugin;
 
 namespace AgenticCommerce.Infrastructure.Agents;
 
@@ -22,13 +22,13 @@ public class AgentService : IAgentService
     private readonly AgenticCommerceDbContext _dbContext;
 
     public AgentService(
-    IArcClient arcClient,
-    ILogger<AgentService> logger,
-    IOptions<AIOptions> aiOptions,
-    ILoggerFactory loggerFactory,
-    AgenticCommerceDbContext dbContext,
-    IHttpClientFactory httpClientFactory, 
-    IConfiguration configuration)  
+        IArcClient arcClient,
+        ILogger<AgentService> logger,
+        IOptions<AIOptions> aiOptions,
+        ILoggerFactory loggerFactory,
+        AgenticCommerceDbContext dbContext,
+        IConfiguration configuration,
+        X402Client x402Client)
     {
         _arcClient = arcClient;
         _logger = logger;
@@ -52,19 +52,18 @@ public class AgentService : IAgentService
             // Add research plugin
             builder.Plugins.AddFromObject(new ResearchPlugin(), "Research");
 
-            // Add HTTP plugin with auto-pay
+            // Add HTTP plugin with x402 auto-pay (spec-compliant)
             var baseUrl = configuration["BaseUrl"] ?? "https://localhost:7098";
             builder.Plugins.AddFromObject(
                 new HttpPlugin(
-                    httpClientFactory,
-                    _arcClient,
+                    x402Client,
                     loggerFactory.CreateLogger<HttpPlugin>(),
                     baseUrl),
                 "Http");
 
             _kernel = builder.Build();
 
-            _logger.LogInformation("AgentService initialized with OpenAI ({Model})", _aiOptions.OpenAIModel);
+            _logger.LogInformation("AgentService initialized with OpenAI ({Model}) and x402 auto-pay", _aiOptions.OpenAIModel);
         }
         else
         {
@@ -429,23 +428,22 @@ RESEARCH TOOLS:
 - Research.CompareServices: Compare two service options
 - Research.CalculateCosts: Calculate usage cost estimates
 
-HTTP TOOLS WITH AUTO-PAY:
-- Http.GetWithAutoPay: Make HTTP GET request that automatically handles 402 payments
-  * If API returns 402 Payment Required, automatically pays and retries
-  * Handles payment verification
-  * Returns final API response
-  * Example: Http.GetWithAutoPay(""/api/x402-demo/ai-analysis"")
+HTTP TOOLS WITH AUTO-PAY (x402 V2 Spec):
+- Http.GetWithAutoPay(endpoint, maxBudgetUsdc): Make HTTP GET request with automatic payment
+  * endpoint: The API path (e.g., ""/api/x402-example/simple"") or full URL
+  * maxBudgetUsdc: Your spending limit for this call (default 0.10)
+  * If API returns 402 Payment Required, automatically signs EIP-3009 authorization and pays
+  * Example: Http.GetWithAutoPay(""/api/x402-example/simple"", 0.05)
 
 YOUR x402 AUTO-PAY CAPABILITY:
 When you use Http.GetWithAutoPay:
-1. You make the HTTP request
-2. If API requires payment (402), you AUTOMATICALLY:
-   - Read payment requirements
-   - Pay the required amount
-   - Verify payment
-   - Retry request
-   - Get the data
-3. All payment handling is AUTOMATIC - you just call the endpoint!
+1. You make the HTTP request with a budget limit
+2. If API requires payment (402), the system AUTOMATICALLY:
+   - Parses X-PAYMENT-REQUIRED header
+   - Signs EIP-3009 transferWithAuthorization
+   - Retries with X-PAYMENT header
+   - Returns response with payment confirmation
+3. Payment is ONLY made if cost <= your maxBudgetUsdc parameter
 
 IMPORTANT RULES:
 - ALWAYS verify budget before purchasing
@@ -455,10 +453,10 @@ IMPORTANT RULES:
 - Be transparent about what you're doing
 
 Example autonomous x402 flow:
-User: ""Call the AI analysis API""
-You: Http.GetWithAutoPay(""/api/x402-demo/ai-analysis"")
-System: Automatically handles 402, pays $0.01, retries, returns data
-You: Report success with transaction details
+User: ""Call the AI analysis API with max $0.05 budget""
+You: Http.GetWithAutoPay(""/api/x402-example/simple"", 0.05)
+System: Returns ""[PAID 0.01 USDC | TX: abc123...] + API response data""
+You: Report success with payment and response details
 
 Be autonomous, be smart, stay within budget.";
 
