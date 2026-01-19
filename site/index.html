@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentRails - Payment Infrastructure for AI Agents</title>
+    <meta name="description" content="Let your AI agents pay for APIs per-request. No subscriptions, no credentials, no humans. Built on X402.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Custom animations */
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-fade-up {
+            animation: fade-up 0.6s ease-out forwards;
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Gradient border */
+        .gradient-border {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            border-radius: 14px;
+            z-index: -1;
+        }
+
+        /* Code block styling */
+        .code-block {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
+
+        /* Blob background */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased" x-data="{ mobileMenu: false }">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                </a>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#features" class="text-gray-600 hover:text-gray-900 transition">Features</a>
+                    <a href="#how-it-works" class="text-gray-600 hover:text-gray-900 transition">How It Works</a>
+                    <a href="#" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="#waitlist" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Get Early Access
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Nav -->
+            <div x-show="mobileMenu" x-transition class="md:hidden py-4 border-t border-gray-100">
+                <a href="#features" class="block py-2 text-gray-600">Features</a>
+                <a href="#how-it-works" class="block py-2 text-gray-600">How It Works</a>
+                <a href="#" class="block py-2 text-gray-600">Docs</a>
+                <a href="#waitlist" class="block py-2 mt-2 text-center bg-primary-600 text-white rounded-lg font-medium">
+                    Get Early Access
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
+        <!-- Background blobs -->
+        <div class="blob w-96 h-96 bg-primary-300 top-20 -left-48"></div>
+        <div class="blob w-96 h-96 bg-cyan-300 top-40 right-0"></div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Left: Content -->
+                <div class="text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 text-primary-700 text-sm font-medium mb-6 animate-fade-up">
+                        <span class="w-2 h-2 rounded-full bg-primary-500"></span>
+                        Built on X402 Protocol
+                    </div>
+
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fade-up delay-100">
+                        Let's kill the <span class="gradient-text">API key</span>
+                    </h1>
+
+                    <p class="text-lg sm:text-xl text-gray-600 mb-4 animate-fade-up delay-200">
+                        Your AI agents shouldn't manage subscriptions, store credentials, or wait for humans.
+                    </p>
+
+                    <p class="text-lg font-medium text-primary-600 mb-8 animate-fade-up delay-200">
+                        Software paying software. Per-request. Instant settlement.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-up delay-300">
+                        <a href="#waitlist" class="px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition shadow-lg shadow-primary-500/25">
+                            Get Early Access
+                        </a>
+                        <a href="#how-it-works" class="px-6 py-3 bg-white text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition border border-gray-200">
+                            See How It Works
+                        </a>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="flex flex-wrap gap-8 mt-12 justify-center lg:justify-start animate-fade-up delay-400">
+                        <div>
+                            <div class="text-2xl font-bold text-gray-900">No keys</div>
+                            <div class="text-sm text-gray-500">No subscriptions</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-900">&lt;1s</div>
+                            <div class="text-sm text-gray-500">Settlement</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-gray-900">$0.001+</div>
+                            <div class="text-sm text-gray-500">Per request</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Code Window -->
+                <div class="relative animate-fade-up delay-300">
+                    <div class="code-block rounded-2xl shadow-2xl overflow-hidden animate-float">
+                        <div class="flex items-center gap-2 px-4 py-3 bg-black/20">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            <span class="ml-2 text-white/60 text-sm">agent.py</span>
+                        </div>
+                        <pre class="p-6 text-sm sm:text-base overflow-x-auto"><code class="text-gray-300"><span class="text-gray-500"># OLD WAY: API keys, subscriptions</span>
+<span class="text-gray-500"># api_key = os.environ["API_KEY"]</span>
+<span class="text-gray-500"># headers = {"Authorization": api_key}</span>
+
+<span class="text-gray-500"># NEW WAY: Just pay and go</span>
+data = agent.<span class="text-cyan-400">get</span>(
+    <span class="text-emerald-400">"https://api.example.com/data"</span>,
+    budget=<span class="text-amber-400">0.05</span>  <span class="text-gray-500"># Max: $0.05</span>
+)
+
+<span class="text-gray-500"># Server returns 402 → Agent pays → Done</span>
+print(data.result)  <span class="text-gray-500"># Your data</span>
+print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section class="py-12 border-y border-gray-100 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <p class="text-center text-sm text-gray-500 mb-8">Built on trusted infrastructure</p>
+            <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-16 opacity-60">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">C</div>
+                    <span class="font-semibold text-gray-700">Circle</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">C</div>
+                    <span class="font-semibold text-gray-700">Coinbase</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-gray-700">X402 Protocol</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-gray-700">USDC</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 lg:py-32">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Software paying software</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    No API keys. No subscriptions. No humans in the loop.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Zero Credential Management</h3>
+                    <p class="text-gray-600">
+                        No more provisioning API keys, rotating secrets, or managing subscription tiers. Your agent pays per-request and gets instant access.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Pay Only What You Use</h3>
+                    <p class="text-gray-600">
+                        Stop overpaying for subscriptions you rarely use. $0.001 for one API call. $0.01 for premium data. Pay exactly what each request costs.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Fully Autonomous</h3>
+                    <p class="text-gray-600">
+                        Agents discover services, check prices, and pay—without waiting for human approval. Set a budget and let them work.
+                    </p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Instant Settlement</h3>
+                    <p class="text-gray-600">
+                        Payments settle in milliseconds on-chain. No invoices, no reconciliation, no 30-day payment terms. The API responds immediately.
+                    </p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Enterprise Governance</h3>
+                    <p class="text-gray-600">
+                        Spending limits, approval workflows, and full audit trails. Every payment is cryptographically verifiable on-chain.
+                    </p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Open Standard</h3>
+                    <p class="text-gray-600">
+                        Built on X402—the HTTP standard for machine payments. No vendor lock-in. Works with any HTTP client or agent framework.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="py-20 lg:py-32 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">How It Works</h2>
+                <p class="text-lg text-gray-600">HTTP 402 is the new API key</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+                <!-- Step 1 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
+                        1
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Agent calls any API</h3>
+                    <p class="text-gray-600">
+                        No signup. No API key. Just a standard HTTP request. The server returns <code class="px-2 py-1 bg-gray-100 rounded text-sm">402 Payment Required</code> with the price.
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
+                        2
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Agent pays instantly</h3>
+                    <p class="text-gray-600">
+                        Our SDK checks budget limits, signs a USDC payment authorization, and retries—all in one round trip. No human approval needed.
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
+                        3
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Data returned, settled on-chain</h3>
+                    <p class="text-gray-600">
+                        The API delivers the response. Payment settles in milliseconds with cryptographic proof. Agent moves to the next task.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="py-20 lg:py-32">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">The API subscription model is broken</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Old Way -->
+                <div class="bg-white rounded-2xl p-8 border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-6 text-gray-500">Today's Reality</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-600">Sign up, verify email, add credit card</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-600">Generate API key, store it securely, rotate it</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-600">Pay $99/mo for a tier you'll use 10% of</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-600">Human approves each new vendor</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-600">Reconcile invoices across 20 services</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- New Way -->
+                <div class="gradient-border">
+                    <div class="bg-white rounded-xl p-8">
+                        <h3 class="text-xl font-semibold mb-6 gradient-text">With X402</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-gray-600">Agent calls API, gets 402 Payment Required</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-gray-600">Agent pays $0.01, gets instant access</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-gray-600">Pay per-request, not per-month</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-gray-600">No credentials to manage or leak</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-gray-600">Every payment verifiable on-chain</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Waitlist Section -->
+    <section id="waitlist" class="py-20 lg:py-32 bg-gradient-to-br from-primary-600 to-primary-800">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Build with us</h2>
+            <p class="text-lg text-primary-100 mb-8">
+                We're looking for teams building AI agents that need to pay for APIs, data, and compute. Let's kill the API key together.
+            </p>
+
+            <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="you@company.com"
+                    required
+                    class="flex-1 px-4 py-3 rounded-xl border-0 focus:ring-2 focus:ring-white/50 outline-none"
+                >
+                <button
+                    type="submit"
+                    class="px-6 py-3 bg-white text-primary-700 rounded-xl font-semibold hover:bg-primary-50 transition"
+                >
+                    Get Early Access
+                </button>
+            </form>
+
+            <p class="text-sm text-primary-200 mt-4">We'll reach out to discuss your use case.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 bg-gray-900 text-gray-400">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <!-- Brand -->
+                <div class="md:col-span-2">
+                    <a href="#" class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <span class="font-semibold text-lg text-white">AgentRails</span>
+                    </a>
+                    <p class="text-sm max-w-xs">
+                        Payments for the AI economy. Let your agents pay for APIs, data, and compute—per-request, instant settlement.
+                    </p>
+                </div>
+
+                <!-- Links -->
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Product</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#features" class="hover:text-white transition">Features</a></li>
+                        <li><a href="#how-it-works" class="hover:text-white transition">How It Works</a></li>
+                        <li><a href="#" class="hover:text-white transition">Pricing</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Developers</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white transition">Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition">API Reference</a></li>
+                        <li><a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="hover:text-white transition">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm">
+                <p>&copy; 2026 AgentRails. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-white transition">Privacy</a>
+                    <a href="#" class="hover:text-white transition">Terms</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
