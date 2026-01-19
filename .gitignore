@@ -133,3 +133,6 @@ _ReSharper*/
 
 ## Windows shortcuts
 *.lnk
+# Local reference docs
+docs/AgentRails-Mission-Statement.md
+docs/AgentRails-Mission-Statement.pdf
