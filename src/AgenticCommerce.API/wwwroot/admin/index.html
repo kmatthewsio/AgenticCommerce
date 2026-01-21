@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AgentRails</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div x-data="dashboard()" x-init="init()" x-cloak class="min-h-screen flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+            <!-- Logo -->
+            <div class="p-4 border-b border-gray-700">
+                <h1 class="text-xl font-bold">AgentRails</h1>
+                <p class="text-xs text-gray-400" x-text="user?.organizationName || 'Dashboard'"></p>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-1">
+                <a href="#overview"
+                   :class="page === 'overview' ? 'bg-blue-600' : 'hover:bg-gray-700'"
+                   class="block px-4 py-2 rounded transition-colors">
+                    Overview
+                </a>
+                <a href="#agents"
+                   :class="page === 'agents' ? 'bg-blue-600' : 'hover:bg-gray-700'"
+                   class="block px-4 py-2 rounded transition-colors">
+                    Agents
+                </a>
+                <a href="#transactions"
+                   :class="page === 'transactions' ? 'bg-blue-600' : 'hover:bg-gray-700'"
+                   class="block px-4 py-2 rounded transition-colors">
+                    Transactions
+                </a>
+                <a href="#logs"
+                   :class="page === 'logs' ? 'bg-blue-600' : 'hover:bg-gray-700'"
+                   class="block px-4 py-2 rounded transition-colors">
+                    Logs
+                </a>
+            </nav>
+
+            <!-- User -->
+            <div class="p-4 border-t border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm">
+                        <p class="font-medium" x-text="user?.name || user?.email"></p>
+                        <p class="text-gray-400 text-xs" x-text="user?.role"></p>
+                    </div>
+                    <button @click="logout()" class="text-gray-400 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-auto">
+            <!-- Header -->
+            <header class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+                <h2 class="text-xl font-semibold capitalize" x-text="page"></h2>
+            </header>
+
+            <!-- Page Content -->
+            <div class="p-6">
+                <!-- Loading State -->
+                <div x-show="loading" class="flex items-center justify-center py-12">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+
+                <!-- Overview Page -->
+                <div x-show="page === 'overview' && !loading">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                            <p class="text-gray-400 text-sm">Total Agents</p>
+                            <p class="text-2xl font-bold" x-text="stats.totalAgents"></p>
+                        </div>
+                        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                            <p class="text-gray-400 text-sm">Active Agents</p>
+                            <p class="text-2xl font-bold text-green-400" x-text="stats.activeAgents"></p>
+                        </div>
+                        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                            <p class="text-gray-400 text-sm">Total Budget</p>
+                            <p class="text-2xl font-bold" x-text="'$' + (stats.totalBudget || 0).toFixed(2)"></p>
+                        </div>
+                        <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                            <p class="text-gray-400 text-sm">Total Spent</p>
+                            <p class="text-2xl font-bold text-blue-400" x-text="'$' + (stats.totalSpent || 0).toFixed(2)"></p>
+                        </div>
+                    </div>
+
+                    <!-- Recent Agents -->
+                    <div class="bg-gray-800 rounded-lg border border-gray-700">
+                        <div class="px-4 py-3 border-b border-gray-700 flex justify-between items-center">
+                            <h3 class="font-medium">Recent Agents</h3>
+                            <a href="#agents" class="text-blue-400 text-sm hover:underline">View all</a>
+                        </div>
+                        <div class="divide-y divide-gray-700">
+                            <template x-for="agent in agents.slice(0, 5)" :key="agent.id">
+                                <div class="px-4 py-3 flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium" x-text="agent.name"></p>
+                                        <p class="text-sm text-gray-400" x-text="agent.id"></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm" x-text="'$' + agent.currentBalance.toFixed(2) + ' / $' + agent.budget.toFixed(2)"></p>
+                                        <span
+                                            :class="agent.status === 'Active' ? 'bg-green-900 text-green-300' : 'bg-gray-700 text-gray-300'"
+                                            class="text-xs px-2 py-0.5 rounded"
+                                            x-text="agent.status">
+                                        </span>
+                                    </div>
+                                </div>
+                            </template>
+                            <div x-show="agents.length === 0" class="px-4 py-8 text-center text-gray-400">
+                                No agents yet. Create your first agent to get started.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agents Page -->
+                <div x-show="page === 'agents' && !loading">
+                    <!-- Create Agent Button -->
+                    <div class="mb-4 flex justify-end">
+                        <button
+                            @click="showCreateAgent = true"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors">
+                            + Create Agent
+                        </button>
+                    </div>
+
+                    <!-- Agents Table -->
+                    <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-750 border-b border-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Name</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Status</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Budget</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Spent</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Created</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700">
+                                <template x-for="agent in agents" :key="agent.id">
+                                    <tr class="hover:bg-gray-750">
+                                        <td class="px-4 py-3">
+                                            <div>
+                                                <p class="font-medium" x-text="agent.name"></p>
+                                                <p class="text-xs text-gray-400" x-text="agent.id"></p>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span
+                                                :class="agent.status === 'Active' ? 'bg-green-900 text-green-300' : 'bg-gray-700 text-gray-300'"
+                                                class="text-xs px-2 py-1 rounded"
+                                                x-text="agent.status">
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3" x-text="'$' + agent.budget.toFixed(2)"></td>
+                                        <td class="px-4 py-3" x-text="'$' + agent.spent.toFixed(2)"></td>
+                                        <td class="px-4 py-3 text-sm text-gray-400" x-text="formatDate(agent.createdAt)"></td>
+                                        <td class="px-4 py-3">
+                                            <button
+                                                @click="deleteAgent(agent.id)"
+                                                class="text-red-400 hover:text-red-300 text-sm">
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                        <div x-show="agents.length === 0" class="px-4 py-8 text-center text-gray-400">
+                            No agents yet. Create your first agent to get started.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions Page -->
+                <div x-show="page === 'transactions' && !loading">
+                    <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-750 border-b border-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Date</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Agent</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Amount</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Recipient</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700">
+                                <template x-for="tx in transactions" :key="tx.id">
+                                    <tr class="hover:bg-gray-750">
+                                        <td class="px-4 py-3 text-sm" x-text="formatDate(tx.createdAt)"></td>
+                                        <td class="px-4 py-3" x-text="tx.agentId"></td>
+                                        <td class="px-4 py-3" x-text="'$' + tx.amount.toFixed(2)"></td>
+                                        <td class="px-4 py-3 text-sm text-gray-400" x-text="tx.recipientAddress || '-'"></td>
+                                        <td class="px-4 py-3">
+                                            <span
+                                                :class="tx.status === 'Completed' ? 'bg-green-900 text-green-300' : 'bg-yellow-900 text-yellow-300'"
+                                                class="text-xs px-2 py-1 rounded"
+                                                x-text="tx.status">
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                        <div x-show="transactions.length === 0" class="px-4 py-8 text-center text-gray-400">
+                            No transactions yet.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logs Page -->
+                <div x-show="page === 'logs' && !loading">
+                    <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                        <div class="divide-y divide-gray-700 max-h-[600px] overflow-auto font-mono text-sm">
+                            <template x-for="log in logs" :key="log.id">
+                                <div class="px-4 py-2 flex items-start gap-4">
+                                    <span class="text-gray-500 whitespace-nowrap" x-text="formatDateTime(log.timestamp)"></span>
+                                    <span
+                                        :class="{
+                                            'text-red-400': log.level === 'Error',
+                                            'text-yellow-400': log.level === 'Warning',
+                                            'text-blue-400': log.level === 'Information',
+                                            'text-gray-400': log.level === 'Debug'
+                                        }"
+                                        class="w-20"
+                                        x-text="log.level">
+                                    </span>
+                                    <span class="text-gray-300" x-text="log.message"></span>
+                                </div>
+                            </template>
+                        </div>
+                        <div x-show="logs.length === 0" class="px-4 py-8 text-center text-gray-400">
+                            No logs yet.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Create Agent Modal -->
+        <div x-show="showCreateAgent" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md" @click.away="showCreateAgent = false">
+                <h3 class="text-lg font-semibold mb-4">Create New Agent</h3>
+                <form @submit.prevent="createAgent">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-gray-300 text-sm mb-1">Name</label>
+                            <input
+                                type="text"
+                                x-model="newAgent.name"
+                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
+                                placeholder="My Agent"
+                                required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm mb-1">Description</label>
+                            <textarea
+                                x-model="newAgent.description"
+                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
+                                placeholder="What does this agent do?"
+                                rows="2"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm mb-1">Budget (USDC)</label>
+                            <input
+                                type="number"
+                                x-model="newAgent.budget"
+                                step="0.01"
+                                min="0"
+                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
+                                placeholder="10.00"
+                                required>
+                        </div>
+                        <div class="flex gap-2 pt-2">
+                            <button
+                                type="button"
+                                @click="showCreateAgent = false"
+                                class="flex-1 py-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors">
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors">
+                                Create
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function dashboard() {
+            return {
+                page: 'overview',
+                loading: false,
+                user: null,
+                stats: {},
+                agents: [],
+                transactions: [],
+                logs: [],
+                showCreateAgent: false,
+                newAgent: { name: '', description: '', budget: 10 },
+
+                async init() {
+                    // Check auth
+                    const token = localStorage.getItem('accessToken');
+                    if (!token) {
+                        window.location.href = '/admin/login.html';
+                        return;
+                    }
+
+                    this.user = JSON.parse(localStorage.getItem('user') || '{}');
+
+                    // Handle routing
+                    this.handleRoute();
+                    window.addEventListener('hashchange', () => this.handleRoute());
+
+                    // Load initial data
+                    await this.loadData();
+                },
+
+                handleRoute() {
+                    const hash = window.location.hash.slice(1) || 'overview';
+                    this.page = hash;
+                },
+
+                async loadData() {
+                    this.loading = true;
+                    try {
+                        await Promise.all([
+                            this.loadAgents(),
+                            this.loadTransactions(),
+                            this.loadLogs()
+                        ]);
+                    } catch (err) {
+                        console.error('Failed to load data:', err);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async loadAgents() {
+                    const response = await this.fetch('/api/agents/dashboard');
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.agents = data.agents || [];
+                        this.stats = data.summary || {};
+                    }
+                },
+
+                async loadTransactions() {
+                    const response = await this.fetch('/api/agents/transactions');
+                    if (response.ok) {
+                        this.transactions = await response.json();
+                    }
+                },
+
+                async loadLogs() {
+                    const response = await this.fetch('/api/logs?limit=100');
+                    if (response.ok) {
+                        this.logs = await response.json();
+                    }
+                },
+
+                async createAgent() {
+                    const response = await this.fetch('/api/agents', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: this.newAgent.name,
+                            description: this.newAgent.description,
+                            budget: parseFloat(this.newAgent.budget)
+                        })
+                    });
+
+                    if (response.ok) {
+                        this.showCreateAgent = false;
+                        this.newAgent = { name: '', description: '', budget: 10 };
+                        await this.loadAgents();
+                    } else {
+                        const error = await response.json();
+                        alert(error.error || 'Failed to create agent');
+                    }
+                },
+
+                async deleteAgent(agentId) {
+                    if (!confirm('Are you sure you want to delete this agent?')) return;
+
+                    const response = await this.fetch(`/api/agents/${agentId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        await this.loadAgents();
+                    }
+                },
+
+                async fetch(url, options = {}) {
+                    const token = localStorage.getItem('accessToken');
+                    return fetch(url, {
+                        ...options,
+                        headers: {
+                            ...options.headers,
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                },
+
+                logout() {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    localStorage.removeItem('user');
+                    window.location.href = '/admin/login.html';
+                },
+
+                formatDate(dateStr) {
+                    if (!dateStr) return '-';
+                    return new Date(dateStr).toLocaleDateString();
+                },
+
+                formatDateTime(dateStr) {
+                    if (!dateStr) return '-';
+                    return new Date(dateStr).toLocaleString();
+                }
+            };
+        }
+    </script>
+</body>
+</html>

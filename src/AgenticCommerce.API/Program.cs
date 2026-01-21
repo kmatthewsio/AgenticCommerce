@@ -1,10 +1,15 @@
+using System.Text;
+using AgenticCommerce.API.Middleware;
+using AgenticCommerce.API.Services;
 using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Infrastructure.Agents;
 using AgenticCommerce.Infrastructure.Blockchain;
 using AgenticCommerce.Infrastructure.Data;
 using AgenticCommerce.Infrastructure.Logging;
 using AgenticCommerce.Infrastructure.Payments;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 #if ENTERPRISE
 using AgenticCommerce.Enterprise;
@@ -62,6 +67,31 @@ builder.Services.Configure<AIOptions>(options =>
     options.OpenAIModel = builder.Configuration["OpenAI:Model"] ?? "gpt-4o";
 });
 
+// ========================================
+// CONFIGURE JWT AUTHENTICATION
+// ========================================
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "AgentRails-Default-Secret-Key-Change-In-Production-32chars";
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "AgentRails",
+        ValidAudience = builder.Configuration["Jwt:Audience"] ?? "AgentRails",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+});
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IArcClient, ArcClient>();
 builder.Services.AddScoped<IAgentService, AgentService>();
@@ -107,7 +137,10 @@ app.UseSwagger();
 
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Serve admin dashboard
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseTenantMiddleware();
 app.MapControllers();
 app.MapHealthChecks("/health");
 app.UseCors();

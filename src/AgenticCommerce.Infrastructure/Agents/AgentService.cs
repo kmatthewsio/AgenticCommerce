@@ -253,12 +253,32 @@ public class AgentService : IAgentService
 
     public async Task<Agent> CreateAgentAsync(AgentConfig config)
     {
-        return await CreateAgentAsync(
-            config.Name,
-            config.Description ?? "Autonomous agent",
-            config.Budget,
-            config.Capabilities ?? new List<string> { "research", "analysis", "payments" }
-        );
+        var walletAddress = _arcClient.GetAddress();
+
+        var agentEntity = new AgentEntity
+        {
+            Id = $"agent_{Guid.NewGuid():N}",
+            Name = config.Name,
+            Description = config.Description ?? "Autonomous agent",
+            Budget = config.Budget,
+            CurrentBalance = config.Budget,
+            WalletAddress = walletAddress,
+            WalletId = walletAddress,
+            Status = AgentStatus.Active.ToString(),
+            CapabilitiesJson = JsonSerializer.Serialize(
+                config.Capabilities ?? new List<string> { "research", "analysis", "payments" }),
+            CreatedAt = DateTime.UtcNow,
+            OrganizationId = config.OrganizationId
+        };
+
+        _dbContext.Agents.Add(agentEntity);
+        await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Created agent {AgentId} ({Name}) with budget ${Budget} for org {OrgId}",
+            agentEntity.Id, agentEntity.Name, agentEntity.Budget, config.OrganizationId);
+
+        return MapToAgent(agentEntity);
     }
 
     public async Task<PurchaseResult> MakePurchaseAsync(string agentId, PurchaseRequest request)

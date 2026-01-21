@@ -60,7 +60,13 @@ public class AgentEntity
     [Column("metadata")]
     public string? MetadataJson { get; set; } // JSON object
 
-    // Navigation property
+    [Column("organization_id")]
+    public Guid? OrganizationId { get; set; }
+
+    // Navigation properties
+    [ForeignKey(nameof(OrganizationId))]
+    public virtual Organization? Organization { get; set; }
+
     public virtual ICollection<TransactionEntity> Transactions { get; set; } = new List<TransactionEntity>();
 }
 
