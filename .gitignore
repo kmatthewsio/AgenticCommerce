@@ -35,6 +35,7 @@ bld/
 
 ## Enterprise (private repo - do not commit to public)
 src/AgenticCommerce.Enterprise/
+tests/AgenticCommerce.Enterprise.Tests/
 AgenticCommerce.Full.slnx
 
 ## Rider
