@@ -53,7 +53,21 @@ public class AgentService : IAgentService
             builder.Plugins.AddFromObject(new ResearchPlugin(), "Research");
 
             // Add HTTP plugin with x402 auto-pay (spec-compliant)
-            var baseUrl = configuration["BaseUrl"] ?? "https://localhost:7098";
+            // Auto-detect base URL: use config if set, otherwise detect from environment
+            var baseUrl = configuration["BaseUrl"];
+            if (string.IsNullOrEmpty(baseUrl) || baseUrl.Contains("localhost"))
+            {
+                var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                if (env != "Development")
+                {
+                    // Production: use the deployed API URL
+                    baseUrl = "https://api.agentrails.io";
+                }
+                else
+                {
+                    baseUrl = "https://localhost:7098";
+                }
+            }
             builder.Plugins.AddFromObject(
                 new HttpPlugin(
                     x402Client,
