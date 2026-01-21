@@ -1,6 +1,10 @@
-﻿using AgenticCommerce.Core.Interfaces;
+using AgenticCommerce.API.Middleware;
+using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
+using AgenticCommerce.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AgenticCommerce.API.Controllers;
 
@@ -9,11 +13,16 @@ namespace AgenticCommerce.API.Controllers;
 public class AgentsController : ControllerBase
 {
     private readonly IAgentService _agentService;
+    private readonly AgenticCommerceDbContext _db;
     private readonly ILogger<AgentsController> _logger;
 
-    public AgentsController(IAgentService agentService, ILogger<AgentsController> logger)
+    public AgentsController(
+        IAgentService agentService,
+        AgenticCommerceDbContext db,
+        ILogger<AgentsController> logger)
     {
         _agentService = agentService;
+        _db = db;
         _logger = logger;
     }
 
@@ -25,6 +34,13 @@ public class AgentsController : ControllerBase
     {
         try
         {
+            // Associate with organization if authenticated
+            var orgId = HttpContext.GetOrganizationId();
+            if (orgId.HasValue)
+            {
+                config.OrganizationId = orgId.Value;
+            }
+
             var agent = await _agentService.CreateAgentAsync(config);
             return Ok(agent);
         }
@@ -114,13 +130,83 @@ public class AgentsController : ControllerBase
     }
 
     /// <summary>
-    /// List all agents
+    /// List all agents (optionally filtered by organization if authenticated)
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<List<AgentInfo>>> ListAgents()
     {
-        var agents = await _agentService.ListAgentsAsync();
-        return Ok(agents);
+        var orgId = HttpContext.GetOrganizationId();
+
+        if (orgId.HasValue)
+        {
+            // User is authenticated - filter by organization
+            var agents = await _db.Agents
+                .Where(a => a.OrganizationId == orgId.Value)
+                .OrderByDescending(a => a.CreatedAt)
+                .Select(a => new AgentInfo
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    Status = a.Status,
+                    CurrentBalance = a.CurrentBalance,
+                    Budget = a.Budget,
+                    WalletAddress = a.WalletAddress,
+                    LastActiveAt = a.LastActiveAt
+                })
+                .ToListAsync();
+            return Ok(agents);
+        }
+
+        // No auth - return all agents (backward compatibility)
+        var allAgents = await _agentService.ListAgentsAsync();
+        return Ok(allAgents);
+    }
+
+    /// <summary>
+    /// List agents for dashboard (requires authentication)
+    /// </summary>
+    [Authorize]
+    [HttpGet("dashboard")]
+    public async Task<ActionResult<object>> ListAgentsForDashboard()
+    {
+        var orgId = HttpContext.GetOrganizationId();
+        if (!orgId.HasValue)
+        {
+            return Unauthorized();
+        }
+
+        var agents = await _db.Agents
+            .Where(a => a.OrganizationId == orgId.Value)
+            .OrderByDescending(a => a.CreatedAt)
+            .ToListAsync();
+
+        var totalBudget = agents.Sum(a => a.Budget);
+        var totalSpent = agents.Sum(a => a.Budget - a.CurrentBalance);
+        var activeCount = agents.Count(a => a.Status == "Active");
+
+        return Ok(new
+        {
+            agents = agents.Select(a => new
+            {
+                id = a.Id,
+                name = a.Name,
+                description = a.Description,
+                status = a.Status,
+                budget = a.Budget,
+                currentBalance = a.CurrentBalance,
+                spent = a.Budget - a.CurrentBalance,
+                walletAddress = a.WalletAddress,
+                createdAt = a.CreatedAt,
+                lastActiveAt = a.LastActiveAt
+            }),
+            summary = new
+            {
+                totalAgents = agents.Count,
+                activeAgents = activeCount,
+                totalBudget,
+                totalSpent
+            }
+        });
     }
 
     /// <summary>
@@ -137,6 +223,78 @@ public class AgentsController : ControllerBase
         }
 
         return Ok(new { message = $"Agent {agentId} deleted" });
+    }
+
+    /// <summary>
+    /// Get transactions for dashboard (requires authentication)
+    /// </summary>
+    [Authorize]
+    [HttpGet("transactions")]
+    public async Task<ActionResult> GetTransactionsForDashboard([FromQuery] int limit = 100)
+    {
+        var orgId = HttpContext.GetOrganizationId();
+        if (!orgId.HasValue)
+        {
+            return Unauthorized();
+        }
+
+        // Get agent IDs for this organization
+        var agentIds = await _db.Agents
+            .Where(a => a.OrganizationId == orgId.Value)
+            .Select(a => a.Id)
+            .ToListAsync();
+
+        // Get transactions for those agents
+        var transactions = await _db.Transactions
+            .Where(t => agentIds.Contains(t.AgentId))
+            .OrderByDescending(t => t.CreatedAt)
+            .Take(limit)
+            .Select(t => new
+            {
+                id = t.Id,
+                agentId = t.AgentId,
+                transactionId = t.TransactionId,
+                amount = t.Amount,
+                recipientAddress = t.RecipientAddress,
+                description = t.Description,
+                status = t.Status,
+                createdAt = t.CreatedAt,
+                completedAt = t.CompletedAt
+            })
+            .ToListAsync();
+
+        return Ok(transactions);
+    }
+
+    /// <summary>
+    /// Claim orphaned agents (agents without organization) for current user's organization
+    /// </summary>
+    [Authorize]
+    [HttpPost("claim-orphaned")]
+    public async Task<ActionResult> ClaimOrphanedAgents()
+    {
+        var orgId = HttpContext.GetOrganizationId();
+        if (!orgId.HasValue)
+        {
+            return Unauthorized();
+        }
+
+        var orphanedAgents = await _db.Agents
+            .Where(a => a.OrganizationId == null)
+            .ToListAsync();
+
+        foreach (var agent in orphanedAgents)
+        {
+            agent.OrganizationId = orgId.Value;
+        }
+
+        await _db.SaveChangesAsync();
+
+        return Ok(new
+        {
+            message = $"Claimed {orphanedAgents.Count} orphaned agents",
+            agentIds = orphanedAgents.Select(a => a.Id).ToList()
+        });
     }
 }
 

@@ -41,6 +41,7 @@ public class AgentConfig
     public string? Description { get; set; } = string.Empty;
     public decimal Budget { get; set; }
     public List<string>? Capabilities { get; set; } = new();
+    public Guid? OrganizationId { get; set; }
 }
 
 /// <summary>
