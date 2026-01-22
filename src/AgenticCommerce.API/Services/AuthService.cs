@@ -16,6 +16,8 @@ public interface IAuthService
     Task<AuthResult> RefreshTokenAsync(string refreshToken);
     Task RevokeTokenAsync(string refreshToken);
     Task<User?> GetUserByIdAsync(Guid userId);
+    Task<string?> CreatePasswordResetTokenAsync(string email);
+    Task<bool> ResetPasswordAsync(string token, string newPassword);
 }
 
 public class AuthService : IAuthService
@@ -149,6 +151,71 @@ public class AuthService : IAuthService
             .FirstOrDefaultAsync(u => u.Id == userId);
     }
 
+    public async Task<string?> CreatePasswordResetTokenAsync(string email)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+        if (user == null)
+        {
+            // Don't reveal if user exists - return null but don't error
+            return null;
+        }
+
+        // Invalidate any existing tokens for this user
+        var existingTokens = await _db.PasswordResetTokens
+            .Where(t => t.UserId == user.Id && t.UsedAt == null)
+            .ToListAsync();
+        foreach (var t in existingTokens)
+        {
+            t.UsedAt = DateTime.UtcNow;
+        }
+
+        // Create new token
+        var resetToken = new PasswordResetToken
+        {
+            UserId = user.Id,
+            Token = GenerateRandomToken(),
+            ExpiresAt = DateTime.UtcNow.AddHours(1)
+        };
+
+        _db.PasswordResetTokens.Add(resetToken);
+        await _db.SaveChangesAsync();
+
+        _logger.LogInformation("Password reset token created for user: {Email}", email);
+        return resetToken.Token;
+    }
+
+    public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+    {
+        var resetToken = await _db.PasswordResetTokens
+            .Include(t => t.User)
+            .FirstOrDefaultAsync(t => t.Token == token);
+
+        if (resetToken == null || !resetToken.IsValid)
+        {
+            return false;
+        }
+
+        // Update password
+        resetToken.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword, 12);
+
+        // Mark token as used
+        resetToken.UsedAt = DateTime.UtcNow;
+
+        // Revoke all refresh tokens for this user (force re-login)
+        var refreshTokens = await _db.RefreshTokens
+            .Where(t => t.UserId == resetToken.UserId && t.RevokedAt == null)
+            .ToListAsync();
+        foreach (var rt in refreshTokens)
+        {
+            rt.RevokedAt = DateTime.UtcNow;
+        }
+
+        await _db.SaveChangesAsync();
+
+        _logger.LogInformation("Password reset successfully for user: {UserId}", resetToken.UserId);
+        return true;
+    }
+
     private string GenerateAccessToken(User user, Organization org)
     {
         var jwtKey = _config["Jwt:Key"] ?? throw new InvalidOperationException("JWT key not configured");
@@ -224,6 +291,15 @@ public record LoginRequest(
 
 public record RefreshRequest(
     string RefreshToken
+);
+
+public record ForgotPasswordRequest(
+    string Email
+);
+
+public record ResetPasswordRequest(
+    string Token,
+    string NewPassword
 );
 
 public class AuthResult

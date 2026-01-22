@@ -1,4 +1,5 @@
 using AgenticCommerce.API.Middleware;
+using AgenticCommerce.API.Services;
 using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
@@ -15,15 +16,18 @@ public class AgentsController : ControllerBase
     private readonly IAgentService _agentService;
     private readonly AgenticCommerceDbContext _db;
     private readonly ILogger<AgentsController> _logger;
+    private readonly IPolicyEnforcementService _policyService;
 
     public AgentsController(
         IAgentService agentService,
         AgenticCommerceDbContext db,
-        ILogger<AgentsController> logger)
+        ILogger<AgentsController> logger,
+        IPolicyEnforcementService policyService)
     {
         _agentService = agentService;
         _db = db;
         _logger = logger;
+        _policyService = policyService;
     }
 
     /// <summary>
@@ -81,6 +85,35 @@ public class AgentsController : ControllerBase
     {
         try
         {
+            // Get agent to check organization
+            var agent = await _db.Agents.FirstOrDefaultAsync(a => a.Id == agentId);
+            if (agent == null)
+            {
+                return NotFound(new { error = "Agent not found" });
+            }
+
+            // Check organization policies if agent belongs to one
+            if (agent.OrganizationId.HasValue)
+            {
+                var policyCheck = await _policyService.CheckPolicyAsync(
+                    agent.OrganizationId.Value,
+                    agentId,
+                    request.Amount,
+                    request.RecipientAddress);
+
+                if (!policyCheck.IsAllowed)
+                {
+                    _logger.LogWarning("Purchase blocked by policy for agent {AgentId}: {Violations}",
+                        agentId, string.Join("; ", policyCheck.Violations));
+
+                    return BadRequest(new PurchaseResult
+                    {
+                        Success = false,
+                        ErrorMessage = "Policy violation: " + string.Join("; ", policyCheck.Violations)
+                    });
+                }
+            }
+
             var result = await _agentService.MakePurchaseAsync(agentId, request);
 
             if (!result.Success)

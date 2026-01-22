@@ -30,4 +30,6 @@ public class Organization
     // Navigation properties
     public virtual ICollection<User> Users { get; set; } = new List<User>();
     public virtual ICollection<AgentEntity> Agents { get; set; } = new List<AgentEntity>();
+    public virtual ICollection<ApiKey> ApiKeys { get; set; } = new List<ApiKey>();
+    public virtual ICollection<Policy> Policies { get; set; } = new List<Policy>();
 }
