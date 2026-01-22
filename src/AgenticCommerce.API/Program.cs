@@ -1,4 +1,5 @@
 using System.Text;
+using AgenticCommerce.API.Authentication;
 using AgenticCommerce.API.Middleware;
 using AgenticCommerce.API.Services;
 using AgenticCommerce.Core.Interfaces;
@@ -68,15 +69,15 @@ builder.Services.Configure<AIOptions>(options =>
 });
 
 // ========================================
-// CONFIGURE JWT AUTHENTICATION
+// CONFIGURE JWT + API KEY AUTHENTICATION
 // ========================================
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "AgentRails-Default-Secret-Key-Change-In-Production-32chars";
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = "MultiAuth";
+    options.DefaultChallengeScheme = "MultiAuth";
 })
-.AddJwtBearer(options =>
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -88,9 +89,24 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"] ?? "AgentRails",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
+})
+.AddApiKey()
+.AddPolicyScheme("MultiAuth", "JWT or API Key", options =>
+{
+    options.ForwardDefaultSelector = context =>
+    {
+        // If X-API-Key header is present, use API key auth
+        if (context.Request.Headers.ContainsKey(ApiKeyAuthenticationHandler.HeaderName))
+        {
+            return ApiKeyAuthenticationHandler.SchemeName;
+        }
+        // Otherwise use JWT
+        return JwtBearerDefaults.AuthenticationScheme;
+    };
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPolicyEnforcementService, PolicyEnforcementService>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IArcClient, ArcClient>();

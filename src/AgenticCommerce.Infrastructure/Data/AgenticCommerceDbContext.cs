@@ -19,6 +19,9 @@ public class AgenticCommerceDbContext : DbContext
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<User> Users => Set<User>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+    public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
+    public DbSet<Policy> Policies => Set<Policy>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -96,6 +99,36 @@ public class AgenticCommerceDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Token);
             entity.HasIndex(e => e.UserId);
+        });
+
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Token);
+            entity.HasIndex(e => e.UserId);
+        });
+
+        modelBuilder.Entity<ApiKey>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.KeyHash);
+            entity.HasIndex(e => e.OrganizationId);
+
+            entity.HasOne(e => e.Organization)
+                .WithMany(o => o.ApiKeys)
+                .HasForeignKey(e => e.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Policy>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.OrganizationId);
+
+            entity.HasOne(e => e.Organization)
+                .WithMany(o => o.Policies)
+                .HasForeignKey(e => e.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -132,4 +132,59 @@ public class AuthController : ControllerBase
             organizationName = user.Organization.Name
         });
     }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest request,
+        [FromServices] IWebHostEnvironment env)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email))
+        {
+            return BadRequest(new { error = "Email is required" });
+        }
+
+        var token = await _authService.CreatePasswordResetTokenAsync(request.Email);
+
+        // In production, you would send an email here with the reset link
+        if (token != null)
+        {
+            var resetLink = $"/admin/login.html?reset_token={token}";
+            _logger.LogInformation("Password reset link: {ResetLink}", resetLink);
+
+            // In Development, return the link directly for testing
+            if (env.IsDevelopment())
+            {
+                return Ok(new {
+                    message = "Password reset link generated (dev mode)",
+                    resetLink
+                });
+            }
+        }
+
+        // In production, always return generic success to prevent email enumeration
+        return Ok(new { message = "If an account exists with this email, a password reset link has been sent." });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Token) || string.IsNullOrWhiteSpace(request.NewPassword))
+        {
+            return BadRequest(new { error = "Token and new password are required" });
+        }
+
+        if (request.NewPassword.Length < 8)
+        {
+            return BadRequest(new { error = "Password must be at least 8 characters" });
+        }
+
+        var success = await _authService.ResetPasswordAsync(request.Token, request.NewPassword);
+
+        if (!success)
+        {
+            return BadRequest(new { error = "Invalid or expired reset token" });
+        }
+
+        return Ok(new { message = "Password reset successfully" });
+    }
 }
