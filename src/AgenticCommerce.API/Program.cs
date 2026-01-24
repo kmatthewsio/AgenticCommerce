@@ -1,20 +1,12 @@
-using System.Text;
-using AgenticCommerce.API.Authentication;
 using AgenticCommerce.API.Middleware;
-using AgenticCommerce.API.Services;
 using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Infrastructure.Agents;
 using AgenticCommerce.Infrastructure.Blockchain;
 using AgenticCommerce.Infrastructure.Data;
 using AgenticCommerce.Infrastructure.Logging;
 using AgenticCommerce.Infrastructure.Payments;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
-#if ENTERPRISE
-using AgenticCommerce.Enterprise;
-#endif
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,17 +24,25 @@ builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllers()
-    .AddJsonOptions( options =>
+    .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddCors( options =>
+builder.Services.AddSwaggerGen(c =>
 {
-    options.AddDefaultPolicy( policy =>
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "AgentRails Sandbox API",
+        Version = "v1",
+        Description = "Sandbox environment for testing x402 payment protocol and AI agent capabilities. For production access, contact sales@agentrails.io"
+    });
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyMethod()
@@ -69,63 +69,20 @@ builder.Services.Configure<AIOptions>(options =>
 });
 
 // ========================================
-// CONFIGURE JWT + API KEY AUTHENTICATION
+// CORE SERVICES (No Auth for Sandbox)
 // ========================================
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "AgentRails-Default-Secret-Key-Change-In-Production-32chars";
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = "MultiAuth";
-    options.DefaultChallengeScheme = "MultiAuth";
-})
-.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "AgentRails",
-        ValidAudience = builder.Configuration["Jwt:Audience"] ?? "AgentRails",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-    };
-})
-.AddApiKey()
-.AddPolicyScheme("MultiAuth", "JWT or API Key", options =>
-{
-    options.ForwardDefaultSelector = context =>
-    {
-        // If X-API-Key header is present, use API key auth
-        if (context.Request.Headers.ContainsKey(ApiKeyAuthenticationHandler.HeaderName))
-        {
-            return ApiKeyAuthenticationHandler.SchemeName;
-        }
-        // Otherwise use JWT
-        return JwtBearerDefaults.AuthenticationScheme;
-    };
-});
-
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IPolicyEnforcementService, PolicyEnforcementService>();
-
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IArcClient, ArcClient>();
 builder.Services.AddScoped<IAgentService, AgentService>();
+
 // X402 Payment Services
-builder.Services.AddSingleton<IX402PaymentService, X402PaymentService>(); // Legacy
-builder.Services.AddX402Payments(); // V2 Spec-compliant with attribute support
+builder.Services.AddSingleton<IX402PaymentService, X402PaymentService>();
+builder.Services.AddX402Payments();
 builder.Services.AddHttpClient<ICircleGatewayClient, CircleGatewayClient>();
 builder.Services.AddHealthChecks();
 
 // Database logging service
 builder.Services.AddScoped<IDbLogger, DbLogger>();
-
-// ========================================
-// ENTERPRISE FEATURES (Policy Engine)
-// ========================================
-#if ENTERPRISE
-builder.Services.AddEnterpriseServices(connectionString!);
-#endif
 
 var app = builder.Build();
 
@@ -136,64 +93,63 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-// Apply enterprise migrations (Policy Engine tables)
-#if ENTERPRISE
-await app.Services.ApplyEnterpriseMigrationsAsync();
-#endif
-
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
 app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "AgenticCommerce.API v1");
-    });
-//}
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AgentRails Sandbox API v1");
+    c.DocumentTitle = "AgentRails Sandbox API";
+});
 
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
-app.UseStaticFiles(); // Serve admin dashboard
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseTenantMiddleware();
+app.UseStaticFiles();
+app.UseTenantMiddleware(); // Still needed for extension methods
 app.MapControllers();
 app.MapHealthChecks("/health");
 app.UseCors();
 
 app.MapGet("/", () => new
 {
-    service = "Agentic Commerce Backend",
-    version = "v1.1.0",
+    service = "AgentRails Sandbox API",
+    version = "v1.0.0",
     status = "Running",
-#if ENTERPRISE
-    edition = "Enterprise",
-#else
-    edition = "Standard",
-#endif
+    edition = "Sandbox",
+    environment = "Testnet Only",
+    description = "Demo environment for exploring x402 payment protocol capabilities",
     features = new[]
     {
-        "Circle Arc Blockchain",
-        "Circle Gateway (cross-chain USDC)",
-        "X402 Payment Facilitation",
-        "AI Agent Orchestration",
-#if ENTERPRISE
-        "Policy Engine (Enterprise)"
-#endif
+        "x402 Payment Protocol (Testnet)",
+        "AI Agent Demo",
+        "Circle Arc Blockchain (Testnet)",
+        "Interactive API Documentation"
     },
     endpoints = new
     {
         swagger = "/swagger",
         health = "/health",
-#if ENTERPRISE
-        policies = "/api/policies"
-#endif
+        x402_demo = "/api/x402-demo",
+        x402_examples = "/api/x402-example"
+    },
+    production = new
+    {
+        contact = "sales@agentrails.io",
+        docs = "https://docs.agentrails.io",
+        enterprise_features = new[]
+        {
+            "Production Mainnet Access",
+            "Multi-tenant Organization Management",
+            "Policy Engine for Spending Controls",
+            "API Key Management",
+            "Audit Logs & Analytics",
+            "SLA & Priority Support"
+        }
     }
 });
 
 try
 {
-    Log.Information("Starting Agentic Commerce API");
+    Log.Information("Starting AgentRails Sandbox API");
 
     var arcClient = app.Services.GetRequiredService<IArcClient>();
     var isConnected = await arcClient.IsConnectedAsync();
@@ -207,7 +163,7 @@ try
         try
         {
             var balance = await arcClient.GetBalanceAsync();
-            Log.Information("Connected to ARC blockchain with wallet {WalletAddress}. Current USDC Balance: {Balance}", walletAddress, balance);
+            Log.Information("Connected to ARC blockchain (Testnet) with wallet {WalletAddress}. Current USDC Balance: {Balance}", walletAddress, balance);
         }
         catch (Exception ex)
         {
@@ -218,7 +174,8 @@ try
     {
         Log.Warning("Failed to connect to ARC blockchain.");
     }
-} catch (Exception ex)
+}
+catch (Exception ex)
 {
     Log.Fatal(ex, "Failed to test circle connection.");
 }
@@ -230,13 +187,12 @@ finally
 try
 {
     app.Run();
-    Log.Information("Starting Agentic Commerce API on https://localhost:7098");  
-
 }
 catch (Exception ex)
 {
     Log.Fatal(ex, "Application terminated unexpectedly");
 }
-finally { Log.CloseAndFlush(); }
-
-
+finally
+{
+    Log.CloseAndFlush();
+}

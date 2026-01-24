@@ -1,9 +1,7 @@
 using AgenticCommerce.API.Middleware;
-using AgenticCommerce.API.Services;
 using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,18 +14,15 @@ public class AgentsController : ControllerBase
     private readonly IAgentService _agentService;
     private readonly AgenticCommerceDbContext _db;
     private readonly ILogger<AgentsController> _logger;
-    private readonly IPolicyEnforcementService _policyService;
 
     public AgentsController(
         IAgentService agentService,
         AgenticCommerceDbContext db,
-        ILogger<AgentsController> logger,
-        IPolicyEnforcementService policyService)
+        ILogger<AgentsController> logger)
     {
         _agentService = agentService;
         _db = db;
         _logger = logger;
-        _policyService = policyService;
     }
 
     /// <summary>
@@ -92,28 +87,7 @@ public class AgentsController : ControllerBase
                 return NotFound(new { error = "Agent not found" });
             }
 
-            // Check organization policies if agent belongs to one
-            if (agent.OrganizationId.HasValue)
-            {
-                var policyCheck = await _policyService.CheckPolicyAsync(
-                    agent.OrganizationId.Value,
-                    agentId,
-                    request.Amount,
-                    request.RecipientAddress);
-
-                if (!policyCheck.IsAllowed)
-                {
-                    _logger.LogWarning("Purchase blocked by policy for agent {AgentId}: {Violations}",
-                        agentId, string.Join("; ", policyCheck.Violations));
-
-                    return BadRequest(new PurchaseResult
-                    {
-                        Success = false,
-                        ErrorMessage = "Policy violation: " + string.Join("; ", policyCheck.Violations)
-                    });
-                }
-            }
-
+            // Sandbox: No policy checks - direct purchase
             var result = await _agentService.MakePurchaseAsync(agentId, request);
 
             if (!result.Success)
@@ -198,7 +172,7 @@ public class AgentsController : ControllerBase
     /// <summary>
     /// List agents for dashboard (requires authentication)
     /// </summary>
-    [Authorize]
+    // Sandbox: No auth required
     [HttpGet("dashboard")]
     public async Task<ActionResult<object>> ListAgentsForDashboard()
     {
@@ -261,7 +235,7 @@ public class AgentsController : ControllerBase
     /// <summary>
     /// Get transactions for dashboard (requires authentication)
     /// </summary>
-    [Authorize]
+    // Sandbox: No auth required
     [HttpGet("transactions")]
     public async Task<ActionResult> GetTransactionsForDashboard([FromQuery] int limit = 100)
     {
@@ -300,9 +274,71 @@ public class AgentsController : ControllerBase
     }
 
     /// <summary>
+    /// Seed test transactions for dashboard testing (development only)
+    /// </summary>
+    [HttpPost("seed-transactions")]
+    public async Task<ActionResult> SeedTestTransactions()
+    {
+        var orgId = HttpContext.GetOrganizationId();
+
+        // Get agents for this organization
+        var agents = await _db.Agents
+            .Where(a => orgId == null || a.OrganizationId == orgId)
+            .Take(4)
+            .ToListAsync();
+
+        if (!agents.Any())
+        {
+            return BadRequest(new { error = "No agents found to seed transactions for" });
+        }
+
+        var testTransactions = new List<AgenticCommerce.Core.Models.TransactionEntity>();
+        var random = new Random();
+        var statuses = new[] { "Completed", "Completed", "Completed", "Pending", "Failed" };
+        var descriptions = new[]
+        {
+            "API data subscription",
+            "Cloud services payment",
+            "Analytics tool license",
+            "Product research fee",
+            "Premium data access",
+            "Infrastructure costs",
+            "Machine learning credits",
+            "Storage allocation"
+        };
+
+        for (int i = 0; i < 8; i++)
+        {
+            var agent = agents[random.Next(agents.Count)];
+            var status = statuses[random.Next(statuses.Length)];
+            var hoursAgo = random.Next(1, 72);
+            var createdAt = DateTime.UtcNow.AddHours(-hoursAgo);
+
+            var txId = $"tx_test_{Guid.NewGuid():N}";
+            var recipientAddr = $"0x{Guid.NewGuid():N}{Guid.NewGuid():N}";
+            testTransactions.Add(new AgenticCommerce.Core.Models.TransactionEntity
+            {
+                AgentId = agent.Id,
+                TransactionId = txId.Length > 20 ? txId.Substring(0, 20) : txId,
+                Amount = Math.Round((decimal)(random.NextDouble() * 200 + 5), 2),
+                RecipientAddress = recipientAddr.Length >= 42 ? recipientAddr.Substring(0, 42) : recipientAddr,
+                Description = descriptions[random.Next(descriptions.Length)],
+                Status = status,
+                CreatedAt = createdAt,
+                CompletedAt = status == "Completed" ? createdAt.AddMinutes(random.Next(1, 30)) : null
+            });
+        }
+
+        await _db.Transactions.AddRangeAsync(testTransactions);
+        await _db.SaveChangesAsync();
+
+        return Ok(new { message = $"Seeded {testTransactions.Count} test transactions", transactions = testTransactions.Select(t => new { t.TransactionId, t.Amount, t.Status }) });
+    }
+
+    /// <summary>
     /// Claim orphaned agents (agents without organization) for current user's organization
     /// </summary>
-    [Authorize]
+    // Sandbox: No auth required
     [HttpPost("claim-orphaned")]
     public async Task<ActionResult> ClaimOrphanedAgents()
     {
