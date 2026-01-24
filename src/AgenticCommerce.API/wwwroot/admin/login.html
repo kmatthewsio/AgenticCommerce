@@ -9,6 +9,20 @@
     <style>
         [x-cloak] { display: none !important; }
     </style>
+    <script>
+        // API Configuration - auto-detect production vs development
+        const CONFIG = {
+            API_BASE_URL: window.location.hostname === 'app.agentrails.io'
+                ? 'https://api.agentrails.io'
+                : '',  // Empty string = same origin (local dev)
+            DASHBOARD_URL: window.location.hostname === 'app.agentrails.io'
+                ? '/index.html'
+                : '/admin/index.html',
+            LOGIN_URL: window.location.hostname === 'app.agentrails.io'
+                ? '/login.html'
+                : '/admin/login.html'
+        };
+    </script>
 </head>
 <body class="bg-gray-900 min-h-screen flex items-center justify-center">
     <div x-data="loginApp()" x-init="init()" x-cloak class="w-full max-w-md px-6">
@@ -240,7 +254,7 @@
                     this.loading = true;
 
                     try {
-                        const response = await fetch('/api/auth/login', {
+                        const response = await fetch(CONFIG.API_BASE_URL + '/api/auth/login', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -262,7 +276,7 @@
                         localStorage.setItem('user', JSON.stringify(data.user));
 
                         // Redirect to dashboard
-                        window.location.href = '/admin/index.html';
+                        window.location.href = CONFIG.DASHBOARD_URL;
                     } catch (err) {
                         this.error = 'Network error. Please try again.';
                     } finally {
@@ -276,7 +290,7 @@
                     this.loading = true;
 
                     try {
-                        const response = await fetch('/api/auth/register', {
+                        const response = await fetch(CONFIG.API_BASE_URL + '/api/auth/register', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -300,7 +314,7 @@
                         localStorage.setItem('user', JSON.stringify(data.user));
 
                         // Redirect to dashboard
-                        window.location.href = '/admin/index.html';
+                        window.location.href = CONFIG.DASHBOARD_URL;
                     } catch (err) {
                         this.error = 'Network error. Please try again.';
                     } finally {
@@ -314,7 +328,7 @@
                     this.loading = true;
 
                     try {
-                        const response = await fetch('/api/auth/forgot-password', {
+                        const response = await fetch(CONFIG.API_BASE_URL + '/api/auth/forgot-password', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email: this.email })
@@ -356,7 +370,7 @@
                     this.loading = true;
 
                     try {
-                        const response = await fetch('/api/auth/reset-password', {
+                        const response = await fetch(CONFIG.API_BASE_URL + '/api/auth/reset-password', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -373,7 +387,7 @@
                         }
 
                         // Clear token from URL
-                        window.history.replaceState({}, document.title, '/admin/login.html');
+                        window.history.replaceState({}, document.title, CONFIG.LOGIN_URL);
 
                         this.success = 'Password reset successfully. You can now sign in.';
                         this.mode = 'login';

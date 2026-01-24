@@ -5,7 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - AgentRails</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        // API Configuration - auto-detect production vs development
+        const CONFIG = {
+            API_BASE_URL: window.location.hostname === 'app.agentrails.io'
+                ? 'https://api.agentrails.io'
+                : '',  // Empty string = same origin (local dev)
+            LOGIN_URL: window.location.hostname === 'app.agentrails.io'
+                ? '/login.html'
+                : '/admin/login.html'
+        };
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gray: {
+                            750: '#2d3748',
+                            850: '#1a202c'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         [x-cloak] { display: none !important; }
         @keyframes shimmer {
@@ -21,6 +46,9 @@
         .toast-leave { animation: slideOut 0.3s ease-in; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        tbody tr { transition: background-color 0.15s ease; }
+        .sortable-header { cursor: pointer; user-select: none; }
+        .sortable-header:hover { color: white; }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -81,7 +109,7 @@
                         <p class="font-medium" x-text="user?.name || user?.email"></p>
                         <p class="text-gray-400 text-xs" x-text="user?.role"></p>
                     </div>
-                    <button @click="logout()" class="text-gray-400 hover:text-white">
+                    <button @click="logout()" class="text-gray-400 hover:text-white transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                         </svg>
@@ -125,35 +153,127 @@
 
                 <!-- Overview Page -->
                 <div x-show="page === 'overview' && !loading">
-                    <!-- Stats Cards -->
+                    <!-- Enhanced Stats Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <!-- Total Agents Card -->
                         <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                            <p class="text-gray-400 text-sm">Total Agents</p>
-                            <p class="text-2xl font-bold" x-text="stats.totalAgents"></p>
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Total Agents</p>
+                                    <p class="text-2xl font-bold mt-1" x-text="stats.totalAgents || 0"></p>
+                                </div>
+                                <div class="p-2 bg-blue-900/50 rounded-lg">
+                                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <template x-if="trends.agents > 0">
+                                    <span class="flex items-center text-green-400">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                        +<span x-text="trends.agents"></span> this week
+                                    </span>
+                                </template>
+                                <template x-if="trends.agents === 0">
+                                    <span class="text-gray-500">No change this week</span>
+                                </template>
+                                <template x-if="trends.agents < 0">
+                                    <span class="flex items-center text-red-400">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                                        <span x-text="trends.agents"></span> this week
+                                    </span>
+                                </template>
+                            </div>
+                            <div class="mt-3 h-10">
+                                <canvas id="sparkline-agents"></canvas>
+                            </div>
                         </div>
+
+                        <!-- Active Agents Card -->
                         <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                            <p class="text-gray-400 text-sm">Active Agents</p>
-                            <p class="text-2xl font-bold text-green-400" x-text="stats.activeAgents"></p>
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Active Agents</p>
+                                    <p class="text-2xl font-bold text-green-400 mt-1" x-text="stats.activeAgents || 0"></p>
+                                </div>
+                                <div class="p-2 bg-green-900/50 rounded-lg">
+                                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <span class="text-gray-500" x-text="stats.totalAgents ? Math.round((stats.activeAgents / stats.totalAgents) * 100) + '% of total' : 'No agents'"></span>
+                            </div>
+                            <div class="mt-3 h-10">
+                                <canvas id="sparkline-active"></canvas>
+                            </div>
                         </div>
+
+                        <!-- Total Budget Card -->
                         <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                            <p class="text-gray-400 text-sm">Total Budget</p>
-                            <p class="text-2xl font-bold" x-text="'$' + (stats.totalBudget || 0).toFixed(2)"></p>
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Total Budget</p>
+                                    <p class="text-2xl font-bold mt-1" x-text="'$' + (stats.totalBudget || 0).toFixed(2)"></p>
+                                </div>
+                                <div class="p-2 bg-purple-900/50 rounded-lg">
+                                    <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <span class="text-gray-500" x-text="'$' + ((stats.totalBudget || 0) - (stats.totalSpent || 0)).toFixed(2) + ' remaining'"></span>
+                            </div>
+                            <div class="mt-3 h-10">
+                                <canvas id="sparkline-budget"></canvas>
+                            </div>
                         </div>
+
+                        <!-- Total Spent Card -->
                         <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                            <p class="text-gray-400 text-sm">Total Spent</p>
-                            <p class="text-2xl font-bold text-blue-400" x-text="'$' + (stats.totalSpent || 0).toFixed(2)"></p>
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Total Spent</p>
+                                    <p class="text-2xl font-bold text-blue-400 mt-1" x-text="'$' + (stats.totalSpent || 0).toFixed(2)"></p>
+                                </div>
+                                <div class="p-2 bg-blue-900/50 rounded-lg">
+                                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <template x-if="trends.spending > 0">
+                                    <span class="flex items-center text-yellow-400">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                        +$<span x-text="trends.spending.toFixed(2)"></span> this week
+                                    </span>
+                                </template>
+                                <template x-if="trends.spending === 0">
+                                    <span class="text-gray-500">No spending this week</span>
+                                </template>
+                            </div>
+                            <div class="mt-3 h-10">
+                                <canvas id="sparkline-spent"></canvas>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Recent Agents -->
                     <div class="bg-gray-800 rounded-lg border border-gray-700">
                         <div class="px-4 py-3 border-b border-gray-700 flex justify-between items-center">
-                            <h3 class="font-medium">Recent Agents</h3>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-medium">Recent Agents</h3>
+                                <span class="text-xs bg-gray-700 text-gray-400 px-2 py-0.5 rounded-full" x-text="agents.length"></span>
+                            </div>
                             <a href="#agents" class="text-blue-400 text-sm hover:underline">View all</a>
                         </div>
                         <div class="divide-y divide-gray-700">
                             <template x-for="agent in agents.slice(0, 5)" :key="agent.id">
-                                <div class="px-4 py-3 flex items-center justify-between">
+                                <div class="px-4 py-3 flex items-center justify-between hover:bg-gray-750 transition-colors">
                                     <div>
                                         <p class="font-medium" x-text="agent.name"></p>
                                         <p class="text-sm text-gray-400" x-text="agent.id"></p>
@@ -168,8 +288,18 @@
                                     </div>
                                 </div>
                             </template>
-                            <div x-show="agents.length === 0" class="px-4 py-8 text-center text-gray-400">
-                                No agents yet. Create your first agent to get started.
+                            <!-- Empty State -->
+                            <div x-show="agents.length === 0" class="px-4 py-12 text-center">
+                                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-700 flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <p class="text-gray-300 font-medium mb-1">No agents yet</p>
+                                <p class="text-gray-500 text-sm mb-4">Create your first agent to get started</p>
+                                <button @click="window.location.hash = 'agents'; showCreateAgent = true" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                                    Create Agent
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -177,12 +307,27 @@
 
                 <!-- Agents Page -->
                 <div x-show="page === 'agents' && !loading">
-                    <!-- Create Agent Button -->
-                    <div class="mb-4 flex justify-end">
-                        <button
-                            @click="showCreateAgent = true"
-                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors">
-                            + Create Agent
+                    <!-- Search and Actions Bar -->
+                    <div class="mb-4 flex justify-between items-center gap-4">
+                        <div class="relative flex-1 max-w-md">
+                            <input type="text"
+                                   x-model="filters.agents"
+                                   placeholder="Search agents by name, ID, or status..."
+                                   class="w-full pl-10 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors">
+                            <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <button x-show="filters.agents" @click="filters.agents = ''" class="absolute right-3 top-2.5 text-gray-500 hover:text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <button @click="showCreateAgent = true" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Create Agent
                         </button>
                     </div>
 
@@ -191,16 +336,41 @@
                         <table class="w-full">
                             <thead class="bg-gray-750 border-b border-gray-700">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Name</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Status</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Budget</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Spent</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Created</th>
+                                    <th @click="sortBy('agents', 'name')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Name
+                                            <span x-html="getSortIcon('agents', 'name')"></span>
+                                        </div>
+                                    </th>
+                                    <th @click="sortBy('agents', 'status')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Status
+                                            <span x-html="getSortIcon('agents', 'status')"></span>
+                                        </div>
+                                    </th>
+                                    <th @click="sortBy('agents', 'budget')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Budget
+                                            <span x-html="getSortIcon('agents', 'budget')"></span>
+                                        </div>
+                                    </th>
+                                    <th @click="sortBy('agents', 'spent')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Spent
+                                            <span x-html="getSortIcon('agents', 'spent')"></span>
+                                        </div>
+                                    </th>
+                                    <th @click="sortBy('agents', 'createdAt')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Created
+                                            <span x-html="getSortIcon('agents', 'createdAt')"></span>
+                                        </div>
+                                    </th>
                                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-700">
-                                <template x-for="agent in agents" :key="agent.id">
+                                <template x-for="agent in filteredAgents" :key="agent.id">
                                     <tr class="hover:bg-gray-750">
                                         <td class="px-4 py-3">
                                             <div>
@@ -219,9 +389,7 @@
                                         <td class="px-4 py-3" x-text="'$' + agent.spent.toFixed(2)"></td>
                                         <td class="px-4 py-3 text-sm text-gray-400" x-text="formatDate(agent.createdAt)"></td>
                                         <td class="px-4 py-3">
-                                            <button
-                                                @click="deleteAgent(agent.id)"
-                                                class="text-red-400 hover:text-red-300 text-sm">
+                                            <button @click="confirmDelete('agent', agent.id, agent.name)" class="text-red-400 hover:text-red-300 text-sm transition-colors">
                                                 Delete
                                             </button>
                                         </td>
@@ -229,35 +397,90 @@
                                 </template>
                             </tbody>
                         </table>
-                        <div x-show="agents.length === 0" class="px-4 py-8 text-center text-gray-400">
-                            No agents yet. Create your first agent to get started.
+                        <!-- Empty State -->
+                        <div x-show="filteredAgents.length === 0" class="px-4 py-12 text-center">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-700 flex items-center justify-center">
+                                <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-300 font-medium mb-1" x-text="filters.agents ? 'No matching agents' : 'No agents yet'"></p>
+                            <p x-show="filters.agents" class="text-gray-500 text-sm mb-4">Try adjusting your search</p>
+                            <p x-show="!filters.agents" class="text-gray-500 text-sm mb-4">Create your first agent to get started</p>
+                            <button x-show="!filters.agents" @click="showCreateAgent = true" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                                Create Agent
+                            </button>
+                            <button x-show="filters.agents" @click="filters.agents = ''" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                                Clear Search
+                            </button>
                         </div>
+                    </div>
+                    <div x-show="filteredAgents.length > 0" class="mt-2 text-sm text-gray-500">
+                        Showing <span x-text="filteredAgents.length"></span> of <span x-text="agents.length"></span> agents
                     </div>
                 </div>
 
                 <!-- Transactions Page -->
                 <div x-show="page === 'transactions' && !loading">
+                    <!-- Search Bar -->
+                    <div class="mb-4 flex justify-between items-center gap-4">
+                        <div class="relative flex-1 max-w-md">
+                            <input type="text"
+                                   x-model="filters.transactions"
+                                   placeholder="Search by agent ID, recipient, or status..."
+                                   class="w-full pl-10 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors">
+                            <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <button x-show="filters.transactions" @click="filters.transactions = ''" class="absolute right-3 top-2.5 text-gray-500 hover:text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
                         <table class="w-full">
                             <thead class="bg-gray-750 border-b border-gray-700">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Date</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Agent</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Amount</th>
+                                    <th @click="sortBy('transactions', 'createdAt')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Date
+                                            <span x-html="getSortIcon('transactions', 'createdAt')"></span>
+                                        </div>
+                                    </th>
+                                    <th @click="sortBy('transactions', 'agentId')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Agent
+                                            <span x-html="getSortIcon('transactions', 'agentId')"></span>
+                                        </div>
+                                    </th>
+                                    <th @click="sortBy('transactions', 'amount')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Amount
+                                            <span x-html="getSortIcon('transactions', 'amount')"></span>
+                                        </div>
+                                    </th>
                                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Recipient</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Status</th>
+                                    <th @click="sortBy('transactions', 'status')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Status
+                                            <span x-html="getSortIcon('transactions', 'status')"></span>
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-700">
-                                <template x-for="tx in transactions" :key="tx.id">
+                                <template x-for="tx in filteredTransactions" :key="tx.id">
                                     <tr class="hover:bg-gray-750">
                                         <td class="px-4 py-3 text-sm" x-text="formatDate(tx.createdAt)"></td>
-                                        <td class="px-4 py-3" x-text="tx.agentId"></td>
-                                        <td class="px-4 py-3" x-text="'$' + tx.amount.toFixed(2)"></td>
-                                        <td class="px-4 py-3 text-sm text-gray-400" x-text="tx.recipientAddress || '-'"></td>
+                                        <td class="px-4 py-3 text-sm font-mono" x-text="tx.agentId"></td>
+                                        <td class="px-4 py-3 font-medium" x-text="'$' + tx.amount.toFixed(2)"></td>
+                                        <td class="px-4 py-3 text-sm text-gray-400 font-mono truncate max-w-[200px]" x-text="tx.recipientAddress || '-'" :title="tx.recipientAddress"></td>
                                         <td class="px-4 py-3">
                                             <span
-                                                :class="tx.status === 'Completed' ? 'bg-green-900 text-green-300' : 'bg-yellow-900 text-yellow-300'"
+                                                :class="tx.status === 'Completed' ? 'bg-green-900 text-green-300' : tx.status === 'Failed' ? 'bg-red-900 text-red-300' : 'bg-yellow-900 text-yellow-300'"
                                                 class="text-xs px-2 py-1 rounded"
                                                 x-text="tx.status">
                                             </span>
@@ -266,60 +489,138 @@
                                 </template>
                             </tbody>
                         </table>
-                        <div x-show="transactions.length === 0" class="px-4 py-8 text-center text-gray-400">
-                            No transactions yet.
+                        <!-- Empty State -->
+                        <div x-show="filteredTransactions.length === 0" class="px-4 py-12 text-center">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-700 flex items-center justify-center">
+                                <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-300 font-medium mb-1" x-text="filters.transactions ? 'No matching transactions' : 'No transactions yet'"></p>
+                            <p class="text-gray-500 text-sm" x-text="filters.transactions ? 'Try adjusting your search' : 'Transactions will appear here when agents make purchases'"></p>
                         </div>
+                    </div>
+                    <div x-show="filteredTransactions.length > 0" class="mt-2 text-sm text-gray-500">
+                        Showing <span x-text="filteredTransactions.length"></span> of <span x-text="transactions.length"></span> transactions
                     </div>
                 </div>
 
                 <!-- Logs Page -->
                 <div x-show="page === 'logs' && !loading">
+                    <!-- Search and Filter Bar -->
+                    <div class="mb-4 flex gap-4">
+                        <div class="relative flex-1 max-w-md">
+                            <input type="text"
+                                   x-model="filters.logs"
+                                   placeholder="Search logs..."
+                                   class="w-full pl-10 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors">
+                            <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <button x-show="filters.logs" @click="filters.logs = ''" class="absolute right-3 top-2.5 text-gray-500 hover:text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <select x-model="filters.logLevel" class="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors">
+                            <option value="">All Levels</option>
+                            <option value="Error">Errors</option>
+                            <option value="Warning">Warnings</option>
+                            <option value="Information">Info</option>
+                            <option value="Debug">Debug</option>
+                        </select>
+                    </div>
+
                     <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
                         <div class="divide-y divide-gray-700 max-h-[600px] overflow-auto font-mono text-sm">
-                            <template x-for="log in logs" :key="log.id">
-                                <div class="px-4 py-2 flex items-start gap-4">
+                            <template x-for="log in filteredLogs" :key="log.id">
+                                <div class="px-4 py-2 flex items-start gap-4 hover:bg-gray-750 transition-colors">
                                     <span class="text-gray-500 whitespace-nowrap" x-text="formatDateTime(log.timestamp)"></span>
                                     <span
                                         :class="{
-                                            'text-red-400': log.level === 'Error',
-                                            'text-yellow-400': log.level === 'Warning',
+                                            'text-red-400 bg-red-900/30 px-1.5 rounded': log.level === 'Error',
+                                            'text-yellow-400 bg-yellow-900/30 px-1.5 rounded': log.level === 'Warning',
                                             'text-blue-400': log.level === 'Information',
                                             'text-gray-400': log.level === 'Debug'
                                         }"
-                                        class="w-20"
+                                        class="w-24 flex-shrink-0"
                                         x-text="log.level">
                                     </span>
                                     <span class="text-gray-300" x-text="log.message"></span>
                                 </div>
                             </template>
                         </div>
-                        <div x-show="logs.length === 0" class="px-4 py-8 text-center text-gray-400">
-                            No logs yet.
+                        <!-- Empty State -->
+                        <div x-show="filteredLogs.length === 0" class="px-4 py-12 text-center">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-700 flex items-center justify-center">
+                                <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-300 font-medium mb-1" x-text="(filters.logs || filters.logLevel) ? 'No matching logs' : 'No logs yet'"></p>
+                            <p class="text-gray-500 text-sm" x-text="(filters.logs || filters.logLevel) ? 'Try adjusting your filters' : 'System logs will appear here'"></p>
                         </div>
+                    </div>
+                    <div x-show="filteredLogs.length > 0" class="mt-2 text-sm text-gray-500">
+                        Showing <span x-text="filteredLogs.length"></span> of <span x-text="logs.length"></span> logs
                     </div>
                 </div>
 
                 <!-- API Keys Page -->
                 <div x-show="page === 'apikeys' && !loading">
-                    <div class="mb-4 flex justify-between items-center">
-                        <p class="text-gray-400">Create API keys to access the AgentRails API programmatically.</p>
-                        <button @click="showCreateApiKey = true" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors">
-                            + Create API Key
+                    <div class="mb-4 flex justify-between items-center gap-4">
+                        <div class="relative flex-1 max-w-md">
+                            <input type="text"
+                                   x-model="filters.apiKeys"
+                                   placeholder="Search API keys..."
+                                   class="w-full pl-10 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors">
+                            <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <button x-show="filters.apiKeys" @click="filters.apiKeys = ''" class="absolute right-3 top-2.5 text-gray-500 hover:text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <button @click="showCreateApiKey = true" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Create API Key
                         </button>
                     </div>
+                    <p class="text-gray-400 mb-4">Create API keys to access the AgentRails API programmatically.</p>
+
                     <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
                         <table class="w-full">
                             <thead class="bg-gray-750 border-b border-gray-700">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Name</th>
+                                    <th @click="sortBy('apiKeys', 'name')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Name
+                                            <span x-html="getSortIcon('apiKeys', 'name')"></span>
+                                        </div>
+                                    </th>
                                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Key</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Created</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Last Used</th>
+                                    <th @click="sortBy('apiKeys', 'createdAt')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Created
+                                            <span x-html="getSortIcon('apiKeys', 'createdAt')"></span>
+                                        </div>
+                                    </th>
+                                    <th @click="sortBy('apiKeys', 'lastUsedAt')" class="px-4 py-3 text-left text-sm font-medium text-gray-400 sortable-header">
+                                        <div class="flex items-center gap-1">
+                                            Last Used
+                                            <span x-html="getSortIcon('apiKeys', 'lastUsedAt')"></span>
+                                        </div>
+                                    </th>
                                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-400">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-700">
-                                <template x-for="key in apiKeys" :key="key.id">
+                                <template x-for="key in filteredApiKeys" :key="key.id">
                                     <tr class="hover:bg-gray-750">
                                         <td class="px-4 py-3">
                                             <p class="font-medium" x-text="key.name"></p>
@@ -330,14 +631,24 @@
                                         <td class="px-4 py-3 text-sm text-gray-400" x-text="formatDate(key.createdAt)"></td>
                                         <td class="px-4 py-3 text-sm text-gray-400" x-text="key.lastUsedAt ? formatDate(key.lastUsedAt) : 'Never'"></td>
                                         <td class="px-4 py-3">
-                                            <button @click="revokeApiKey(key.id)" class="text-red-400 hover:text-red-300 text-sm">Revoke</button>
+                                            <button @click="confirmDelete('apiKey', key.id, key.name)" class="text-red-400 hover:text-red-300 text-sm transition-colors">Revoke</button>
                                         </td>
                                     </tr>
                                 </template>
                             </tbody>
                         </table>
-                        <div x-show="apiKeys.length === 0" class="px-4 py-8 text-center text-gray-400">
-                            No API keys yet. Create one to get started with the API.
+                        <!-- Empty State -->
+                        <div x-show="filteredApiKeys.length === 0" class="px-4 py-12 text-center">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-700 flex items-center justify-center">
+                                <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-300 font-medium mb-1" x-text="filters.apiKeys ? 'No matching API keys' : 'No API keys yet'"></p>
+                            <p class="text-gray-500 text-sm mb-4" x-text="filters.apiKeys ? 'Try adjusting your search' : 'Create an API key to get started with the API'"></p>
+                            <button x-show="!filters.apiKeys" @click="showCreateApiKey = true" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                                Create API Key
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -349,8 +660,11 @@
                             <div>
                                 <p class="text-gray-400">Configure spending limits, approval workflows, and agent restrictions.</p>
                             </div>
-                            <button @click="showCreatePolicy = true" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors">
-                                + Create Policy
+                            <button @click="showCreatePolicy = true" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                Create Policy
                             </button>
                         </div>
                     </div>
@@ -358,7 +672,7 @@
                     <!-- Policy Cards -->
                     <div class="grid gap-4">
                         <template x-for="policy in policies" :key="policy.id">
-                            <div class="bg-gray-800 rounded-lg border border-gray-700 p-4">
+                            <div class="bg-gray-800 rounded-lg border border-gray-700 p-4 hover:border-gray-600 transition-colors">
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-2">
@@ -386,7 +700,7 @@
                                             <svg x-show="policy.enabled" class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                             <svg x-show="!policy.enabled" class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         </button>
-                                        <button @click="deletePolicy(policy.id)" class="p-2 hover:bg-gray-700 rounded transition-colors text-red-400">
+                                        <button @click="confirmDelete('policy', policy.id, policy.name)" class="p-2 hover:bg-gray-700 rounded transition-colors text-red-400">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>
@@ -394,10 +708,16 @@
                             </div>
                         </template>
                     </div>
-                    <div x-show="policies.length === 0" class="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
-                        <svg class="w-12 h-12 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                        <p class="text-gray-400 mb-2">No policies configured</p>
-                        <p class="text-sm text-gray-500">Create policies to control agent spending and access.</p>
+                    <!-- Empty State -->
+                    <div x-show="policies.length === 0" class="bg-gray-800 rounded-lg border border-gray-700 p-12 text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-700 flex items-center justify-center">
+                            <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        </div>
+                        <p class="text-gray-300 font-medium mb-1">No policies configured</p>
+                        <p class="text-sm text-gray-500 mb-4">Create policies to control agent spending and access</p>
+                        <button @click="showCreatePolicy = true" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                            Create Policy
+                        </button>
                     </div>
                 </div>
             </div>
@@ -419,58 +739,118 @@
                     <svg x-show="toast.type === 'warning'" class="w-5 h-5 text-yellow-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     <svg x-show="toast.type === 'info'" class="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <span class="text-sm" x-text="toast.message"></span>
-                    <button @click="removeToast(toast.id)" class="ml-auto text-gray-400 hover:text-white">
+                    <button @click="removeToast(toast.id)" class="ml-auto text-gray-400 hover:text-white transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
             </template>
         </div>
 
+        <!-- Confirmation Modal -->
+        <div x-show="showConfirmModal"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+            <div x-show="showConfirmModal"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700 shadow-xl"
+                 @click.away="showConfirmModal = false"
+                 @keydown.escape.window="showConfirmModal = false">
+
+                <!-- Warning Icon -->
+                <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-red-900/50 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+
+                <h3 class="text-lg font-semibold text-center mb-2" x-text="confirmModal.title"></h3>
+                <p class="text-gray-400 text-center mb-6" x-text="confirmModal.message"></p>
+
+                <div class="flex gap-3">
+                    <button @click="showConfirmModal = false"
+                            class="flex-1 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                        Cancel
+                    </button>
+                    <button @click="executeConfirmAction()"
+                            class="flex-1 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-white">
+                        <span x-text="confirmModal.buttonText"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Create Agent Modal -->
-        <div x-show="showCreateAgent" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md" @click.away="showCreateAgent = false">
+        <div x-show="showCreateAgent"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700"
+                 @click.away="showCreateAgent = false"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100">
                 <h3 class="text-lg font-semibold mb-4">Create New Agent</h3>
                 <form @submit.prevent="createAgent">
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-gray-300 text-sm mb-1">Name</label>
+                            <label class="block text-gray-300 text-sm mb-1">Name <span class="text-red-400">*</span></label>
                             <input
                                 type="text"
                                 x-model="newAgent.name"
-                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                                placeholder="My Agent"
-                                required>
+                                @blur="validateField('agent', 'name')"
+                                :class="validation.agent.name ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-blue-500'"
+                                class="w-full px-4 py-2 bg-gray-700 border rounded text-white focus:outline-none transition-colors"
+                                placeholder="My Agent">
+                            <p x-show="validation.agent.name" x-text="validation.agent.name" class="mt-1 text-sm text-red-400"></p>
                         </div>
                         <div>
                             <label class="block text-gray-300 text-sm mb-1">Description</label>
                             <textarea
                                 x-model="newAgent.description"
-                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
+                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500 transition-colors"
                                 placeholder="What does this agent do?"
                                 rows="2"></textarea>
                         </div>
                         <div>
-                            <label class="block text-gray-300 text-sm mb-1">Budget (USDC)</label>
+                            <label class="block text-gray-300 text-sm mb-1">Budget (USDC) <span class="text-red-400">*</span></label>
                             <input
                                 type="number"
                                 x-model="newAgent.budget"
+                                @blur="validateField('agent', 'budget')"
+                                :class="validation.agent.budget ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-blue-500'"
                                 step="0.01"
                                 min="0"
-                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                                placeholder="10.00"
-                                required>
+                                class="w-full px-4 py-2 bg-gray-700 border rounded text-white focus:outline-none transition-colors"
+                                placeholder="10.00">
+                            <p x-show="validation.agent.budget" x-text="validation.agent.budget" class="mt-1 text-sm text-red-400"></p>
                         </div>
                         <div class="flex gap-2 pt-2">
                             <button
                                 type="button"
-                                @click="showCreateAgent = false"
+                                @click="showCreateAgent = false; clearValidation('agent')"
                                 class="flex-1 py-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors">
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors">
-                                Create
+                                :disabled="creatingAgent"
+                                class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 rounded transition-colors flex items-center justify-center gap-2">
+                                <svg x-show="creatingAgent" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span x-text="creatingAgent ? 'Creating...' : 'Create'"></span>
                             </button>
                         </div>
                     </div>
@@ -479,21 +859,38 @@
         </div>
 
         <!-- Create API Key Modal -->
-        <div x-show="showCreateApiKey" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md" @click.away="showCreateApiKey = false">
+        <div x-show="showCreateApiKey"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md border border-gray-700"
+                 @click.away="showCreateApiKey = false"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100">
                 <h3 class="text-lg font-semibold mb-4">Create API Key</h3>
                 <div x-show="!newApiKeyResult">
                     <form @submit.prevent="createApiKey">
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-gray-300 text-sm mb-1">Name</label>
-                                <input type="text" x-model="newApiKey.name" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500" placeholder="My API Key" required>
+                                <label class="block text-gray-300 text-sm mb-1">Name <span class="text-red-400">*</span></label>
+                                <input type="text"
+                                       x-model="newApiKey.name"
+                                       @blur="validateField('apiKey', 'name')"
+                                       :class="validation.apiKey.name ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-blue-500'"
+                                       class="w-full px-4 py-2 bg-gray-700 border rounded text-white focus:outline-none transition-colors"
+                                       placeholder="My API Key">
+                                <p x-show="validation.apiKey.name" x-text="validation.apiKey.name" class="mt-1 text-sm text-red-400"></p>
                             </div>
                             <div class="flex gap-2 pt-2">
-                                <button type="button" @click="showCreateApiKey = false" class="flex-1 py-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors">Cancel</button>
-                                <button type="submit" :disabled="creatingApiKey" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 rounded transition-colors">
-                                    <span x-show="!creatingApiKey">Create</span>
-                                    <span x-show="creatingApiKey">Creating...</span>
+                                <button type="button" @click="showCreateApiKey = false; clearValidation('apiKey')" class="flex-1 py-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors">Cancel</button>
+                                <button type="submit" :disabled="creatingApiKey" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 rounded transition-colors flex items-center justify-center gap-2">
+                                    <svg x-show="creatingApiKey" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span x-text="creatingApiKey ? 'Creating...' : 'Create'"></span>
                                 </button>
                             </div>
                         </div>
@@ -518,38 +915,55 @@
         </div>
 
         <!-- Create Policy Modal -->
-        <div x-show="showCreatePolicy" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div class="bg-gray-800 rounded-lg p-6 w-full max-w-lg" @click.away="showCreatePolicy = false">
+        <div x-show="showCreatePolicy"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div class="bg-gray-800 rounded-lg p-6 w-full max-w-lg border border-gray-700"
+                 @click.away="showCreatePolicy = false"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100">
                 <h3 class="text-lg font-semibold mb-4">Create Policy</h3>
                 <form @submit.prevent="createPolicy">
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-gray-300 text-sm mb-1">Policy Name</label>
-                            <input type="text" x-model="newPolicy.name" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500" placeholder="Production Spending Limits" required>
+                            <label class="block text-gray-300 text-sm mb-1">Policy Name <span class="text-red-400">*</span></label>
+                            <input type="text"
+                                   x-model="newPolicy.name"
+                                   @blur="validateField('policy', 'name')"
+                                   :class="validation.policy.name ? 'border-red-500 focus:border-red-500' : 'border-gray-600 focus:border-blue-500'"
+                                   class="w-full px-4 py-2 bg-gray-700 border rounded text-white focus:outline-none transition-colors"
+                                   placeholder="Production Spending Limits">
+                            <p x-show="validation.policy.name" x-text="validation.policy.name" class="mt-1 text-sm text-red-400"></p>
                         </div>
                         <div>
                             <label class="block text-gray-300 text-sm mb-1">Description</label>
-                            <textarea x-model="newPolicy.description" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500" placeholder="Describe what this policy enforces" rows="2"></textarea>
+                            <textarea x-model="newPolicy.description" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="Describe what this policy enforces" rows="2"></textarea>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-gray-300 text-sm mb-1">Max Transaction ($)</label>
-                                <input type="number" x-model="newPolicy.maxTransactionAmount" step="0.01" min="0" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500" placeholder="100.00">
+                                <input type="number" x-model="newPolicy.maxTransactionAmount" step="0.01" min="0" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="100.00">
                             </div>
                             <div>
                                 <label class="block text-gray-300 text-sm mb-1">Daily Limit ($)</label>
-                                <input type="number" x-model="newPolicy.dailySpendingLimit" step="0.01" min="0" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500" placeholder="1000.00">
+                                <input type="number" x-model="newPolicy.dailySpendingLimit" step="0.01" min="0" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500 transition-colors" placeholder="1000.00">
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <input type="checkbox" x-model="newPolicy.requiresApproval" id="requiresApproval" class="rounded bg-gray-700 border-gray-600">
+                            <input type="checkbox" x-model="newPolicy.requiresApproval" id="requiresApproval" class="rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500">
                             <label for="requiresApproval" class="text-gray-300 text-sm">Require approval for transactions</label>
                         </div>
                         <div class="flex gap-2 pt-2">
-                            <button type="button" @click="showCreatePolicy = false" class="flex-1 py-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors">Cancel</button>
-                            <button type="submit" :disabled="creatingPolicy" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 rounded transition-colors">
-                                <span x-show="!creatingPolicy">Create</span>
-                                <span x-show="creatingPolicy">Creating...</span>
+                            <button type="button" @click="showCreatePolicy = false; clearValidation('policy')" class="flex-1 py-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors">Cancel</button>
+                            <button type="submit" :disabled="creatingPolicy" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 rounded transition-colors flex items-center justify-center gap-2">
+                                <svg x-show="creatingPolicy" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span x-text="creatingPolicy ? 'Creating...' : 'Create'"></span>
                             </button>
                         </div>
                     </div>
@@ -571,18 +985,214 @@
                 apiKeys: [],
                 policies: [],
                 toasts: [],
+
+                // Sorting state
+                sorting: {
+                    agents: { column: 'createdAt', direction: 'desc' },
+                    transactions: { column: 'createdAt', direction: 'desc' },
+                    apiKeys: { column: 'createdAt', direction: 'desc' },
+                    logs: { column: 'timestamp', direction: 'desc' }
+                },
+
+                // Filter state
+                filters: {
+                    agents: '',
+                    transactions: '',
+                    apiKeys: '',
+                    logs: '',
+                    logLevel: ''
+                },
+
+                // Trends data
+                trends: {
+                    agents: 0,
+                    spending: 0
+                },
+
+                // Sparkline chart instances
+                charts: {},
+
+                // Modal states
                 showCreateAgent: false,
                 showCreateApiKey: false,
                 showCreatePolicy: false,
+                showConfirmModal: false,
+
+                // Confirmation modal data
+                confirmModal: {
+                    title: '',
+                    message: '',
+                    buttonText: 'Delete',
+                    action: null
+                },
+
+                // Form data
                 newAgent: { name: '', description: '', budget: 10 },
                 newApiKey: { name: '' },
                 newApiKeyResult: '',
                 creatingApiKey: false,
+                creatingAgent: false,
                 newPolicy: { name: '', description: '', maxTransactionAmount: null, dailySpendingLimit: null, requiresApproval: false },
                 creatingPolicy: false,
 
+                // Validation state
+                validation: {
+                    agent: { name: '', budget: '' },
+                    apiKey: { name: '' },
+                    policy: { name: '' }
+                },
+
+                // Computed filtered data
+                get filteredAgents() {
+                    let result = [...this.agents];
+                    if (this.filters.agents) {
+                        const search = this.filters.agents.toLowerCase();
+                        result = result.filter(a =>
+                            a.name.toLowerCase().includes(search) ||
+                            a.id.toLowerCase().includes(search) ||
+                            a.status.toLowerCase().includes(search)
+                        );
+                    }
+                    return this.sortData(result, this.sorting.agents);
+                },
+
+                get filteredTransactions() {
+                    let result = [...this.transactions];
+                    if (this.filters.transactions) {
+                        const search = this.filters.transactions.toLowerCase();
+                        result = result.filter(t =>
+                            t.agentId.toLowerCase().includes(search) ||
+                            (t.recipientAddress && t.recipientAddress.toLowerCase().includes(search)) ||
+                            t.status.toLowerCase().includes(search)
+                        );
+                    }
+                    return this.sortData(result, this.sorting.transactions);
+                },
+
+                get filteredApiKeys() {
+                    let result = [...this.apiKeys];
+                    if (this.filters.apiKeys) {
+                        const search = this.filters.apiKeys.toLowerCase();
+                        result = result.filter(k => k.name.toLowerCase().includes(search));
+                    }
+                    return this.sortData(result, this.sorting.apiKeys);
+                },
+
+                get filteredLogs() {
+                    let result = [...this.logs];
+                    if (this.filters.logLevel) {
+                        result = result.filter(l => l.level === this.filters.logLevel);
+                    }
+                    if (this.filters.logs) {
+                        const search = this.filters.logs.toLowerCase();
+                        result = result.filter(l => l.message.toLowerCase().includes(search));
+                    }
+                    return result;
+                },
+
+                sortData(data, sortConfig) {
+                    const { column, direction } = sortConfig;
+                    return data.sort((a, b) => {
+                        let aVal = a[column];
+                        let bVal = b[column];
+
+                        if (column === 'createdAt' || column === 'lastActiveAt' || column === 'lastUsedAt' || column === 'timestamp') {
+                            aVal = new Date(aVal || 0).getTime();
+                            bVal = new Date(bVal || 0).getTime();
+                        }
+
+                        if (typeof aVal === 'number') {
+                            return direction === 'asc' ? aVal - bVal : bVal - aVal;
+                        }
+
+                        aVal = String(aVal || '').toLowerCase();
+                        bVal = String(bVal || '').toLowerCase();
+                        return direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                    });
+                },
+
+                sortBy(collection, column) {
+                    if (this.sorting[collection].column === column) {
+                        this.sorting[collection].direction = this.sorting[collection].direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        this.sorting[collection].column = column;
+                        this.sorting[collection].direction = 'asc';
+                    }
+                },
+
+                getSortIcon(collection, column) {
+                    const sortState = this.sorting[collection];
+                    if (sortState.column !== column) {
+                        return '<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>';
+                    }
+                    if (sortState.direction === 'asc') {
+                        return '<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>';
+                    }
+                    return '<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
+                },
+
+                // Validation
+                validateField(form, field) {
+                    const value = form === 'agent' ? this.newAgent[field] :
+                                  form === 'apiKey' ? this.newApiKey[field] :
+                                  this.newPolicy[field];
+
+                    let error = '';
+                    if (field === 'name' && !value?.trim()) {
+                        error = 'Name is required';
+                    } else if (field === 'budget' && (!value || value <= 0)) {
+                        error = 'Budget must be greater than 0';
+                    }
+
+                    this.validation[form][field] = error;
+                    return !error;
+                },
+
+                clearValidation(form) {
+                    Object.keys(this.validation[form]).forEach(key => {
+                        this.validation[form][key] = '';
+                    });
+                },
+
+                // Confirmation modal
+                confirmDelete(type, id, name) {
+                    const titles = {
+                        agent: 'Delete Agent',
+                        apiKey: 'Revoke API Key',
+                        policy: 'Delete Policy'
+                    };
+                    const messages = {
+                        agent: `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+                        apiKey: `Are you sure you want to revoke "${name}"? This cannot be undone.`,
+                        policy: `Are you sure you want to delete "${name}"? This action cannot be undone.`
+                    };
+                    const buttonTexts = {
+                        agent: 'Delete',
+                        apiKey: 'Revoke',
+                        policy: 'Delete'
+                    };
+
+                    this.confirmModal = {
+                        title: titles[type],
+                        message: messages[type],
+                        buttonText: buttonTexts[type],
+                        action: () => {
+                            if (type === 'agent') this.deleteAgent(id);
+                            else if (type === 'apiKey') this.revokeApiKey(id);
+                            else if (type === 'policy') this.deletePolicy(id);
+                        }
+                    };
+                    this.showConfirmModal = true;
+                },
+
+                executeConfirmAction() {
+                    if (this.confirmModal.action) {
+                        this.confirmModal.action();
+                    }
+                    this.showConfirmModal = false;
+                },
+
                 async init() {
-                    // Check auth
                     const token = localStorage.getItem('accessToken');
                     if (!token) {
                         window.location.href = '/admin/login.html';
@@ -590,13 +1200,12 @@
                     }
 
                     this.user = JSON.parse(localStorage.getItem('user') || '{}');
-
-                    // Handle routing
                     this.handleRoute();
                     window.addEventListener('hashchange', () => this.handleRoute());
-
-                    // Load initial data
                     await this.loadData();
+
+                    // Initialize sparklines after data loads
+                    this.$nextTick(() => this.initSparklines());
                 },
 
                 handleRoute() {
@@ -614,12 +1223,75 @@
                             this.loadApiKeys(),
                             this.loadPolicies()
                         ]);
+                        this.calculateTrends();
                     } catch (err) {
                         console.error('Failed to load data:', err);
                         this.addToast('Failed to load dashboard data', 'error');
                     } finally {
                         this.loading = false;
                     }
+                },
+
+                calculateTrends() {
+                    // Calculate weekly trends (simulated - in production would come from API)
+                    const oneWeekAgo = new Date();
+                    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+                    const recentAgents = this.agents.filter(a => new Date(a.createdAt) > oneWeekAgo);
+                    this.trends.agents = recentAgents.length;
+
+                    const recentTransactions = this.transactions.filter(t =>
+                        new Date(t.createdAt) > oneWeekAgo && t.status === 'Completed'
+                    );
+                    this.trends.spending = recentTransactions.reduce((sum, t) => sum + t.amount, 0);
+                },
+
+                initSparklines() {
+                    if (typeof Chart === 'undefined') return;
+
+                    const createSparkline = (canvasId, data, color) => {
+                        const canvas = document.getElementById(canvasId);
+                        if (!canvas) return;
+
+                        // Destroy existing chart
+                        if (this.charts[canvasId]) {
+                            this.charts[canvasId].destroy();
+                        }
+
+                        this.charts[canvasId] = new Chart(canvas, {
+                            type: 'line',
+                            data: {
+                                labels: Array(data.length).fill(''),
+                                datasets: [{
+                                    data: data,
+                                    borderColor: color,
+                                    borderWidth: 2,
+                                    fill: true,
+                                    backgroundColor: color.replace(')', ', 0.1)').replace('rgb', 'rgba'),
+                                    tension: 0.4,
+                                    pointRadius: 0
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    x: { display: false },
+                                    y: { display: false }
+                                }
+                            }
+                        });
+                    };
+
+                    // Generate sample data (in production, this would come from API)
+                    const generateData = (base, variance, count = 7) =>
+                        Array.from({ length: count }, () => Math.max(0, base + Math.floor(Math.random() * variance * 2) - variance));
+
+                    createSparkline('sparkline-agents', generateData(this.stats.totalAgents || 3, 2), 'rgb(59, 130, 246)');
+                    createSparkline('sparkline-active', generateData(this.stats.activeAgents || 2, 1), 'rgb(34, 197, 94)');
+                    createSparkline('sparkline-budget', generateData(this.stats.totalBudget || 100, 20), 'rgb(168, 85, 247)');
+                    createSparkline('sparkline-spent', generateData(this.stats.totalSpent || 50, 15), 'rgb(59, 130, 246)');
                 },
 
                 async loadAgents() {
@@ -646,34 +1318,40 @@
                 },
 
                 async createAgent() {
-                    const response = await this.fetch('/api/agents', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            name: this.newAgent.name,
-                            description: this.newAgent.description,
-                            budget: parseFloat(this.newAgent.budget)
-                        })
-                    });
+                    // Validate
+                    const nameValid = this.validateField('agent', 'name');
+                    const budgetValid = this.validateField('agent', 'budget');
+                    if (!nameValid || !budgetValid) return;
 
-                    if (response.ok) {
-                        this.showCreateAgent = false;
-                        this.newAgent = { name: '', description: '', budget: 10 };
-                        await this.loadAgents();
-                        this.addToast('Agent created successfully', 'success');
-                    } else {
-                        const error = await response.json();
-                        this.addToast(error.error || 'Failed to create agent', 'error');
+                    this.creatingAgent = true;
+                    try {
+                        const response = await this.fetch('/api/agents', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: this.newAgent.name,
+                                description: this.newAgent.description,
+                                budget: parseFloat(this.newAgent.budget)
+                            })
+                        });
+
+                        if (response.ok) {
+                            this.showCreateAgent = false;
+                            this.newAgent = { name: '', description: '', budget: 10 };
+                            this.clearValidation('agent');
+                            await this.loadAgents();
+                            this.addToast('Agent created successfully', 'success');
+                        } else {
+                            const error = await response.json();
+                            this.addToast(error.error || 'Failed to create agent', 'error');
+                        }
+                    } finally {
+                        this.creatingAgent = false;
                     }
                 },
 
                 async deleteAgent(agentId) {
-                    if (!confirm('Are you sure you want to delete this agent?')) return;
-
-                    const response = await this.fetch(`/api/agents/${agentId}`, {
-                        method: 'DELETE'
-                    });
-
+                    const response = await this.fetch(`/api/agents/${agentId}`, { method: 'DELETE' });
                     if (response.ok) {
                         await this.loadAgents();
                         this.addToast('Agent deleted', 'success');
@@ -682,19 +1360,18 @@
                     }
                 },
 
-                // API Keys
                 async loadApiKeys() {
                     try {
                         const response = await this.fetch('/api/apikeys');
                         if (response.ok) {
                             this.apiKeys = await response.json();
                         }
-                    } catch (err) {
-                        // API keys endpoint may not exist yet
-                    }
+                    } catch (err) {}
                 },
 
                 async createApiKey() {
+                    if (!this.validateField('apiKey', 'name')) return;
+
                     this.creatingApiKey = true;
                     try {
                         const response = await this.fetch('/api/apikeys', {
@@ -706,6 +1383,7 @@
                             const data = await response.json();
                             this.newApiKeyResult = data.key;
                             this.newApiKey = { name: '' };
+                            this.clearValidation('apiKey');
                             await this.loadApiKeys();
                             this.addToast('API key created', 'success');
                         } else {
@@ -718,7 +1396,6 @@
                 },
 
                 async revokeApiKey(keyId) {
-                    if (!confirm('Are you sure you want to revoke this API key? This cannot be undone.')) return;
                     const response = await this.fetch(`/api/apikeys/${keyId}`, { method: 'DELETE' });
                     if (response.ok) {
                         await this.loadApiKeys();
@@ -728,19 +1405,18 @@
                     }
                 },
 
-                // Policies
                 async loadPolicies() {
                     try {
                         const response = await this.fetch('/api/org-policies');
                         if (response.ok) {
                             this.policies = await response.json();
                         }
-                    } catch (err) {
-                        // Policies endpoint may not exist yet
-                    }
+                    } catch (err) {}
                 },
 
                 async createPolicy() {
+                    if (!this.validateField('policy', 'name')) return;
+
                     this.creatingPolicy = true;
                     try {
                         const response = await this.fetch('/api/org-policies', {
@@ -757,6 +1433,7 @@
                         if (response.ok) {
                             this.showCreatePolicy = false;
                             this.newPolicy = { name: '', description: '', maxTransactionAmount: null, dailySpendingLimit: null, requiresApproval: false };
+                            this.clearValidation('policy');
                             await this.loadPolicies();
                             this.addToast('Policy created', 'success');
                         } else {
@@ -778,7 +1455,6 @@
                 },
 
                 async deletePolicy(policyId) {
-                    if (!confirm('Are you sure you want to delete this policy?')) return;
                     const response = await this.fetch(`/api/org-policies/${policyId}`, { method: 'DELETE' });
                     if (response.ok) {
                         await this.loadPolicies();
@@ -788,7 +1464,6 @@
                     }
                 },
 
-                // Toast notifications
                 addToast(message, type = 'info') {
                     const id = Date.now();
                     this.toasts.push({ id, message, type });
@@ -799,7 +1474,6 @@
                     this.toasts = this.toasts.filter(t => t.id !== id);
                 },
 
-                // Utility
                 async copyToClipboard(text) {
                     try {
                         await navigator.clipboard.writeText(text);
@@ -811,11 +1485,13 @@
 
                 async fetch(url, options = {}) {
                     const token = localStorage.getItem('accessToken');
-                    return fetch(url, {
+                    const fullUrl = CONFIG.API_BASE_URL + url;
+                    return fetch(fullUrl, {
                         ...options,
                         headers: {
                             ...options.headers,
-                            'Authorization': `Bearer ${token}`
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
                         }
                     });
                 },
@@ -824,7 +1500,7 @@
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('refreshToken');
                     localStorage.removeItem('user');
-                    window.location.href = '/admin/login.html';
+                    window.location.href = CONFIG.LOGIN_URL;
                 },
 
                 formatDate(dateStr) {
