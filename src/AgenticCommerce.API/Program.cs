@@ -110,6 +110,9 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 app.UseCors();
 
+// Redirect /admin to /admin/index.html
+app.MapGet("/admin", () => Results.Redirect("/admin/index.html"));
+
 app.MapGet("/", () => new
 {
     service = "AgentRails Sandbox API",
