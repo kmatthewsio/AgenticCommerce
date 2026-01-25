@@ -113,43 +113,7 @@ app.UseCors();
 // Redirect /admin to /admin/index.html
 app.MapGet("/admin", () => Results.Redirect("/admin/index.html"));
 
-app.MapGet("/", () => new
-{
-    service = "AgentRails Sandbox API",
-    version = "v1.0.0",
-    status = "Running",
-    edition = "Sandbox",
-    environment = "Testnet Only",
-    description = "Demo environment for exploring x402 payment protocol capabilities",
-    features = new[]
-    {
-        "x402 Payment Protocol (Testnet)",
-        "AI Agent Demo",
-        "Circle Arc Blockchain (Testnet)",
-        "Interactive API Documentation"
-    },
-    endpoints = new
-    {
-        swagger = "/swagger",
-        health = "/health",
-        x402_demo = "/api/x402-demo",
-        x402_examples = "/api/x402-example"
-    },
-    production = new
-    {
-        contact = "sales@agentrails.io",
-        docs = "https://docs.agentrails.io",
-        enterprise_features = new[]
-        {
-            "Production Mainnet Access",
-            "Multi-tenant Organization Management",
-            "Policy Engine for Spending Controls",
-            "API Key Management",
-            "Audit Logs & Analytics",
-            "SLA & Priority Support"
-        }
-    }
-});
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
 try
 {
