@@ -22,6 +22,7 @@ public class AgenticCommerceDbContext : DbContext
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
     public DbSet<Policy> Policies => Set<Policy>();
+    public DbSet<GumroadPurchase> GumroadPurchases => Set<GumroadPurchase>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -129,6 +130,15 @@ public class AgenticCommerceDbContext : DbContext
                 .WithMany(o => o.Policies)
                 .HasForeignKey(e => e.OrganizationId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<GumroadPurchase>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.SaleId).IsUnique();
+            entity.HasIndex(e => e.Email);
+            entity.HasIndex(e => e.LicenseKey);
+            entity.HasIndex(e => e.OrganizationId);
         });
     }
 }

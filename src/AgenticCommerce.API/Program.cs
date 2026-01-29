@@ -3,6 +3,7 @@ using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Infrastructure.Agents;
 using AgenticCommerce.Infrastructure.Blockchain;
 using AgenticCommerce.Infrastructure.Data;
+using AgenticCommerce.Infrastructure.Gumroad;
 using AgenticCommerce.Infrastructure.Logging;
 using AgenticCommerce.Infrastructure.Payments;
 using Microsoft.EntityFrameworkCore;
@@ -83,6 +84,9 @@ builder.Services.AddHealthChecks();
 
 // Database logging service
 builder.Services.AddScoped<IDbLogger, DbLogger>();
+
+// Gumroad integration
+builder.Services.AddScoped<IApiKeyGenerationService, ApiKeyGenerationService>();
 
 var app = builder.Build();
 
