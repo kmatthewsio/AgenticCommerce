@@ -39,6 +39,14 @@ public class GumroadController : ControllerBase
         _logger.LogInformation("Received Gumroad webhook for sale {SaleId}, product {ProductId}",
             payload.SaleId, payload.ProductId);
 
+        // Verify seller_id matches our configured seller
+        var expectedSellerId = _configuration["Gumroad:SellerId"];
+        if (!string.IsNullOrEmpty(expectedSellerId) && payload.SellerId != expectedSellerId)
+        {
+            _logger.LogWarning("Invalid Gumroad seller_id: {Actual}", payload.SellerId);
+            return Unauthorized("Invalid seller_id");
+        }
+
         // Verify webhook signature if configured
         var webhookSecret = _configuration["Gumroad:WebhookSecret"];
         if (!string.IsNullOrEmpty(webhookSecret))
