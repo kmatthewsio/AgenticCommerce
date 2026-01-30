@@ -3,10 +3,12 @@ using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Infrastructure.Agents;
 using AgenticCommerce.Infrastructure.Blockchain;
 using AgenticCommerce.Infrastructure.Data;
+using AgenticCommerce.Infrastructure.Email;
 using AgenticCommerce.Infrastructure.Gumroad;
 using AgenticCommerce.Infrastructure.Logging;
 using AgenticCommerce.Infrastructure.Payments;
 using Microsoft.EntityFrameworkCore;
+using Resend;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -87,6 +89,16 @@ builder.Services.AddScoped<IDbLogger, DbLogger>();
 
 // Gumroad integration
 builder.Services.AddScoped<IApiKeyGenerationService, ApiKeyGenerationService>();
+
+// Stripe + Email integration
+builder.Services.AddOptions();
+builder.Services.AddHttpClient<ResendClient>();
+builder.Services.Configure<ResendClientOptions>(options =>
+{
+    options.ApiToken = builder.Configuration["Resend:ApiKey"] ?? "";
+});
+builder.Services.AddTransient<IResend, ResendClient>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 

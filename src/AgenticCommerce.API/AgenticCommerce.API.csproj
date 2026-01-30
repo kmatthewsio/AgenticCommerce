@@ -19,6 +19,7 @@
 		<PackageReference Include="Serilog.Sinks.Console" Version="5.0.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
 		<PackageReference Include="Serilog.Sinks.PostgreSQL" Version="2.3.0" />
+		<PackageReference Include="Stripe.net" Version="50.3.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
 	</ItemGroup>
 
