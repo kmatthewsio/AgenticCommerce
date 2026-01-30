@@ -14,7 +14,13 @@ public interface IApiKeyGenerationService
         string productName,
         string saleId);
 
+    Task<(Organization org, ApiKey apiKey, string rawKey)> ProvisionForStripeAsync(
+        string email,
+        string productName,
+        string sessionId);
+
     Task<ApiKey?> GetApiKeyBySaleIdAsync(string saleId);
+    Task<ApiKey?> GetApiKeyByStripeSessionIdAsync(string sessionId);
 }
 
 public class ApiKeyGenerationService : IApiKeyGenerationService
@@ -77,6 +83,55 @@ public class ApiKeyGenerationService : IApiKeyGenerationService
         var purchase = await _db.GumroadPurchases
             .Include(p => p.ApiKey)
             .FirstOrDefaultAsync(p => p.SaleId == saleId);
+
+        return purchase?.ApiKey;
+    }
+
+    public async Task<(Organization org, ApiKey apiKey, string rawKey)> ProvisionForStripeAsync(
+        string email,
+        string productName,
+        string sessionId)
+    {
+        // Check if we already provisioned for this session
+        var existingPurchase = await _db.StripePurchases
+            .Include(p => p.Organization)
+            .Include(p => p.ApiKey)
+            .FirstOrDefaultAsync(p => p.SessionId == sessionId);
+
+        if (existingPurchase?.Organization != null && existingPurchase.ApiKey != null)
+        {
+            _logger.LogInformation("Stripe session {SessionId} already provisioned", sessionId);
+            throw new InvalidOperationException($"Session {sessionId} already provisioned. API key was sent via email.");
+        }
+
+        // Create organization based on email
+        var orgSlug = GenerateSlug(email);
+        var org = new Organization
+        {
+            Name = $"{productName} - {email}",
+            Slug = orgSlug
+        };
+
+        _db.Organizations.Add(org);
+        await _db.SaveChangesAsync();
+
+        // Generate API key
+        var (apiKey, rawKey) = GenerateApiKey(org.Id, $"Stripe Purchase - {sessionId}");
+        _db.ApiKeys.Add(apiKey);
+        await _db.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Provisioned org {OrgId} and API key {KeyPrefix} for {Email} (Stripe)",
+            org.Id, apiKey.KeyPrefix, email);
+
+        return (org, apiKey, rawKey);
+    }
+
+    public async Task<ApiKey?> GetApiKeyByStripeSessionIdAsync(string sessionId)
+    {
+        var purchase = await _db.StripePurchases
+            .Include(p => p.ApiKey)
+            .FirstOrDefaultAsync(p => p.SessionId == sessionId);
 
         return purchase?.ApiKey;
     }

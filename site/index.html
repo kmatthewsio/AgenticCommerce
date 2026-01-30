@@ -585,9 +585,9 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
                                 <span class="text-gray-600">60-day email support</span>
                             </li>
                         </ul>
-                        <a href="https://agentrails.gumroad.com/l/implementation-kit" target="_blank" class="block w-full py-3 text-center rounded-xl bg-primary-600 text-white font-medium hover:bg-primary-700 transition">
+                        <button onclick="startCheckout()" class="block w-full py-3 text-center rounded-xl bg-primary-600 text-white font-medium hover:bg-primary-700 transition cursor-pointer" id="checkout-button">
                             Get Implementation Kit
-                        </a>
+                        </button>
                     </div>
                 </div>
 
@@ -649,13 +649,12 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a
-                    href="https://agentrails.gumroad.com/l/implementation-kit"
-                    target="_blank"
-                    class="inline-block px-8 py-4 bg-white text-primary-700 rounded-xl font-semibold hover:bg-primary-50 transition text-lg"
+                <button
+                    onclick="startCheckout()"
+                    class="inline-block px-8 py-4 bg-white text-primary-700 rounded-xl font-semibold hover:bg-primary-50 transition text-lg cursor-pointer"
                 >
                     Get Implementation Kit - $2,500
-                </a>
+                </button>
                 <a
                     href="mailto:kematth.007@protonmail.com?subject=AgentRails%20Enterprise%20Implementation&body=Hi%2C%20I'm%20interested%20in%20a%20custom%20AgentRails%20implementation.%0A%0ACompany%3A%0AUse%20case%3A%0ATimeline%3A%0A"
                     class="inline-block px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white/10 transition text-lg"
@@ -716,6 +715,51 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
             </div>
         </div>
     </footer>
+
+    <!-- Stripe Checkout Script -->
+    <script>
+        async function startCheckout() {
+            const button = document.getElementById('checkout-button');
+            const originalText = button ? button.textContent : '';
+
+            try {
+                // Update button state
+                document.querySelectorAll('[onclick="startCheckout()"]').forEach(btn => {
+                    btn.disabled = true;
+                    btn.textContent = 'Loading...';
+                });
+
+                const response = await fetch('https://api.agentrails.io/api/stripe/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create checkout session');
+                }
+
+                const data = await response.json();
+
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    throw new Error('No checkout URL returned');
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Something went wrong. Please try again or contact support.');
+
+                // Reset buttons
+                document.querySelectorAll('[onclick="startCheckout()"]').forEach(btn => {
+                    btn.disabled = false;
+                    btn.textContent = btn.id === 'checkout-button' ? 'Get Implementation Kit' : 'Get Implementation Kit - $2,500';
+                });
+            }
+        }
+    </script>
 
 </body>
 </html>

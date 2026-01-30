@@ -24,6 +24,7 @@
 		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
 		<PackageReference Include="Microsoft.SemanticKernel" Version="1.30.0" />
 		<PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.30.0" />
+		<PackageReference Include="Resend" Version="0.2.1" />
 		<PackageReference Include="Serilog" Version="4.0.0" />
 	</ItemGroup>
 

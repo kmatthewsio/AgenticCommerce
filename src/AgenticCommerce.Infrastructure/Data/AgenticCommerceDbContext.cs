@@ -23,6 +23,7 @@ public class AgenticCommerceDbContext : DbContext
     public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
     public DbSet<Policy> Policies => Set<Policy>();
     public DbSet<GumroadPurchase> GumroadPurchases => Set<GumroadPurchase>();
+    public DbSet<StripePurchase> StripePurchases => Set<StripePurchase>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -138,6 +139,15 @@ public class AgenticCommerceDbContext : DbContext
             entity.HasIndex(e => e.SaleId).IsUnique();
             entity.HasIndex(e => e.Email);
             entity.HasIndex(e => e.LicenseKey);
+            entity.HasIndex(e => e.OrganizationId);
+        });
+
+        modelBuilder.Entity<StripePurchase>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.SessionId).IsUnique();
+            entity.HasIndex(e => e.PaymentIntentId);
+            entity.HasIndex(e => e.Email);
             entity.HasIndex(e => e.OrganizationId);
         });
     }
