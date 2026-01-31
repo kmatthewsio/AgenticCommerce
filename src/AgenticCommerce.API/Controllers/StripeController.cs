@@ -339,6 +339,39 @@ public class StripeController : ControllerBase
 
         await _db.SaveChangesAsync();
     }
+
+    /// <summary>
+    /// Test endpoint to verify email sending (Development only)
+    /// </summary>
+    [HttpPost("test-email")]
+    public async Task<IActionResult> TestEmail([FromBody] TestEmailRequest request)
+    {
+        if (!Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.Equals("Development", StringComparison.OrdinalIgnoreCase) ?? false)
+        {
+            return NotFound();
+        }
+
+        try
+        {
+            await _emailService.SendApiKeyEmailAsync(
+                request.Email,
+                "ac_live_TEST_KEY_FOR_DEMO_ONLY",
+                "AgentRails Implementation Kit (Test)");
+
+            _logger.LogInformation("Test email sent to {Email}", request.Email);
+            return Ok(new { success = true, message = $"Test email sent to {request.Email}" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send test email to {Email}", request.Email);
+            return StatusCode(500, new { success = false, error = ex.Message });
+        }
+    }
+}
+
+public class TestEmailRequest
+{
+    public string Email { get; set; } = "";
 }
 
 public class CreateCheckoutRequest
