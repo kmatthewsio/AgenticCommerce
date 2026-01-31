@@ -7,9 +7,13 @@ using AgenticCommerce.Infrastructure.Email;
 using AgenticCommerce.Infrastructure.Gumroad;
 using AgenticCommerce.Infrastructure.Logging;
 using AgenticCommerce.Infrastructure.Payments;
+using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Resend;
 using Serilog;
+
+// Load environment variables from .env file (if it exists)
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
