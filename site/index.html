@@ -130,8 +130,10 @@
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex items-center gap-8">
                     <a href="#features" class="text-gray-600 hover:text-gray-900 transition">Features</a>
-                    <a href="#how-it-works" class="text-gray-600 hover:text-gray-900 transition">How It Works</a>
+                    <a href="#use-cases" class="text-gray-600 hover:text-gray-900 transition">Use Cases</a>
                     <a href="#pricing" class="text-gray-600 hover:text-gray-900 transition">Pricing</a>
+                    <a href="/docs.html" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="/blog/" class="text-gray-600 hover:text-gray-900 transition">Blog</a>
                     <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="text-gray-600 hover:text-gray-900 transition">GitHub</a>
                     <a href="https://sandbox.agentrails.io" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
                         Try Sandbox
@@ -150,8 +152,9 @@
             <!-- Mobile Nav -->
             <div x-show="mobileMenu" x-transition class="md:hidden py-4 border-t border-gray-100">
                 <a href="#features" class="block py-2 text-gray-600">Features</a>
-                <a href="#how-it-works" class="block py-2 text-gray-600">How It Works</a>
+                <a href="#use-cases" class="block py-2 text-gray-600">Use Cases</a>
                 <a href="#pricing" class="block py-2 text-gray-600">Pricing</a>
+                <a href="/docs.html" class="block py-2 text-gray-600">Docs</a>
                 <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="block py-2 text-gray-600">GitHub</a>
                 <a href="https://sandbox.agentrails.io" target="_blank" class="block py-2 mt-2 text-center bg-primary-600 text-white rounded-lg font-medium">
                     Try Sandbox
@@ -488,8 +491,94 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
         </div>
     </section>
 
+    <!-- Use Cases Section -->
+    <section id="use-cases" class="py-20 lg:py-32 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Built for the AI economy</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    From API monetization to autonomous agent networks, x402 powers the next generation of software commerce.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Use Case 1: AI Agent APIs -->
+                <div class="bg-gradient-to-br from-primary-50 to-cyan-50 rounded-2xl p-8 border border-primary-100">
+                    <div class="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">AI Agent APIs</h3>
+                    <p class="text-gray-600 mb-4">
+                        Monetize your AI models per-inference. No API keys, no subscriptions. Agents pay $0.001-$0.10 per call and get instant access.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">LLM inference</span>
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Image generation</span>
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Embeddings</span>
+                    </div>
+                </div>
+
+                <!-- Use Case 2: Data Marketplaces -->
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-8 border border-emerald-100">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Data Marketplaces</h3>
+                    <p class="text-gray-600 mb-4">
+                        Sell proprietary data per-query. Financial data, weather APIs, research datasets. Buyers pay only for what they use.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Market data</span>
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Geolocation</span>
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Analytics</span>
+                    </div>
+                </div>
+
+                <!-- Use Case 3: Compute on Demand -->
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 border border-amber-100">
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Compute on Demand</h3>
+                    <p class="text-gray-600 mb-4">
+                        GPU instances, serverless functions, rendering farms. Agents spin up resources, pay per-second, and release automatically.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">GPU compute</span>
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Serverless</span>
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Rendering</span>
+                    </div>
+                </div>
+
+                <!-- Use Case 4: Multi-Agent Networks -->
+                <div class="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-8 border border-violet-100">
+                    <div class="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Multi-Agent Networks</h3>
+                    <p class="text-gray-600 mb-4">
+                        Agents hiring agents. A research agent pays a search agent, which pays a summarization agent. Autonomous value chains.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Agent swarms</span>
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Task delegation</span>
+                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Workflows</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Pricing Section -->
-    <section id="pricing" class="py-20 lg:py-32 bg-white">
+    <section id="pricing" class="py-20 lg:py-32 bg-surface-50">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="text-center mb-16">
                 <h2 class="text-3xl sm:text-4xl font-bold mb-4">Build agent payment infrastructure</h2>

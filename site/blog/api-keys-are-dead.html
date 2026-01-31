@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why API Keys Are Dead (And What Replaces Them) - AgentRails</title>
+    <meta name="description" content="API keys were designed for humans. AI agents need something better. Here's why per-request payments are the future of API access.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .prose h2 { margin-top: 2rem; margin-bottom: 1rem; }
+        .prose p { margin-bottom: 1.25rem; line-height: 1.75; }
+        .prose ul, .prose ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.5rem; }
+        .prose code { background: #f4f4f5; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; }
+        .prose pre { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1.25rem; }
+        .prose pre code { background: transparent; color: #e5e7eb; padding: 0; }
+        .prose blockquote { border-left: 4px solid #6366f1; padding-left: 1rem; margin: 1.5rem 0; font-style: italic; color: #4b5563; }
+    </style>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                </a>
+
+                <div class="flex items-center gap-6">
+                    <a href="/blog/" class="text-gray-600 hover:text-gray-900 transition">Blog</a>
+                    <a href="/docs.html" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="https://sandbox.agentrails.io" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Try Sandbox
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+
+            <!-- Header -->
+            <header class="mb-12">
+                <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                    <time datetime="2026-01-31">January 31, 2026</time>
+                    <span>·</span>
+                    <span>6 min read</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
+                    Why API Keys Are Dead (And What Replaces Them)
+                </h1>
+                <p class="text-xl text-gray-600">
+                    API keys were designed for humans managing a handful of integrations. AI agents need something fundamentally different.
+                </p>
+            </header>
+
+            <!-- Content -->
+            <div class="prose max-w-none text-gray-700">
+
+                <p>
+                    Every developer knows the ritual: Sign up. Verify email. Add a credit card. Generate an API key. Store it in environment variables. Rotate it every 90 days. Repeat for every service you integrate.
+                </p>
+
+                <p>
+                    This made sense when humans were the primary consumers of APIs. But we're entering an era where <strong>AI agents will make more API calls than humans</strong>. And the API key model completely breaks down.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">The Problems With API Keys</h2>
+
+                <p>
+                    Let's be honest about what API keys really are: a clunky workaround for the fact that HTTP never had native payments.
+                </p>
+
+                <h3 class="text-xl font-semibold text-gray-900 mt-6 mb-3">1. They require human onboarding</h3>
+                <p>
+                    An AI agent can't sign up for a Stripe account, verify its identity, or add a credit card. Every new API integration requires a human to:
+                </p>
+                <ul class="list-disc">
+                    <li>Create an account</li>
+                    <li>Choose a pricing tier (usually wrong)</li>
+                    <li>Generate and securely store credentials</li>
+                    <li>Monitor usage and upgrade when throttled</li>
+                </ul>
+                <p>
+                    This is the opposite of autonomous.
+                </p>
+
+                <h3 class="text-xl font-semibold text-gray-900 mt-6 mb-3">2. You pay for capacity, not usage</h3>
+                <p>
+                    Most API pricing looks like this:
+                </p>
+                <ul class="list-disc">
+                    <li>Free: 1,000 requests/month</li>
+                    <li>Starter: $29/month for 10,000 requests</li>
+                    <li>Pro: $99/month for 100,000 requests</li>
+                    <li>Enterprise: "Contact sales"</li>
+                </ul>
+                <p>
+                    You're paying for a bucket you might not fill. Or worse, you hit the limit mid-task and your agent stops working until a human upgrades the plan.
+                </p>
+
+                <h3 class="text-xl font-semibold text-gray-900 mt-6 mb-3">3. Credential management is a security nightmare</h3>
+                <p>
+                    Where do you store API keys for 50 services? Environment variables? A secrets manager? What happens when one leaks? The 2024 GitHub secret scanning report found <strong>12.8 million exposed secrets</strong> in public repositories.
+                </p>
+                <p>
+                    For AI agents that might dynamically access hundreds of APIs, credential sprawl becomes unmanageable.
+                </p>
+
+                <h3 class="text-xl font-semibold text-gray-900 mt-6 mb-3">4. No composability</h3>
+                <p>
+                    Imagine an AI agent that needs to:
+                </p>
+                <ol class="list-decimal">
+                    <li>Search the web (Tavily API)</li>
+                    <li>Extract data (Firecrawl API)</li>
+                    <li>Analyze sentiment (OpenAI API)</li>
+                    <li>Store results (Supabase API)</li>
+                    <li>Send a summary (Resend API)</li>
+                </ol>
+                <p>
+                    That's 5 separate accounts, 5 API keys, 5 billing relationships, 5 potential points of failure. And this is a simple workflow.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">What Agents Actually Need</h2>
+
+                <p>
+                    When we designed systems for AI agent commerce, we started with first principles:
+                </p>
+
+                <blockquote>
+                    "What if an agent could access any API, pay for exactly what it uses, and never manage a single credential?"
+                </blockquote>
+
+                <p>
+                    This led us to four requirements:
+                </p>
+
+                <ul class="list-disc">
+                    <li><strong>Zero onboarding:</strong> Access any API instantly, no signup</li>
+                    <li><strong>Pay-per-request:</strong> $0.001 for one call, $0.01 for another - exact cost, no buckets</li>
+                    <li><strong>No credentials:</strong> Payment IS the authentication</li>
+                    <li><strong>Programmable budgets:</strong> Set limits at the agent level, not the service level</li>
+                </ul>
+
+                <h2 class="text-2xl font-bold text-gray-900">Enter x402: Payment as Authentication</h2>
+
+                <p>
+                    The x402 protocol flips the model: instead of proving you have permission (via API key), you prove you have payment (via USDC signature).
+                </p>
+
+                <pre><code># Old way: manage credentials per service
+headers = {"Authorization": f"Bearer {os.environ['OPENAI_KEY']}"}
+response = requests.get(url, headers=headers)
+
+# New way: pay and go
+response = agent.get(url, budget=0.05)
+# If it costs less than $0.05, agent pays and gets data
+# No key. No account. No subscription.</code></pre>
+
+                <p>
+                    The agent carries a USDC wallet with a budget. When it hits a 402 response, it evaluates the price, signs a payment authorization, and retries. All in one HTTP round-trip.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">The New Model: Wallets, Not Keys</h2>
+
+                <p>
+                    In the x402 world:
+                </p>
+
+                <table class="w-full text-sm border-collapse mb-6">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="text-left py-2 font-semibold">Old (API Keys)</th>
+                            <th class="text-left py-2 font-semibold">New (x402)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600">
+                        <tr class="border-b">
+                            <td class="py-2">1 key per service</td>
+                            <td class="py-2">1 wallet for all services</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-2">Monthly subscriptions</td>
+                            <td class="py-2">Pay per request</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-2">Human signup required</td>
+                            <td class="py-2">Zero onboarding</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-2">Credential rotation</td>
+                            <td class="py-2">No credentials to leak</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2">Service-level rate limits</td>
+                            <td class="py-2">Agent-level budgets</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    Your agent gets a wallet with $10. It can access any x402-enabled API until the budget runs out. You get a single audit trail of every payment, not 50 separate invoices.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">Who's Adopting This?</h2>
+
+                <p>
+                    This isn't theoretical. x402 processed $600M in volume in 2025. Adopters include:
+                </p>
+
+                <ul class="list-disc">
+                    <li><strong>AI infrastructure:</strong> Companies monetizing LLM inference, embeddings, and RAG pipelines</li>
+                    <li><strong>Data providers:</strong> Financial data, weather APIs, and research datasets</li>
+                    <li><strong>Compute platforms:</strong> GPU instances and serverless functions</li>
+                    <li><strong>Agent frameworks:</strong> AutoGPT, CrewAI, and LangChain plugins</li>
+                </ul>
+
+                <h2 class="text-2xl font-bold text-gray-900">What This Means for Developers</h2>
+
+                <p>
+                    If you're building APIs:
+                </p>
+                <ul class="list-disc">
+                    <li>You can monetize at any price point ($0.0001 and up)</li>
+                    <li>No need to build auth systems, billing portals, or subscription management</li>
+                    <li>Instant global payments, settled in USDC</li>
+                </ul>
+
+                <p>
+                    If you're building agents:
+                </p>
+                <ul class="list-disc">
+                    <li>Your agents can access any x402 API without onboarding</li>
+                    <li>Budget control at the agent level, not service level</li>
+                    <li>Full audit trail of every payment</li>
+                </ul>
+
+                <h2 class="text-2xl font-bold text-gray-900">The Future is Keyless</h2>
+
+                <p>
+                    API keys were a necessary hack for a web without native payments. Now that we have instant, programmable money (USDC) and a standard protocol (x402), we can build something better.
+                </p>
+
+                <p>
+                    The next generation of APIs won't ask "do you have permission?" They'll ask "can you pay?" And for AI agents operating at scale, that's exactly the question that makes sense.
+                </p>
+
+                <p>
+                    Ready to try it? Our <a href="https://sandbox.agentrails.io" class="text-primary-600 hover:underline">sandbox</a> is free - no API key required.
+                </p>
+
+            </div>
+
+            <!-- Author -->
+            <footer class="mt-12 pt-8 border-t border-gray-200">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white font-semibold">
+                        AR
+                    </div>
+                    <div>
+                        <p class="font-semibold">AgentRails Team</p>
+                        <p class="text-sm text-gray-500">Building payment infrastructure for the AI economy</p>
+                    </div>
+                </div>
+            </footer>
+
+            <!-- CTA -->
+            <div class="mt-12 p-8 bg-gradient-to-br from-primary-50 to-cyan-50 rounded-2xl border border-primary-100 text-center">
+                <h3 class="text-xl font-semibold mb-2">Build APIs without managing keys</h3>
+                <p class="text-gray-600 mb-4">Add x402 payments to your API in minutes. Free sandbox, no signup.</p>
+                <a href="/docs.html" class="inline-block px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition">
+                    Read the Docs
+                </a>
+            </div>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+            <p>© 2026 AgentRails. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

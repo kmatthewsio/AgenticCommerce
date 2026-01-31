@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - AgentRails</title>
+    <meta name="description" content="Learn how to integrate x402 payments into your APIs. Guides, tutorials, and API reference for AgentRails.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .code-block {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
+        .sidebar-link.active {
+            background: #eef2ff;
+            color: #4f46e5;
+            border-left-color: #4f46e5;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                    <span class="text-gray-400 font-normal">/ Docs</span>
+                </a>
+
+                <!-- Nav Links -->
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="/" class="text-gray-600 hover:text-gray-900 transition">Home</a>
+                    <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="text-gray-600 hover:text-gray-900 transition">API Reference</a>
+                    <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="text-gray-600 hover:text-gray-900 transition">GitHub</a>
+                    <a href="https://sandbox.agentrails.io" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Try Sandbox
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex pt-16">
+        <!-- Sidebar -->
+        <aside class="hidden lg:block w-64 fixed left-0 top-16 bottom-0 overflow-y-auto border-r border-gray-200 bg-white">
+            <nav class="p-4 space-y-1">
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Getting Started</p>
+                <a href="#introduction" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Introduction</a>
+                <a href="#quickstart" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Quick Start</a>
+                <a href="#how-it-works" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">How x402 Works</a>
+
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6 px-3">Integration</p>
+                <a href="#server-side" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Server Integration</a>
+                <a href="#client-side" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Client / Agent SDK</a>
+                <a href="#webhooks" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Webhooks</a>
+
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6 px-3">Reference</p>
+                <a href="#api-reference" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">API Reference</a>
+                <a href="#networks" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Supported Networks</a>
+                <a href="#pricing" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Pricing & Limits</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 lg:ml-64">
+            <div class="max-w-4xl mx-auto px-6 py-12">
+
+                <!-- Introduction -->
+                <section id="introduction" class="mb-16">
+                    <h1 class="text-4xl font-bold mb-4">AgentRails Documentation</h1>
+                    <p class="text-xl text-gray-600 mb-8">
+                        Build payment-enabled APIs for AI agents using the x402 protocol. Let software pay software, per-request, with instant USDC settlement.
+                    </p>
+                    <div class="grid sm:grid-cols-3 gap-4">
+                        <a href="#quickstart" class="block p-4 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                            <div class="text-2xl mb-2">🚀</div>
+                            <h3 class="font-semibold mb-1">Quick Start</h3>
+                            <p class="text-sm text-gray-600">Get up and running in 5 minutes</p>
+                        </a>
+                        <a href="#how-it-works" class="block p-4 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                            <div class="text-2xl mb-2">📖</div>
+                            <h3 class="font-semibold mb-1">How x402 Works</h3>
+                            <p class="text-sm text-gray-600">Understand the protocol</p>
+                        </a>
+                        <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="block p-4 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                            <div class="text-2xl mb-2">🔧</div>
+                            <h3 class="font-semibold mb-1">API Reference</h3>
+                            <p class="text-sm text-gray-600">Explore the endpoints</p>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Quick Start -->
+                <section id="quickstart" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">Quick Start</h2>
+                    <p class="text-gray-600 mb-6">
+                        Get started with x402 payments in three steps. This guide uses our sandbox environment with test USDC.
+                    </p>
+
+                    <div class="space-y-8">
+                        <!-- Step 1 -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm">1</span>
+                                <h3 class="text-lg font-semibold">Try a Protected Endpoint</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Call our sandbox API without payment - you'll get a 402 response with pricing info:</p>
+                            <div class="code-block rounded-lg p-4 overflow-x-auto">
+                                <pre class="text-sm font-mono text-gray-300">curl -i https://sandbox.agentrails.io/api/x402/protected/data</pre>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-3">Response: <code class="bg-gray-100 px-2 py-1 rounded">402 Payment Required</code> with <code class="bg-gray-100 px-2 py-1 rounded">X-PAYMENT-REQUIRED</code> header</p>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm">2</span>
+                                <h3 class="text-lg font-semibold">Check Pricing</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Get the pricing for all protected endpoints:</p>
+                            <div class="code-block rounded-lg p-4 overflow-x-auto">
+                                <pre class="text-sm font-mono text-gray-300">curl https://sandbox.agentrails.io/api/x402/pricing</pre>
+                            </div>
+                            <div class="mt-4 bg-gray-50 rounded-lg p-4">
+                                <pre class="text-sm font-mono text-gray-700">{
+  "endpoints": [
+    {"resource": "/api/x402/protected/analysis", "amountUsdc": 0.01},
+    {"resource": "/api/x402/protected/data", "amountUsdc": 0.001}
+  ],
+  "supportedNetworks": ["arc-testnet", "base-sepolia"],
+  "payTo": "0x6255d8dd3f84ec460fc8b07db58ab06384a2f487"
+}</pre>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm">3</span>
+                                <h3 class="text-lg font-semibold">Make a Payment</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Use our test endpoint to simulate a payment (sandbox only):</p>
+                            <div class="code-block rounded-lg p-4 overflow-x-auto">
+                                <pre class="text-sm font-mono text-gray-300">curl -X POST https://sandbox.agentrails.io/api/x402/test/execute-payment \
+  -H "Content-Type: application/json" \
+  -d '{"endpoint": "/api/x402/protected/data"}'</pre>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-3">In production, your agent signs an EIP-3009 authorization and includes it in the <code class="bg-gray-100 px-2 py-1 rounded">X-PAYMENT</code> header.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- How It Works -->
+                <section id="how-it-works" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">How x402 Works</h2>
+                    <p class="text-gray-600 mb-6">
+                        x402 is an open protocol that enables HTTP-native payments. It uses the HTTP 402 status code to signal that payment is required, along with machine-readable headers that tell the client exactly how to pay.
+                    </p>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">The Payment Flow</h3>
+                        <div class="space-y-4">
+                            <div class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">1</div>
+                                <div>
+                                    <p class="font-medium">Client requests protected resource</p>
+                                    <p class="text-sm text-gray-500">Standard HTTP GET/POST to your API endpoint</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">2</div>
+                                <div>
+                                    <p class="font-medium">Server returns 402 + payment requirements</p>
+                                    <p class="text-sm text-gray-500"><code class="bg-gray-100 px-1 rounded">X-PAYMENT-REQUIRED</code> header contains: amount, recipient, network, asset</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">3</div>
+                                <div>
+                                    <p class="font-medium">Client signs EIP-3009 payment authorization</p>
+                                    <p class="text-sm text-gray-500">Cryptographic signature authorizing USDC transfer (gasless for the payer)</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">4</div>
+                                <div>
+                                    <p class="font-medium">Client retries with payment proof</p>
+                                    <p class="text-sm text-gray-500"><code class="bg-gray-100 px-1 rounded">X-PAYMENT</code> header contains signed authorization</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">5</div>
+                                <div>
+                                    <p class="font-medium">Server verifies, settles, and returns data</p>
+                                    <p class="text-sm text-gray-500">Payment settles on-chain, response includes <code class="bg-gray-100 px-1 rounded">X-PAYMENT-RESPONSE</code> with transaction hash</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-primary-50 rounded-xl p-6 border border-primary-100">
+                        <h4 class="font-semibold text-primary-900 mb-2">Why EIP-3009?</h4>
+                        <p class="text-primary-800 text-sm">
+                            EIP-3009 allows "transferWithAuthorization" - a gasless way to authorize USDC transfers. The payer signs a message, and the recipient (or a facilitator) submits the transaction. This means AI agents don't need ETH for gas - they just need USDC.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Server Integration -->
+                <section id="server-side" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">Server Integration</h2>
+                    <p class="text-gray-600 mb-6">
+                        Add x402 payment protection to your API endpoints. We provide middleware for ASP.NET Core, with more frameworks coming soon.
+                    </p>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6">
+                        <h3 class="font-semibold mb-4">ASP.NET Core</h3>
+                        <p class="text-gray-600 mb-4">Add the <code class="bg-gray-100 px-2 py-1 rounded">[X402Payment]</code> attribute to any endpoint:</p>
+                        <div class="code-block rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-sm font-mono text-gray-300"><span class="text-cyan-400">[X402Payment(0.01, Description = "Premium API call")]</span>
+<span class="text-purple-400">[HttpGet("premium")]</span>
+<span class="text-blue-400">public</span> IActionResult Premium()
+{
+    <span class="text-gray-500">// Payment already verified by middleware</span>
+    <span class="text-blue-400">var</span> payer = HttpContext.GetX402Payer();
+    <span class="text-blue-400">var</span> txHash = HttpContext.GetX402TransactionHash();
+
+    <span class="text-blue-400">return</span> Ok(<span class="text-blue-400">new</span> {
+        data = <span class="text-emerald-400">"Premium content"</span>,
+        payer,
+        txHash
+    });
+}</pre>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-4">
+                            The middleware automatically handles 402 responses, payment verification, and on-chain settlement.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Client SDK -->
+                <section id="client-side" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">Client / Agent SDK</h2>
+                    <p class="text-gray-600 mb-6">
+                        Build AI agents that can autonomously pay for API access. Our SDK handles 402 responses automatically.
+                    </p>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">Python</h3>
+                        <div class="code-block rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-sm font-mono text-gray-300"><span class="text-blue-400">from</span> agentrails <span class="text-blue-400">import</span> X402Client
+
+<span class="text-gray-500"># Initialize with your wallet</span>
+client = X402Client(
+    wallet_address=<span class="text-emerald-400">"0x..."</span>,
+    private_key=<span class="text-emerald-400">"..."</span>,
+    max_budget=<span class="text-amber-400">1.00</span>  <span class="text-gray-500"># Max $1 USDC per session</span>
+)
+
+<span class="text-gray-500"># Make requests - SDK handles 402 automatically</span>
+response = client.get(<span class="text-emerald-400">"https://api.example.com/data"</span>)
+
+<span class="text-blue-400">print</span>(response.data)      <span class="text-gray-500"># Your data</span>
+<span class="text-blue-400">print</span>(response.cost)      <span class="text-gray-500"># $0.001 USDC</span>
+<span class="text-blue-400">print</span>(response.tx_hash)   <span class="text-gray-500"># On-chain proof</span></pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6">
+                        <h3 class="font-semibold mb-4">JavaScript/TypeScript</h3>
+                        <div class="code-block rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-sm font-mono text-gray-300"><span class="text-blue-400">import</span> { X402Client } <span class="text-blue-400">from</span> <span class="text-emerald-400">'@agentrails/sdk'</span>;
+
+<span class="text-blue-400">const</span> client = <span class="text-blue-400">new</span> X402Client({
+  walletAddress: <span class="text-emerald-400">'0x...'</span>,
+  privateKey: process.env.PRIVATE_KEY,
+  maxBudget: <span class="text-amber-400">1.00</span>
+});
+
+<span class="text-gray-500">// Automatic 402 handling</span>
+<span class="text-blue-400">const</span> { data, cost, txHash } = <span class="text-blue-400">await</span> client.get(
+  <span class="text-emerald-400">'https://api.example.com/data'</span>
+);
+
+console.log(<span class="text-emerald-400">`Paid $</span>${cost}<span class="text-emerald-400"> USDC, tx: </span>${txHash}<span class="text-emerald-400">`</span>);</pre>
+                        </div>
+                    </div>
+
+                    <p class="text-sm text-gray-500 mt-4">
+                        SDKs available on <a href="https://github.com/kmatthewsio/AgenticCommerce" class="text-primary-600 hover:underline">GitHub</a>. npm and PyPI packages coming soon.
+                    </p>
+                </section>
+
+                <!-- Webhooks -->
+                <section id="webhooks" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">Webhooks</h2>
+                    <p class="text-gray-600 mb-6">
+                        Receive real-time notifications when payments are processed.
+                    </p>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6">
+                        <h3 class="font-semibold mb-4">Payment Completed Event</h3>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <pre class="text-sm font-mono text-gray-700">{
+  "event": "payment.completed",
+  "data": {
+    "paymentId": "pay_abc123",
+    "amount": "0.01",
+    "currency": "USDC",
+    "payer": "0x1234...5678",
+    "recipient": "0x8765...4321",
+    "transactionHash": "0xabc...def",
+    "network": "arc-testnet",
+    "resource": "/api/x402/protected/analysis",
+    "timestamp": "2026-01-31T12:00:00Z"
+  }
+}</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- API Reference -->
+                <section id="api-reference" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">API Reference</h2>
+                    <p class="text-gray-600 mb-6">
+                        Full API documentation is available via Swagger UI.
+                    </p>
+
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="block p-6 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                            <h3 class="font-semibold mb-2">Sandbox API</h3>
+                            <p class="text-sm text-gray-600 mb-3">Test with fake USDC on testnet</p>
+                            <span class="text-primary-600 text-sm font-medium">Open Swagger UI →</span>
+                        </a>
+                        <a href="https://api.agentrails.io/swagger" target="_blank" class="block p-6 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                            <h3 class="font-semibold mb-2">Production API</h3>
+                            <p class="text-sm text-gray-600 mb-3">Real USDC on mainnet (requires license)</p>
+                            <span class="text-primary-600 text-sm font-medium">Open Swagger UI →</span>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Networks -->
+                <section id="networks" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">Supported Networks</h2>
+                    <p class="text-gray-600 mb-6">
+                        AgentRails supports multiple blockchain networks for USDC settlement.
+                    </p>
+
+                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="text-left px-6 py-3 font-semibold">Network</th>
+                                    <th class="text-left px-6 py-3 font-semibold">Chain ID</th>
+                                    <th class="text-left px-6 py-3 font-semibold">Environment</th>
+                                    <th class="text-left px-6 py-3 font-semibold">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">Arc Testnet</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">5042002</td>
+                                    <td class="px-6 py-4">Development</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">Base Sepolia</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">84532</td>
+                                    <td class="px-6 py-4">Development</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">Base Mainnet</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">8453</td>
+                                    <td class="px-6 py-4">Production</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">Coming Soon</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">Ethereum Mainnet</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">1</td>
+                                    <td class="px-6 py-4">Production</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">Coming Soon</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Pricing -->
+                <section id="pricing" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">Pricing & Limits</h2>
+                    <p class="text-gray-600 mb-6">
+                        AgentRails offers flexible pricing for teams of all sizes.
+                    </p>
+
+                    <div class="grid sm:grid-cols-3 gap-4">
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <h3 class="font-semibold mb-2">Sandbox</h3>
+                            <p class="text-3xl font-bold mb-2">Free</p>
+                            <p class="text-sm text-gray-600 mb-4">Test on testnet</p>
+                            <ul class="text-sm text-gray-600 space-y-2">
+                                <li>✓ Unlimited test transactions</li>
+                                <li>✓ Arc & Base testnets</li>
+                                <li>✓ Community support</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <h3 class="font-semibold mb-2">Startup</h3>
+                            <p class="text-3xl font-bold mb-2">$500</p>
+                            <p class="text-sm text-gray-600 mb-4">One-time license</p>
+                            <ul class="text-sm text-gray-600 space-y-2">
+                                <li>✓ Full source code</li>
+                                <li>✓ Production networks</li>
+                                <li>✓ Deployment guides</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white rounded-xl border border-primary-200 p-6 ring-2 ring-primary-500">
+                            <h3 class="font-semibold mb-2">Enterprise</h3>
+                            <p class="text-3xl font-bold mb-2">$2,500</p>
+                            <p class="text-sm text-gray-600 mb-4">One-time license</p>
+                            <ul class="text-sm text-gray-600 space-y-2">
+                                <li>✓ Everything in Startup</li>
+                                <li>✓ Multi-chain support</li>
+                                <li>✓ 90-day priority support</li>
+                                <li>✓ 1:1 implementation call</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 text-center">
+                        <a href="/#pricing" class="text-primary-600 font-medium hover:underline">View full pricing details →</a>
+                    </div>
+                </section>
+
+                <!-- Footer -->
+                <footer class="border-t border-gray-200 pt-8 mt-16">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+                        <p>© 2026 AgentRails. All rights reserved.</p>
+                        <div class="flex gap-6">
+                            <a href="https://github.com/kmatthewsio/AgenticCommerce" class="hover:text-gray-900 transition">GitHub</a>
+                            <a href="mailto:kematth.007@protonmail.com" class="hover:text-gray-900 transition">Contact</a>
+                        </div>
+                    </div>
+                </footer>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Highlight active sidebar link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

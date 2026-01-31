@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is x402? The Protocol Powering AI Agent Payments - AgentRails</title>
+    <meta name="description" content="x402 is the HTTP-native payment protocol that lets AI agents pay for APIs instantly with USDC. Learn how it works and why Coinbase and Cloudflare are backing it.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .prose h2 { margin-top: 2rem; margin-bottom: 1rem; }
+        .prose p { margin-bottom: 1.25rem; line-height: 1.75; }
+        .prose ul { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.5rem; }
+        .prose code { background: #f4f4f5; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; }
+        .prose pre { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1.25rem; }
+        .prose pre code { background: transparent; color: #e5e7eb; padding: 0; }
+    </style>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                </a>
+
+                <div class="flex items-center gap-6">
+                    <a href="/blog/" class="text-gray-600 hover:text-gray-900 transition">Blog</a>
+                    <a href="/docs.html" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="https://sandbox.agentrails.io" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Try Sandbox
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+
+            <!-- Header -->
+            <header class="mb-12">
+                <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                    <time datetime="2026-01-31">January 31, 2026</time>
+                    <span>·</span>
+                    <span>8 min read</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
+                    What is x402? The Protocol Powering AI Agent Payments
+                </h1>
+                <p class="text-xl text-gray-600">
+                    How an obscure HTTP status code is becoming the payment layer for the AI economy, backed by Coinbase and Cloudflare.
+                </p>
+            </header>
+
+            <!-- Content -->
+            <div class="prose max-w-none text-gray-700">
+
+                <p>
+                    When Tim Berners-Lee designed HTTP in 1991, he reserved status code <code>402</code> for "Payment Required" - a future where the web would have native payments built in. That future never arrived. Until now.
+                </p>
+
+                <p>
+                    <strong>x402</strong> is an open protocol that finally implements HTTP 402, enabling instant, programmatic payments over the internet. Instead of API keys and monthly subscriptions, software can pay software - per request, in USDC, with cryptographic proof.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">Why Now?</h2>
+
+                <p>
+                    Three converging trends made x402 possible:
+                </p>
+
+                <ul class="list-disc text-gray-700">
+                    <li><strong>Stablecoins at scale:</strong> USDC processes billions in daily volume with sub-second finality on chains like Base and Solana.</li>
+                    <li><strong>AI agents going autonomous:</strong> Agents need to acquire resources (APIs, data, compute) without human intervention.</li>
+                    <li><strong>EIP-3009 gasless transfers:</strong> Payers can sign a payment authorization without needing ETH for gas - the recipient submits the transaction.</li>
+                </ul>
+
+                <p>
+                    The result: machines can now pay machines, instantly, globally, 24/7.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">How It Works</h2>
+
+                <p>
+                    The x402 flow is elegantly simple:
+                </p>
+
+                <p>
+                    <strong>Step 1:</strong> Client requests a protected resource
+                </p>
+                <pre><code>GET /api/premium-data HTTP/1.1
+Host: api.example.com</code></pre>
+
+                <p>
+                    <strong>Step 2:</strong> Server returns 402 with payment requirements
+                </p>
+                <pre><code>HTTP/1.1 402 Payment Required
+X-PAYMENT-REQUIRED: eyJhbW91bnQiOiIxMDAwMCIsImFzc2V0Ijoi...
+
+{
+  "amount": "10000",        // $0.01 in USDC (6 decimals)
+  "asset": "USDC",
+  "network": "base-mainnet",
+  "payTo": "0x1234...5678",
+  "validUntil": 1706745600
+}</code></pre>
+
+                <p>
+                    <strong>Step 3:</strong> Client signs an EIP-3009 authorization and retries
+                </p>
+                <pre><code>GET /api/premium-data HTTP/1.1
+Host: api.example.com
+X-PAYMENT: eyJzaWduYXR1cmUiOiIweDEyMzQ1Njc4Li4uIiwiYXV0aCI6ey4uLn19</code></pre>
+
+                <p>
+                    <strong>Step 4:</strong> Server verifies the signature, settles on-chain, returns data
+                </p>
+                <pre><code>HTTP/1.1 200 OK
+X-PAYMENT-RESPONSE: {"txHash": "0xabc...def", "settled": true}
+
+{"data": "Your premium content here"}</code></pre>
+
+                <p>
+                    The entire flow happens in a single HTTP round-trip (after the initial 402). Payment verification and settlement happen server-side, often in under 500ms.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">Who's Behind It?</h2>
+
+                <p>
+                    x402 isn't a scrappy startup protocol. It's backed by infrastructure giants:
+                </p>
+
+                <ul class="list-disc text-gray-700">
+                    <li><strong>Coinbase</strong> - Created the protocol, runs the primary facilitator</li>
+                    <li><strong>Cloudflare</strong> - Co-founded the x402 Foundation, integrating into Workers</li>
+                    <li><strong>Circle</strong> - USDC issuer, enabling settlement</li>
+                    <li><strong>Google Cloud, AWS, Anthropic</strong> - Integration partners</li>
+                </ul>
+
+                <p>
+                    By late 2025, x402 had processed over <strong>$600 million</strong> in payment volume across 75+ million transactions.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">Why Not Just Use Stripe?</h2>
+
+                <p>
+                    Traditional payment rails weren't built for machine-to-machine commerce:
+                </p>
+
+                <table class="w-full text-sm border-collapse mb-6">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="text-left py-2 font-semibold">Factor</th>
+                            <th class="text-left py-2 font-semibold">Stripe</th>
+                            <th class="text-left py-2 font-semibold">x402</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600">
+                        <tr class="border-b">
+                            <td class="py-2">Minimum transaction</td>
+                            <td class="py-2">$0.50 (fees eat micro-payments)</td>
+                            <td class="py-2">$0.0001 (fraction of a cent)</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-2">Settlement time</td>
+                            <td class="py-2">2-7 days</td>
+                            <td class="py-2">&lt;1 second</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-2">Account required</td>
+                            <td class="py-2">Yes (KYC, credit card)</td>
+                            <td class="py-2">No (just a wallet)</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-2">API for machines</td>
+                            <td class="py-2">Requires integration</td>
+                            <td class="py-2">Native HTTP</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2">24/7 autonomous</td>
+                            <td class="py-2">Needs human approval</td>
+                            <td class="py-2">Fully autonomous</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    For AI agents making thousands of micro-transactions per hour, traditional payments are impossible. x402 is designed for exactly this use case.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">What Can You Build?</h2>
+
+                <p>
+                    x402 enables entirely new business models:
+                </p>
+
+                <ul class="list-disc text-gray-700">
+                    <li><strong>Pay-per-inference AI APIs</strong> - Charge $0.001 per GPT call instead of $20/month</li>
+                    <li><strong>Data marketplaces</strong> - Sell proprietary data per-query</li>
+                    <li><strong>Compute on demand</strong> - GPU instances billed per-second</li>
+                    <li><strong>Agent-to-agent networks</strong> - Autonomous agents hiring other agents</li>
+                </ul>
+
+                <h2 class="text-2xl font-bold text-gray-900">Getting Started</h2>
+
+                <p>
+                    Ready to add x402 payments to your API? Here's how to start:
+                </p>
+
+                <ol class="list-decimal text-gray-700 pl-5">
+                    <li>Try our <a href="https://sandbox.agentrails.io" class="text-primary-600 hover:underline">sandbox</a> with test USDC</li>
+                    <li>Read the <a href="/docs.html" class="text-primary-600 hover:underline">documentation</a> for integration guides</li>
+                    <li>Check out the <a href="https://x402.org" class="text-primary-600 hover:underline">official x402 spec</a></li>
+                </ol>
+
+                <p>
+                    The future of API monetization isn't subscriptions. It's software paying software, per-request, instant settlement. And that future is already here.
+                </p>
+
+            </div>
+
+            <!-- Author -->
+            <footer class="mt-12 pt-8 border-t border-gray-200">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white font-semibold">
+                        AR
+                    </div>
+                    <div>
+                        <p class="font-semibold">AgentRails Team</p>
+                        <p class="text-sm text-gray-500">Building payment infrastructure for the AI economy</p>
+                    </div>
+                </div>
+            </footer>
+
+            <!-- CTA -->
+            <div class="mt-12 p-8 bg-gradient-to-br from-primary-50 to-cyan-50 rounded-2xl border border-primary-100 text-center">
+                <h3 class="text-xl font-semibold mb-2">Ready to integrate x402?</h3>
+                <p class="text-gray-600 mb-4">Start building with our sandbox - free, no signup required.</p>
+                <a href="https://sandbox.agentrails.io" class="inline-block px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition">
+                    Try Sandbox Free
+                </a>
+            </div>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+            <p>© 2026 AgentRails. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
