@@ -11,11 +11,12 @@ using Stripe.Checkout;
 namespace AgenticCommerce.API.Controllers;
 
 /// <summary>
-/// Stripe payment controller for Enterprise tier purchases.
+/// Stripe payment controller for paid tier purchases.
 ///
 /// Product Tiers:
 /// - Standard/Sandbox: Free tier (no Stripe), uses x402 protocol on testnet
-/// - Enterprise: $2,500 one-time via Stripe Checkout, full production access
+/// - Startup: $500 one-time via Stripe Checkout, production access
+/// - Enterprise: $2,500 one-time via Stripe Checkout, full production access + support
 ///
 /// All payment events are logged to:
 /// - Application logs (Serilog - file + console)
@@ -55,14 +56,36 @@ public class StripeController : ControllerBase
     /// <summary>
     /// Create a Stripe Checkout Session for the Implementation Kit
     /// </summary>
+    /// <param name="request">Checkout request with optional email and tier (startup/enterprise)</param>
     [HttpPost("create-checkout-session")]
     public async Task<IActionResult> CreateCheckoutSession([FromBody] CreateCheckoutRequest? request)
     {
-        var priceId = _configuration["Stripe:ImplementationKitPriceId"];
+        // Determine tier and price
+        var tier = request?.Tier?.ToLowerInvariant() ?? "enterprise";
+        string? priceId;
+        string productName;
+        string amount;
+
+        switch (tier)
+        {
+            case "startup":
+                priceId = _configuration["Stripe:StartupPriceId"];
+                productName = "AgentRails Startup";
+                amount = "$500";
+                break;
+            case "enterprise":
+            default:
+                priceId = _configuration["Stripe:EnterprisePriceId"]
+                    ?? _configuration["Stripe:ImplementationKitPriceId"]; // fallback for backward compat
+                productName = "AgentRails Enterprise";
+                amount = "$2,500";
+                break;
+        }
+
         if (string.IsNullOrEmpty(priceId))
         {
-            _logger.LogError("Stripe:ImplementationKitPriceId not configured");
-            return StatusCode(500, new { error = "Product not configured" });
+            _logger.LogError("Stripe price not configured for tier {Tier}", tier);
+            return StatusCode(500, new { error = $"Product not configured for tier: {tier}" });
         }
 
         var domain = _configuration["App:Domain"] ?? "https://agentrails.io";
@@ -83,7 +106,8 @@ public class StripeController : ControllerBase
             CustomerEmail = request?.Email, // Pre-fill email if provided
             Metadata = new Dictionary<string, string>
             {
-                { "product", "implementation-kit" }
+                { "product", productName },
+                { "tier", tier }
             }
         };
 
@@ -92,21 +116,21 @@ public class StripeController : ControllerBase
             var service = new SessionService();
             var session = await service.CreateAsync(options);
 
-            _logger.LogInformation("Created checkout session {SessionId}", session.Id);
+            _logger.LogInformation("Created {Tier} checkout session {SessionId}", tier, session.Id);
 
             // Log to database for payment audit trail
             await _dbLogger.LogAsync(
                 "Information",
-                $"Enterprise checkout session created: {session.Id}",
+                $"{tier} checkout session created: {session.Id}",
                 source: "StripeController",
                 requestPath: HttpContext.Request.Path,
                 properties: new Dictionary<string, object>
                 {
                     { "sessionId", session.Id },
                     { "email", request?.Email ?? "not provided" },
-                    { "product", "AgentRails Implementation Kit" },
-                    { "tier", "Enterprise" },
-                    { "amount", "$2,500" }
+                    { "product", productName },
+                    { "tier", tier },
+                    { "amount", amount }
                 });
 
             return Ok(new { url = session.Url, sessionId = session.Id });
@@ -377,4 +401,8 @@ public class TestEmailRequest
 public class CreateCheckoutRequest
 {
     public string? Email { get; set; }
+    /// <summary>
+    /// Tier: "startup" ($500) or "enterprise" ($2,500). Defaults to enterprise.
+    /// </summary>
+    public string? Tier { get; set; }
 }
