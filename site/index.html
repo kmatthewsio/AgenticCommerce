@@ -809,13 +809,14 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
     <!-- Stripe Checkout Script -->
     <script>
         async function startCheckout(tier = 'enterprise') {
+            // Get the clicked button from the event
+            const clickedBtn = event.target;
+            const originalText = clickedBtn.textContent;
+
             try {
-                // Update all checkout buttons to loading state
-                document.querySelectorAll('[onclick^="startCheckout"]').forEach(btn => {
-                    btn.disabled = true;
-                    btn.dataset.originalText = btn.textContent;
-                    btn.textContent = 'Loading...';
-                });
+                // Only update the clicked button to loading state
+                clickedBtn.disabled = true;
+                clickedBtn.textContent = 'Loading...';
 
                 const response = await fetch('https://api.agentrails.io/api/stripe/create-checkout-session', {
                     method: 'POST',
@@ -840,11 +841,9 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
                 console.error('Checkout error:', error);
                 alert('Something went wrong. Please try again or contact support.');
 
-                // Reset buttons to original state
-                document.querySelectorAll('[onclick^="startCheckout"]').forEach(btn => {
-                    btn.disabled = false;
-                    btn.textContent = btn.dataset.originalText || 'Get License';
-                });
+                // Reset the clicked button to original state
+                clickedBtn.disabled = false;
+                clickedBtn.textContent = originalText;
             }
         }
     </script>
