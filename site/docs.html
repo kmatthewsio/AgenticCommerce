@@ -295,13 +295,19 @@
 
                 <!-- Client SDK -->
                 <section id="client-side" class="mb-16">
-                    <h2 class="text-2xl font-bold mb-4">Client / Agent SDK</h2>
+                    <div class="flex items-center gap-3 mb-4">
+                        <h2 class="text-2xl font-bold">Client / Agent SDK</h2>
+                        <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">Coming Soon</span>
+                    </div>
                     <p class="text-gray-600 mb-6">
                         Build AI agents that can autonomously pay for API access. Our SDK handles 402 responses automatically.
                     </p>
 
                     <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-                        <h3 class="font-semibold mb-4">Python</h3>
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="font-semibold">Python</h3>
+                            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs">Preview</span>
+                        </div>
                         <div class="code-block rounded-lg p-4 overflow-x-auto">
                             <pre class="text-sm font-mono text-gray-300"><span class="text-blue-400">from</span> agentrails <span class="text-blue-400">import</span> X402Client
 
@@ -322,7 +328,10 @@ response = client.get(<span class="text-emerald-400">"https://api.example.com/da
                     </div>
 
                     <div class="bg-white rounded-xl border border-gray-200 p-6">
-                        <h3 class="font-semibold mb-4">JavaScript/TypeScript</h3>
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="font-semibold">JavaScript/TypeScript</h3>
+                            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs">Preview</span>
+                        </div>
                         <div class="code-block rounded-lg p-4 overflow-x-auto">
                             <pre class="text-sm font-mono text-gray-300"><span class="text-blue-400">import</span> { X402Client } <span class="text-blue-400">from</span> <span class="text-emerald-400">'@agentrails/sdk'</span>;
 
@@ -342,7 +351,7 @@ console.log(<span class="text-emerald-400">`Paid $</span>${cost}<span class="tex
                     </div>
 
                     <p class="text-sm text-gray-500 mt-4">
-                        SDKs available on <a href="https://github.com/kmatthewsio/AgenticCommerce" class="text-primary-600 hover:underline">GitHub</a>. npm and PyPI packages coming soon.
+                        Official SDKs are in development. Follow our <a href="https://github.com/kmatthewsio/AgenticCommerce" class="text-primary-600 hover:underline">GitHub</a> for release announcements. The code above shows the planned API design.
                     </p>
                 </section>
 
