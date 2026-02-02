@@ -300,12 +300,16 @@ Agents that manage corporate funds, execute payments, and maintain budget compli
 - [x] Test endpoints for development
 - [x] Real EIP-712 signature generation & verification
 
-### Phase 4: SaaS Features (Next)
-- [ ] Multi-tenant support
-- [ ] API key management
-- [ ] Usage-based billing
-- [ ] Merchant onboarding
-- [ ] Analytics dashboard
+### Phase 4: Production Tiers
+- [x] Stripe payment integration
+- [x] API key provisioning
+- [x] Organization setup
+
+### Enterprise Features (Separate License)
+- Policy engine (spending limits, approval workflows)
+- Admin dashboard
+- Audit logging
+- Advanced multi-tenancy
 
 ### Phase 5: Agent Auto-Pay
 - [ ] Agent detects 402 responses
@@ -320,7 +324,6 @@ Agents that manage corporate funds, execute payments, and maintain budget compli
 - EIP-712 typed data signing (tamper-proof)
 - EIP-3009 signature verification (ECDSA recovery)
 - Database with proper foreign keys and constraints
-- Comprehensive audit logging
 
 ## Performance
 

@@ -13,7 +13,6 @@ public class AgenticCommerceDbContext : DbContext
     public DbSet<AgentEntity> Agents => Set<AgentEntity>();
     public DbSet<TransactionEntity> Transactions => Set<TransactionEntity>();
     public DbSet<X402PaymentEntity> X402Payments => Set<X402PaymentEntity>();
-    public DbSet<LogEntry> AppLogs => Set<LogEntry>();
 
     // Multi-tenancy entities
     public DbSet<Organization> Organizations => Set<Organization>();
@@ -21,7 +20,6 @@ public class AgenticCommerceDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
-    public DbSet<Policy> Policies => Set<Policy>();
     public DbSet<GumroadPurchase> GumroadPurchases => Set<GumroadPurchase>();
     public DbSet<StripePurchase> StripePurchases => Set<StripePurchase>();
 
@@ -57,14 +55,6 @@ public class AgenticCommerceDbContext : DbContext
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.CreatedAt);
             entity.HasIndex(e => e.Network);
-        });
-
-        modelBuilder.Entity<LogEntry>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.Timestamp);
-            entity.HasIndex(e => e.Level);
-            entity.HasIndex(e => e.Source);
         });
 
         // Multi-tenancy entities
@@ -118,17 +108,6 @@ public class AgenticCommerceDbContext : DbContext
 
             entity.HasOne(e => e.Organization)
                 .WithMany(o => o.ApiKeys)
-                .HasForeignKey(e => e.OrganizationId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        modelBuilder.Entity<Policy>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.OrganizationId);
-
-            entity.HasOne(e => e.Organization)
-                .WithMany(o => o.Policies)
                 .HasForeignKey(e => e.OrganizationId)
                 .OnDelete(DeleteBehavior.Cascade);
         });

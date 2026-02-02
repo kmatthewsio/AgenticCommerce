@@ -5,7 +5,6 @@ using AgenticCommerce.Infrastructure.Blockchain;
 using AgenticCommerce.Infrastructure.Data;
 using AgenticCommerce.Infrastructure.Email;
 using AgenticCommerce.Infrastructure.Gumroad;
-using AgenticCommerce.Infrastructure.Logging;
 using AgenticCommerce.Infrastructure.Payments;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
@@ -87,9 +86,6 @@ builder.Services.AddSingleton<IX402PaymentService, X402PaymentService>();
 builder.Services.AddX402Payments();
 builder.Services.AddHttpClient<ICircleGatewayClient, CircleGatewayClient>();
 builder.Services.AddHealthChecks();
-
-// Database logging service
-builder.Services.AddScoped<IDbLogger, DbLogger>();
 
 // Gumroad integration
 builder.Services.AddScoped<IApiKeyGenerationService, ApiKeyGenerationService>();

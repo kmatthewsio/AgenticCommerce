@@ -1,13 +1,13 @@
 # AgentRails User Guide
 
-This guide covers how to use the AgentRails admin dashboard and REST APIs for managing autonomous AI agents, policies, and transactions.
+This guide covers how to use the AgentRails REST APIs for managing autonomous AI agents and x402 payments.
 
 ---
 
 ## Table of Contents
 
 1. [Getting Started](#getting-started)
-2. [Admin Dashboard](#admin-dashboard)
+2. [x402 Payment Protocol](#x402-payment-protocol)
 3. [API Reference](#api-reference)
 4. [Authentication](#authentication)
 5. [Examples](#examples)
@@ -18,344 +18,73 @@ This guide covers how to use the AgentRails admin dashboard and REST APIs for ma
 
 ### Prerequisites
 
-- AgentRails API running (default: `https://localhost:7098`)
-- A registered user account with an organization
+- AgentRails API access (API key required for production)
+- For testing: Use the sandbox at `https://sandbox.agentrails.io`
 
 ### Quick Start
 
-1. Navigate to `https://localhost:7098/admin/index.html`
-2. Register a new account or log in with existing credentials
-3. Start managing your agents, policies, and transactions
+1. Purchase a Startup or Enterprise license at [agentrails.io](https://agentrails.io)
+2. Receive your API key via email
+3. Start making API calls with your key
 
 ---
 
-## Admin Dashboard
+## x402 Payment Protocol
 
-The admin dashboard provides a visual interface for managing all aspects of the AgentRails platform.
+AgentRails implements the [x402 protocol](https://x402.org) - an HTTP payment standard that enables AI agents to pay for API access using USDC.
 
-### Login / Registration
-
-#### Register a New Account
-1. Click "Don't have an account? Register"
-2. Fill in:
-   - **Name**: Your display name
-   - **Email**: Your email address
-   - **Password**: A secure password
-   - **Organization Name**: Your company or organization name
-3. Click "Register"
-
-#### Login
-1. Enter your email and password
-2. Click "Login"
-
----
-
-### Navigation
-
-The sidebar provides access to all dashboard sections:
-
-| Section | Description |
-|---------|-------------|
-| **Overview** | Dashboard summary with stats and trends |
-| **Agents** | Manage autonomous AI agents |
-| **Transactions** | View transaction history |
-| **Policies** | Configure spending policies |
-| **API Keys** | Manage API authentication keys |
-| **Logs** | View system logs and errors |
-
----
-
-### Overview Page
-
-The Overview page displays:
-
-#### Stats Cards
-- **Total Agents**: Number of agents in your organization
-- **Active Agents**: Agents currently operational
-- **Total Budget**: Combined budget across all agents
-- **Total Spent**: Total amount spent by agents
-
-Each card includes:
-- A trend indicator showing change over the past week
-- A sparkline chart showing recent activity
-
-#### Quick Actions
-- Create new agents
-- View recent transactions
-- Monitor system health
-
----
-
-### Agents Page
-
-#### Viewing Agents
-
-The agents table displays:
-- **Name**: Agent identifier
-- **Status**: Active, Inactive, or Paused
-- **Budget**: Total allocated budget
-- **Balance**: Current remaining balance
-- **Created**: Creation timestamp
-
-#### Table Features
-
-**Sorting**: Click any column header to sort
-- Click once for ascending order
-- Click again for descending order
-- Arrow indicator shows current sort direction
-
-**Filtering**: Use the search box to filter agents by:
-- Name
-- ID
-- Status
-
-#### Creating an Agent
-
-1. Click "Create Agent"
-2. Fill in the form:
-   - **Name** (required): A descriptive name for the agent
-   - **Description**: What the agent does
-   - **Budget** (required): Maximum spending limit in USDC
-3. Click "Create"
-
-**Validation**:
-- Name is required
-- Budget must be greater than 0
-
-#### Deleting an Agent
-
-1. Click the trash icon on the agent row
-2. Review the confirmation modal
-3. Click "Delete" to confirm or "Cancel" to abort
-
----
-
-### Transactions Page
-
-#### Viewing Transactions
-
-The transactions table displays:
-- **ID**: Unique transaction identifier
-- **Agent**: The agent that initiated the transaction
-- **Amount**: Transaction amount in USDC
-- **Recipient**: Destination wallet address
-- **Status**: Completed, Pending, or Failed
-- **Date**: Transaction timestamp
-
-#### Transaction Statuses
-
-| Status | Description |
-|--------|-------------|
-| **Completed** | Successfully settled on blockchain |
-| **Pending** | Awaiting confirmation |
-| **Failed** | Transaction rejected or timed out |
-
-#### Filtering Transactions
-
-Use the search box to filter by:
-- Transaction ID
-- Agent ID
-- Recipient address
-- Description
-
----
-
-### Policies Page
-
-Policies define spending rules and restrictions for your agents.
-
-#### Viewing Policies
-
-The policies table displays:
-- **Name**: Policy identifier
-- **Description**: Policy purpose
-- **Rules**: Number of active rules
-- **Status**: Enabled or Disabled
-- **Created**: Creation timestamp
-
-#### Creating a Policy
-
-1. Click "Create Policy"
-2. Fill in the form:
-   - **Name** (required): Policy name
-   - **Description**: What the policy enforces
-   - **Max Transaction Amount**: Maximum single transaction (USDC)
-   - **Daily Spending Limit**: Maximum daily spending (USDC)
-   - **Requires Approval**: Toggle for manual approval requirement
-3. Click "Create"
-
-#### Policy Rules
-
-| Rule Type | Description |
-|-----------|-------------|
-| **MaxPerTransaction** | Limits individual transaction amounts |
-| **DailyLimit** | Caps total daily spending |
-| **AllowedNetworks** | Restricts to specific blockchains |
-| **MaxTransactionsPerHour** | Rate limits transaction frequency |
-| **RequiresApproval** | Requires manual approval |
-
-#### Deleting a Policy
-
-1. Click the trash icon on the policy row
-2. Confirm in the modal dialog
-3. Policy is removed (existing transactions unaffected)
-
----
-
-### API Keys Page
-
-API keys allow programmatic access to your organization's resources.
-
-#### Viewing API Keys
-
-The table displays:
-- **Name**: Key identifier
-- **Key Prefix**: First characters for identification
-- **Created**: Creation timestamp
-- **Last Used**: Most recent usage
-
-#### Creating an API Key
-
-1. Click "Create API Key"
-2. Enter a **Name** for the key (e.g., "Production", "Development")
-3. Click "Create"
-4. **Important**: Copy the displayed key immediately - it won't be shown again
-
-#### Using API Keys
-
-Include the key in the `X-API-Key` header:
+### How x402 Works
 
 ```
-X-API-Key: your-api-key-here
+┌─────────────┐                              ┌─────────────┐
+│   AI Agent  │                              │  API Server │
+└──────┬──────┘                              └──────┬──────┘
+       │                                            │
+       │  1. GET /api/resource                      │
+       │ ─────────────────────────────────────────► │
+       │                                            │
+       │  2. 402 Payment Required                   │
+       │     X-PAYMENT-REQUIRED: <base64>           │
+       │ ◄───────────────────────────────────────── │
+       │                                            │
+       │  3. Sign EIP-3009 USDC authorization       │
+       │                                            │
+       │  4. GET /api/resource                      │
+       │     X-PAYMENT: <signed_payload>            │
+       │ ─────────────────────────────────────────► │
+       │                                            │
+       │  5. 200 OK + data                          │
+       │ ◄───────────────────────────────────────── │
 ```
 
-#### Revoking an API Key
+### x402 Endpoints
 
-1. Click the trash icon on the key row
-2. Confirm revocation
-3. The key is immediately invalidated
-
----
-
-### Logs Page
-
-View system logs for debugging and monitoring.
-
-#### Log Levels
-
-| Level | Color | Description |
-|-------|-------|-------------|
-| **Error** | Red | Critical failures requiring attention |
-| **Warning** | Yellow | Potential issues to monitor |
-| **Information** | Blue | Normal operational events |
-
-#### Filtering Logs
-
-1. **Search**: Filter by message content or source
-2. **Level Filter**: Use the dropdown to show only specific levels:
-   - All Levels
-   - Error
-   - Warning
-   - Information
-
-#### Log Details
-
-Each log entry shows:
-- **Timestamp**: When the event occurred
-- **Level**: Severity indicator
-- **Message**: Event description
-- **Source**: Component that generated the log
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/x402/protected/analysis` | Paid endpoint - $0.01 USDC per request |
+| `GET /api/x402/protected/data` | Micropayment endpoint - $0.001 USDC |
+| `GET /api/x402/pricing` | Get pricing info for all endpoints |
+| `POST /api/x402/facilitator/verify` | Verify payment payloads |
+| `POST /api/x402/facilitator/settle` | Execute payment settlement on-chain |
 
 ---
 
 ## API Reference
 
-Base URL: `https://localhost:7098/api`
-
-### Authentication Endpoints
-
-#### Register
-```http
-POST /api/auth/register
-Content-Type: application/json
-
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "SecurePass123",
-  "organizationName": "Acme Corp"
-}
-```
-
-**Response:**
-```json
-{
-  "accessToken": "eyJhbGc...",
-  "refreshToken": "abc123...",
-  "user": {
-    "id": "user-id",
-    "email": "john@example.com",
-    "name": "John Doe",
-    "organizationId": "org-id",
-    "organizationName": "Acme Corp"
-  }
-}
-```
-
-#### Login
-```http
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "john@example.com",
-  "password": "SecurePass123"
-}
-```
-
-#### Refresh Token
-```http
-POST /api/auth/refresh
-Content-Type: application/json
-
-{
-  "refreshToken": "your-refresh-token"
-}
-```
-
----
+Base URL: `https://api.agentrails.io`
 
 ### Agents Endpoints
 
 #### List Agents
 ```http
 GET /api/agents
-Authorization: Bearer {token}
-```
-
-#### Get Agent Dashboard Data
-```http
-GET /api/agents/dashboard
-Authorization: Bearer {token}
-```
-
-**Response:**
-```json
-{
-  "agents": [...],
-  "summary": {
-    "totalAgents": 5,
-    "activeAgents": 4,
-    "totalBudget": 1000.00,
-    "totalSpent": 150.00
-  }
-}
+X-API-Key: {your-api-key}
 ```
 
 #### Create Agent
 ```http
 POST /api/agents
-Authorization: Bearer {token}
+X-API-Key: {your-api-key}
 Content-Type: application/json
 
 {
@@ -368,19 +97,19 @@ Content-Type: application/json
 #### Get Agent Details
 ```http
 GET /api/agents/{agentId}
-Authorization: Bearer {token}
+X-API-Key: {your-api-key}
 ```
 
 #### Delete Agent
 ```http
 DELETE /api/agents/{agentId}
-Authorization: Bearer {token}
+X-API-Key: {your-api-key}
 ```
 
 #### Make Purchase (Agent Action)
 ```http
 POST /api/agents/{agentId}/purchase
-Authorization: Bearer {token}
+X-API-Key: {your-api-key}
 Content-Type: application/json
 
 {
@@ -397,7 +126,7 @@ Content-Type: application/json
 #### Get Organization Transactions
 ```http
 GET /api/agents/transactions
-Authorization: Bearer {token}
+X-API-Key: {your-api-key}
 ```
 
 **Query Parameters:**
@@ -415,112 +144,40 @@ GET /api/transactions/{txHash}
 
 ---
 
-### Policies Endpoints
+### x402 Payment Endpoints
 
-#### List Policies
+#### Get Pricing
 ```http
-GET /api/policies
-Authorization: Bearer {token}
+GET /api/x402/pricing
 ```
 
-#### Create Policy
+#### Access Paid Resource
 ```http
-POST /api/policies
-Authorization: Bearer {token}
+GET /api/x402/protected/analysis
+X-PAYMENT: <base64-encoded-payment-payload>
+```
+
+#### Verify Payment (Facilitator)
+```http
+POST /api/x402/facilitator/verify
 Content-Type: application/json
 
 {
-  "name": "Conservative Policy",
-  "description": "Low-risk spending limits",
-  "maxTransactionAmount": 50.00,
-  "dailySpendingLimit": 200.00,
-  "requiresApproval": false,
-  "enabled": true
+  "x402Version": 1,
+  "scheme": "exact",
+  "network": "base-mainnet",
+  "payload": {
+    "signature": "0x...",
+    "authorization": {
+      "from": "0x...",
+      "to": "0x...",
+      "value": "10000",
+      "validAfter": "0",
+      "validBefore": "1234567890",
+      "nonce": "0x..."
+    }
+  }
 }
-```
-
-#### Get Policy Details
-```http
-GET /api/policies/{policyId}
-Authorization: Bearer {token}
-```
-
-#### Update Policy
-```http
-PUT /api/policies/{policyId}
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "name": "Updated Policy",
-  "enabled": false
-}
-```
-
-#### Delete Policy
-```http
-DELETE /api/policies/{policyId}
-Authorization: Bearer {token}
-```
-
----
-
-### API Keys Endpoints
-
-#### List API Keys
-```http
-GET /api/auth/api-keys
-Authorization: Bearer {token}
-```
-
-#### Create API Key
-```http
-POST /api/auth/api-keys
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "name": "Production Key"
-}
-```
-
-**Response:**
-```json
-{
-  "id": "key-id",
-  "name": "Production Key",
-  "key": "ar_live_abc123...",  // Only shown once!
-  "createdAt": "2024-01-22T12:00:00Z"
-}
-```
-
-#### Revoke API Key
-```http
-DELETE /api/auth/api-keys/{keyId}
-Authorization: Bearer {token}
-```
-
----
-
-### Logs Endpoints
-
-#### Get Logs
-```http
-GET /api/logs?count=100&level=Error
-```
-
-**Query Parameters:**
-- `count` (optional): Number of logs (default: 100)
-- `level` (optional): Filter by level (Error, Warning, Information)
-
-#### Get Errors Only
-```http
-GET /api/logs/errors?count=50
-```
-
-#### Get Warnings Only
-```http
-GET /api/logs/warnings?count=50
 ```
 
 ---
@@ -537,51 +194,23 @@ GET /health
 GET /
 ```
 
-**Response:**
-```json
-{
-  "service": "Agentic Commerce Backend",
-  "version": "v1.1.0",
-  "status": "Running",
-  "edition": "Enterprise",
-  "features": [...]
-}
-```
-
 ---
 
 ## Authentication
 
-AgentRails supports two authentication methods:
+AgentRails uses API key authentication for all requests.
 
-### JWT Bearer Token
+Include your API key in the `X-API-Key` header:
 
-1. Obtain a token via `/api/auth/login` or `/api/auth/register`
-2. Include in requests:
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-```
-
-### API Key
-
-1. Create an API key via the dashboard or API
-2. Include in requests:
 ```
 X-API-Key: ar_live_abc123...
 ```
 
-### Token Refresh
+### Getting an API Key
 
-Access tokens expire after a configured period. Use the refresh token to obtain a new access token:
-
-```http
-POST /api/auth/refresh
-Content-Type: application/json
-
-{
-  "refreshToken": "your-refresh-token"
-}
-```
+1. Purchase a license at [agentrails.io](https://agentrails.io)
+2. Your API key will be emailed to you
+3. Store the key securely - it cannot be retrieved again
 
 ---
 
@@ -590,90 +219,64 @@ Content-Type: application/json
 ### Create an Agent and Make a Purchase
 
 ```bash
-# 1. Login
-TOKEN=$(curl -s -X POST https://localhost:7098/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"password"}' \
-  | jq -r '.accessToken')
+# Set your API key
+API_KEY="ar_live_your_key_here"
 
-# 2. Create an agent
-AGENT=$(curl -s -X POST https://localhost:7098/api/agents \
-  -H "Authorization: Bearer $TOKEN" \
+# Create an agent
+AGENT=$(curl -s -X POST https://api.agentrails.io/api/agents \
+  -H "X-API-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"name":"My Agent","description":"Test agent","budget":100}')
 
 AGENT_ID=$(echo $AGENT | jq -r '.id')
 
-# 3. Make a purchase
-curl -X POST "https://localhost:7098/api/agents/$AGENT_ID/purchase" \
-  -H "Authorization: Bearer $TOKEN" \
+# Make a purchase
+curl -X POST "https://api.agentrails.io/api/agents/$AGENT_ID/purchase" \
+  -H "X-API-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"amount":10,"recipientAddress":"0x123...","description":"Test purchase"}'
 ```
 
-### Create a Policy with Rules
+### Access x402 Protected Resource
 
 ```bash
-# Create a conservative policy
-curl -X POST https://localhost:7098/api/policies \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Conservative Policy",
-    "description": "Strict spending limits",
-    "maxTransactionAmount": 25.00,
-    "dailySpendingLimit": 100.00,
-    "requiresApproval": false,
-    "enabled": true
-  }'
+# First request returns 402 with payment requirements
+curl -i https://api.agentrails.io/api/x402/protected/analysis
+
+# Sign the payment and retry with X-PAYMENT header
+curl https://api.agentrails.io/api/x402/protected/analysis \
+  -H "X-PAYMENT: eyJ4NDAyVmVyc2lvbiI6MSwi..."
 ```
 
-### Using API Key Authentication
+---
 
-```bash
-# Create an API key (save the returned key!)
-API_KEY=$(curl -s -X POST https://localhost:7098/api/auth/api-keys \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"CLI Key"}' \
-  | jq -r '.key')
+## Tiers
 
-# Use API key for subsequent requests
-curl https://localhost:7098/api/agents \
-  -H "X-API-Key: $API_KEY"
-```
+| Feature | Sandbox (Free) | Startup ($500) | Enterprise ($2,500) |
+|---------|----------------|----------------|---------------------|
+| x402 Protocol | Test only | Production | Production |
+| API Access | Limited | Full | Full |
+| Agents | 1 | 10 | Unlimited |
+| Support | Community | Email | Priority |
+| Policy Engine | - | - | ✓ |
+| Admin Dashboard | - | - | ✓ |
+| Audit Logging | - | - | ✓ |
 
 ---
 
 ## Troubleshooting
 
-### Common Issues
-
 | Issue | Solution |
 |-------|----------|
-| 401 Unauthorized | Check token expiration, refresh or re-login |
-| 403 Forbidden | Verify organization permissions |
-| 404 Not Found | Check endpoint URL and resource IDs |
-| 500 Server Error | Check logs for details |
-
-### Dashboard Not Loading
-
-1. Ensure the API is running (`curl https://localhost:7098/health`)
-2. Clear browser cache
-3. Check browser console for errors
-
-### Transactions Failing
-
-1. Verify wallet has sufficient balance
-2. Check policy restrictions
-3. Review agent budget limits
+| 401 Unauthorized | Check API key is correct |
+| 402 Payment Required | Include valid X-PAYMENT header |
+| 403 Forbidden | Verify your tier includes this feature |
+| 429 Rate Limited | Reduce request frequency |
 
 ---
 
 ## Support
 
-- **API Documentation**: `/swagger` (Swagger UI)
-- **Health Check**: `/health`
-- **Logs**: Dashboard Logs page or `/api/logs`
-
-For additional help, check the system logs or contact your administrator.
+- **Documentation**: [agentrails.io/docs](https://agentrails.io/docs)
+- **Sandbox**: [sandbox.agentrails.io](https://sandbox.agentrails.io)
+- **Issues**: [GitHub Issues](https://github.com/kmatthewsio/AgenticCommerce/issues)
