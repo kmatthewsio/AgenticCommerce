@@ -3,7 +3,6 @@ using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
 using AgenticCommerce.Infrastructure.Email;
 using AgenticCommerce.Infrastructure.Gumroad;
-using AgenticCommerce.Infrastructure.Logging;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +28,6 @@ public class StripeControllerTests : IDisposable
     private readonly Mock<IApiKeyGenerationService> _mockApiKeyService;
     private readonly Mock<IEmailService> _mockEmailService;
     private readonly Mock<ILogger<StripeController>> _mockLogger;
-    private readonly Mock<IDbLogger> _mockDbLogger;
     private readonly AgenticCommerceDbContext _dbContext;
 
     public StripeControllerTests()
@@ -37,21 +35,6 @@ public class StripeControllerTests : IDisposable
         _mockApiKeyService = new Mock<IApiKeyGenerationService>();
         _mockEmailService = new Mock<IEmailService>();
         _mockLogger = new Mock<ILogger<StripeController>>();
-        _mockDbLogger = new Mock<IDbLogger>();
-
-        // Setup DbLogger to return completed tasks
-        _mockDbLogger
-            .Setup(x => x.LogAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<Dictionary<string, object>?>()))
-            .Returns(Task.CompletedTask);
-        _mockDbLogger
-            .Setup(x => x.LogInfoAsync(It.IsAny<string>(), It.IsAny<string?>()))
-            .Returns(Task.CompletedTask);
-        _mockDbLogger
-            .Setup(x => x.LogWarningAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
-            .Returns(Task.CompletedTask);
-        _mockDbLogger
-            .Setup(x => x.LogErrorAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
-            .Returns(Task.CompletedTask);
 
         var options = new DbContextOptionsBuilder<AgenticCommerceDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -86,8 +69,7 @@ public class StripeControllerTests : IDisposable
             _mockApiKeyService.Object,
             _mockEmailService.Object,
             configuration,
-            _mockLogger.Object,
-            _mockDbLogger.Object);
+            _mockLogger.Object);
     }
 
     #region CreateCheckoutSession Tests

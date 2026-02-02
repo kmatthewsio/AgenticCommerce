@@ -199,3 +199,41 @@ X402Headers.PaymentResponse = "X-PAYMENT-RESPONSE"
 $0.01 = 10000 smallest units
 $1.00 = 1000000 smallest units
 ```
+
+## MCP Memory Integration
+
+This project uses MCP Memory for session persistence. See `../MCP-MEMORY.md` for full documentation.
+
+### Quick Reference
+
+**At session start - restore context:**
+```
+mcp__memory__search_nodes("AgenticCommerce recent session")
+```
+
+**At session end - save state:**
+```
+mcp__memory__create_entities([{
+  "name": "Session-YYYY-MM-DD-AgenticCommerce-[feature]",
+  "entityType": "session",
+  "observations": [
+    "Completed: [list items]",
+    "Remaining: [list items]",
+    "Next steps: [specific actions]",
+    "Files modified: [list files]"
+  ]
+}])
+```
+
+**Finding solutions:**
+```
+mcp__memory__search_nodes("x402 payment implementation")
+mcp__memory__search_nodes("EIP-3009 signature")
+```
+
+### Entity Types
+- `session` - Work session records
+- `solution` - Solved problems
+- `pattern` - Reusable architectural patterns
+- `blocker` - Issues and blockers
+- `status` - Current project state

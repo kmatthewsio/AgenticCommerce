@@ -10,12 +10,10 @@ namespace AgenticCommerce.Infrastructure.Payments;
 /// <summary>
 /// Action filter that enforces x402 payment requirements.
 /// Automatically returns 402 if no payment, verifies and settles if payment provided.
-/// Optionally integrates with policy engine if IPolicyEvaluator is registered.
 /// </summary>
 public class X402PaymentFilter : IAsyncActionFilter
 {
     private readonly IX402Service _x402Service;
-    private readonly IPolicyEvaluator? _policyEvaluator;
     private readonly ILogger<X402PaymentFilter> _logger;
 
     private decimal _amountUsdc;
@@ -25,12 +23,10 @@ public class X402PaymentFilter : IAsyncActionFilter
 
     public X402PaymentFilter(
         IX402Service x402Service,
-        ILogger<X402PaymentFilter> logger,
-        IPolicyEvaluator? policyEvaluator = null)
+        ILogger<X402PaymentFilter> logger)
     {
         _x402Service = x402Service;
         _logger = logger;
-        _policyEvaluator = policyEvaluator;
     }
 
     /// <summary>
@@ -120,46 +116,6 @@ public class X402PaymentFilter : IAsyncActionFilter
             return;
         }
 
-        // Policy check (if policy engine is available)
-        if (_policyEvaluator != null)
-        {
-            var policyResult = await _policyEvaluator.EvaluateAsync(new PaymentPolicyRequest
-            {
-                PayerAddress = verifyResult.Payer ?? payload.Payload.Authorization.From,
-                AmountUsdc = _amountUsdc,
-                Destination = requirement.PayTo,
-                Network = payload.Network,
-                Resource = resource
-            });
-
-            if (!policyResult.IsAllowed)
-            {
-                _logger.LogWarning(
-                    "Payment denied by policy for {Resource}: {Reason}",
-                    resource, policyResult.DenialReason);
-
-                var statusCode = policyResult.RequiresApproval
-                    ? StatusCodes.Status403Forbidden
-                    : StatusCodes.Status403Forbidden;
-
-                context.Result = new ObjectResult(new
-                {
-                    error = "Payment denied by policy",
-                    reason = policyResult.DenialReason,
-                    requiresApproval = policyResult.RequiresApproval,
-                    policyId = policyResult.PolicyId
-                })
-                {
-                    StatusCode = statusCode
-                };
-                return;
-            }
-
-            // Store policy info for later
-            context.HttpContext.Items["X402_PolicyId"] = policyResult.PolicyId;
-            context.HttpContext.Items["X402_AgentId"] = policyResult.AgentId;
-        }
-
         // Settle payment
         var settleResult = await _x402Service.SettlePaymentAsync(payload, requirement);
         if (!settleResult.Success)
@@ -195,20 +151,6 @@ public class X402PaymentFilter : IAsyncActionFilter
         _logger.LogInformation(
             "Payment successful for {Resource}: {Amount} USDC from {Payer}, tx: {TxHash}",
             resource, _amountUsdc, verifyResult.Payer, settleResult.TransactionHash);
-
-        // Record spending in policy engine (if available)
-        if (_policyEvaluator != null && verifyResult.Payer != null)
-        {
-            try
-            {
-                await _policyEvaluator.RecordSpendingAsync(verifyResult.Payer, _amountUsdc);
-            }
-            catch (Exception ex)
-            {
-                // Don't fail the request if spending recording fails
-                _logger.LogWarning(ex, "Failed to record spending for {Payer}", verifyResult.Payer);
-            }
-        }
 
         // Continue to the action
         await next();

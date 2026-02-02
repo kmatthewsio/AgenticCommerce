@@ -2,7 +2,6 @@ using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
 using AgenticCommerce.Infrastructure.Email;
 using AgenticCommerce.Infrastructure.Gumroad;
-using AgenticCommerce.Infrastructure.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
@@ -32,22 +31,19 @@ public class StripeController : ControllerBase
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<StripeController> _logger;
-    private readonly IDbLogger _dbLogger;
 
     public StripeController(
         AgenticCommerceDbContext db,
         IApiKeyGenerationService apiKeyService,
         IEmailService emailService,
         IConfiguration configuration,
-        ILogger<StripeController> logger,
-        IDbLogger dbLogger)
+        ILogger<StripeController> logger)
     {
         _db = db;
         _apiKeyService = apiKeyService;
         _emailService = emailService;
         _configuration = configuration;
         _logger = logger;
-        _dbLogger = dbLogger;
 
         // Configure Stripe API key
         StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
@@ -118,32 +114,11 @@ public class StripeController : ControllerBase
 
             _logger.LogInformation("Created {Tier} checkout session {SessionId}", tier, session.Id);
 
-            // Log to database for payment audit trail
-            await _dbLogger.LogAsync(
-                "Information",
-                $"{tier} checkout session created: {session.Id}",
-                source: "StripeController",
-                requestPath: HttpContext.Request.Path,
-                properties: new Dictionary<string, object>
-                {
-                    { "sessionId", session.Id },
-                    { "email", request?.Email ?? "not provided" },
-                    { "product", productName },
-                    { "tier", tier },
-                    { "amount", amount }
-                });
-
             return Ok(new { url = session.Url, sessionId = session.Id });
         }
         catch (StripeException ex)
         {
             _logger.LogError(ex, "Failed to create checkout session");
-
-            // Log error to database
-            await _dbLogger.LogErrorAsync(
-                $"Failed to create Enterprise checkout session: {ex.Message}",
-                source: "StripeController",
-                exception: ex.ToString());
 
             return StatusCode(500, new { error = ex.Message });
         }
@@ -272,45 +247,15 @@ public class StripeController : ControllerBase
             catch (Exception emailEx)
             {
                 _logger.LogWarning(emailEx, "Failed to send API key email to {Email}, but purchase was recorded", email);
-                await _dbLogger.LogWarningAsync(
-                    $"Email delivery failed for {email} - API key was provisioned but email not sent",
-                    source: "StripeController.Webhook",
-                    exception: emailEx.Message);
             }
 
             _logger.LogInformation(
                 "Provisioned API key {KeyPrefix} for {Email} (Stripe session {SessionId})",
                 apiKey.KeyPrefix, email, session.Id);
-
-            // Log successful Enterprise purchase to database
-            await _dbLogger.LogAsync(
-                "Information",
-                $"Enterprise purchase completed: {email} - {productName}",
-                source: "StripeController.Webhook",
-                properties: new Dictionary<string, object>
-                {
-                    { "tier", "Enterprise" },
-                    { "sessionId", session.Id },
-                    { "paymentIntentId", session.PaymentIntentId ?? "" },
-                    { "email", email },
-                    { "productName", productName },
-                    { "amountCents", session.AmountTotal ?? 0 },
-                    { "currency", session.Currency ?? "usd" },
-                    { "organizationId", org.Id.ToString() },
-                    { "apiKeyPrefix", apiKey.KeyPrefix },
-                    { "status", "completed" }
-                });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to provision API key for Stripe session {SessionId}", session.Id);
-
-            // Log error to database
-            await _dbLogger.LogErrorAsync(
-                $"Failed to provision Enterprise API key for session {session.Id}: {ex.Message}",
-                source: "StripeController.Webhook",
-                exception: ex.ToString());
-
             throw; // Re-throw to signal webhook failure (Stripe will retry)
         }
     }
@@ -342,23 +287,6 @@ public class StripeController : ControllerBase
         {
             purchase.ApiKey.RevokedAt = DateTime.UtcNow;
             _logger.LogInformation("Revoked API key {KeyId} due to Stripe refund", purchase.ApiKey.Id);
-
-            // Log refund to database
-            await _dbLogger.LogAsync(
-                "Warning",
-                $"Enterprise purchase refunded - API key revoked: {purchase.Email}",
-                source: "StripeController.Webhook",
-                properties: new Dictionary<string, object>
-                {
-                    { "tier", "Enterprise" },
-                    { "sessionId", purchase.SessionId },
-                    { "paymentIntentId", charge.PaymentIntentId ?? "" },
-                    { "email", purchase.Email },
-                    { "productName", purchase.ProductName },
-                    { "apiKeyId", purchase.ApiKey.Id.ToString() },
-                    { "status", "refunded" },
-                    { "apiKeyRevoked", true }
-                });
         }
 
         await _db.SaveChangesAsync();
