@@ -1,0 +1,51 @@
+<svg width="1000" height="1000" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e1b4b"/>
+      <stop offset="100%" style="stop-color:#312e81"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#06b6d4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="1000" fill="url(#bg)"/>
+
+  <!-- Grid pattern -->
+  <g stroke="#6366f1" stroke-opacity="0.15" stroke-width="1">
+    <line x1="0" y1="200" x2="1000" y2="200"/>
+    <line x1="0" y1="400" x2="1000" y2="400"/>
+    <line x1="0" y1="600" x2="1000" y2="600"/>
+    <line x1="0" y1="800" x2="1000" y2="800"/>
+    <line x1="200" y1="0" x2="200" y2="1000"/>
+    <line x1="400" y1="0" x2="400" y2="1000"/>
+    <line x1="600" y1="0" x2="600" y2="1000"/>
+    <line x1="800" y1="0" x2="800" y2="1000"/>
+  </g>
+
+  <!-- Center icon - Robot head -->
+  <rect x="400" y="300" width="200" height="180" rx="30" fill="url(#accent)"/>
+  <circle cx="460" cy="390" r="25" fill="white"/>
+  <circle cx="540" cy="390" r="25" fill="white"/>
+  <line x1="500" y1="300" x2="500" y2="250" stroke="url(#accent)" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="500" cy="235" r="20" fill="#06b6d4"/>
+
+  <!-- Pro badge -->
+  <rect x="420" y="420" width="160" height="40" rx="20" fill="#06b6d4"/>
+  <text x="500" y="448" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif" font-weight="700" font-size="22" fill="white">ENTERPRISE</text>
+
+  <!-- Dollar signs floating -->
+  <text x="250" y="400" font-family="system-ui" font-weight="700" font-size="60" fill="#06b6d4" opacity="0.6">$</text>
+  <text x="700" y="350" font-family="system-ui" font-weight="700" font-size="48" fill="#06b6d4" opacity="0.4">$</text>
+  <text x="150" y="600" font-family="system-ui" font-weight="700" font-size="40" fill="#06b6d4" opacity="0.3">$</text>
+  <text x="800" y="550" font-family="system-ui" font-weight="700" font-size="55" fill="#06b6d4" opacity="0.5">$</text>
+
+  <!-- Title -->
+  <text x="500" y="600" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif" font-weight="700" font-size="72" fill="white">AgentRails</text>
+  <text x="500" y="670" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif" font-weight="600" font-size="40" fill="#06b6d4">Pro</text>
+
+  <!-- Tagline -->
+  <text x="500" y="780" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif" font-weight="400" font-size="28" fill="#a5b4fc">Full Enterprise Access + Policy Engine</text>
+</svg>
