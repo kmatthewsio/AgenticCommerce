@@ -23,6 +23,9 @@ public class AgenticCommerceDbContext : DbContext
     public DbSet<GumroadPurchase> GumroadPurchases => Set<GumroadPurchase>();
     public DbSet<StripePurchase> StripePurchases => Set<StripePurchase>();
 
+    // Trust layer
+    public DbSet<ServiceRegistryEntity> ServiceRegistry => Set<ServiceRegistryEntity>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -128,6 +131,16 @@ public class AgenticCommerceDbContext : DbContext
             entity.HasIndex(e => e.PaymentIntentId);
             entity.HasIndex(e => e.Email);
             entity.HasIndex(e => e.OrganizationId);
+        });
+
+        // Trust layer - Service Registry
+        modelBuilder.Entity<ServiceRegistryEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.ServiceUrl).IsUnique();
+            entity.HasIndex(e => e.OwnerWallet);
+            entity.HasIndex(e => e.Verified);
+            entity.HasIndex(e => e.CreatedAt);
         });
     }
 }
