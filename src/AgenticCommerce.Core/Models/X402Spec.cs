@@ -279,25 +279,56 @@ public static class X402Headers
 /// </summary>
 public static class X402Networks
 {
+    // === TESTNET (Free - Sandbox) ===
     public const string ArcTestnet = "arc-testnet";
-    public const string ArcMainnet = "arc-mainnet";
     public const string BaseSepolia = "base-sepolia";
-    public const string BaseMainnet = "base-mainnet";
     public const string EthereumSepolia = "ethereum-sepolia";
+
+    // === MAINNET (Requires Production Access - https://agentrails.io/#pricing) ===
+    // Contact kematth.007@protonmail.com for production API keys
+    public const string ArcMainnet = "arc-mainnet";
+    public const string BaseMainnet = "base-mainnet";
     public const string EthereumMainnet = "ethereum-mainnet";
+
+    /// <summary>
+    /// Testnet networks available in the free sandbox
+    /// </summary>
+    public static readonly HashSet<string> TestnetNetworks = new()
+    {
+        ArcTestnet,
+        BaseSepolia,
+        EthereumSepolia
+    };
+
+    /// <summary>
+    /// Mainnet networks requiring production access
+    /// </summary>
+    public static readonly HashSet<string> MainnetNetworks = new()
+    {
+        ArcMainnet,
+        BaseMainnet,
+        EthereumMainnet
+    };
 
     /// <summary>
     /// Chain IDs for each network (used in EIP-712 domain separator)
     /// </summary>
     public static readonly Dictionary<string, int> ChainIds = new()
     {
-        [ArcTestnet] = 5042002,   // Arc testnet (official)
-        [ArcMainnet] = 0,         // Arc mainnet - not yet launched (expected 2026)
+        // Testnets (free)
+        [ArcTestnet] = 5042002,
         [BaseSepolia] = 84532,
-        [BaseMainnet] = 8453,
         [EthereumSepolia] = 11155111,
+        // Mainnets (production access required)
+        [ArcMainnet] = 0,         // Arc mainnet - not yet launched
+        [BaseMainnet] = 8453,
         [EthereumMainnet] = 1
     };
+
+    /// <summary>
+    /// Check if a network requires production access
+    /// </summary>
+    public static bool RequiresProductionAccess(string network) => MainnetNetworks.Contains(network);
 }
 
 /// <summary>
@@ -308,12 +339,15 @@ public static class X402Assets
     /// <summary>
     /// USDC contract addresses by network.
     /// Note: On Arc, USDC is the native gas token with an ERC-20 interface at a special address.
+    /// Mainnet contracts require production access - see https://agentrails.io/#pricing
     /// </summary>
     public static readonly Dictionary<string, string> UsdcContracts = new()
     {
-        [X402Networks.ArcTestnet] = "0x3600000000000000000000000000000000000000", // Arc native USDC (ERC-20 interface)
-        [X402Networks.ArcMainnet] = "0x3600000000000000000000000000000000000000", // Expected same address on mainnet
+        // Testnets (free sandbox)
+        [X402Networks.ArcTestnet] = "0x3600000000000000000000000000000000000000", // Arc native USDC
         [X402Networks.BaseSepolia] = "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        // Mainnets (production access required)
+        [X402Networks.ArcMainnet] = "0x3600000000000000000000000000000000000000",
         [X402Networks.BaseMainnet] = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
         [X402Networks.EthereumMainnet] = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
     };
