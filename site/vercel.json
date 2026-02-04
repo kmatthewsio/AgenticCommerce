@@ -3,6 +3,8 @@
   "outputDirectory": ".",
   "framework": null,
   "rewrites": [
+    { "source": "/docs", "destination": "/docs.html" },
+    { "source": "/blog", "destination": "/blog/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
