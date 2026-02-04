@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Crews Need Autonomous Payments - AgentRails</title>
+    <meta name="description" content="Your CrewAI agents can research, plan, and execute. But when they need to pay for an API? They're stuck waiting for a human. Here's how to fix that.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .prose h2 { margin-top: 2rem; margin-bottom: 1rem; }
+        .prose h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .prose p { margin-bottom: 1.25rem; line-height: 1.75; }
+        .prose ul, .prose ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.5rem; }
+        .prose code { background: #f4f4f5; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; }
+        .prose pre { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1.25rem; }
+        .prose pre code { background: transparent; color: #e5e7eb; padding: 0; }
+        .prose blockquote { border-left: 4px solid #6366f1; padding-left: 1rem; margin: 1.5rem 0; font-style: italic; color: #4b5563; }
+    </style>
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                </a>
+
+                <div class="flex items-center gap-6">
+                    <a href="/blog/" class="text-gray-600 hover:text-gray-900 transition">Blog</a>
+                    <a href="/docs" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="https://sandbox.agentrails.io" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Try Sandbox
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+
+            <!-- Header -->
+            <header class="mb-12">
+                <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                    <time datetime="2026-02-05">February 5, 2026</time>
+                    <span>·</span>
+                    <span>4 min read</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
+                    Autonomous Crews Need Autonomous Payments
+                </h1>
+                <p class="text-xl text-gray-600">
+                    Your CrewAI agents can research, plan, and execute. But when they need to pay for an API? They're stuck.
+                </p>
+            </header>
+
+            <!-- Content -->
+            <div class="prose max-w-none text-gray-700">
+
+                <p>
+                    CrewAI changed how we think about AI agents. Instead of one agent doing everything, you build specialized crews—a researcher, a writer, an analyst—each focused on what they do best. The crew coordinates, delegates, and delivers.
+                </p>
+
+                <p>
+                    But there's a gap. Your crew can research the web, analyze data, and generate reports. The moment they need to access a paid API? They hit a wall.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">The API key bottleneck</h2>
+
+                <p>
+                    Every paid API requires credentials. API keys. Subscriptions. Billing accounts tied to a human.
+                </p>
+
+                <p>
+                    For a single agent, you hardcode the key and move on. For a crew of agents, each needing different services? You're managing a spreadsheet of credentials, rotating keys, tracking rate limits, reconciling invoices.
+                </p>
+
+                <p>
+                    <strong>That's not autonomous. That's babysitting.</strong>
+                </p>
+
+                <p>
+                    If your crew can't pay for what it needs, it's not really autonomous. It's just waiting for you to unlock the door.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">What if agents could pay like humans?</h2>
+
+                <p>
+                    Humans don't pre-register with every merchant. We see a price, we pay, we get the thing. Simple.
+                </p>
+
+                <p>
+                    That's the idea behind x402—an HTTP-native payment protocol. When an agent hits a paid API:
+                </p>
+
+                <ol class="list-decimal text-gray-700">
+                    <li>Server returns <code>402 Payment Required</code> with price info</li>
+                    <li>Agent signs a USDC payment authorization</li>
+                    <li>Agent retries with payment proof</li>
+                    <li>Server verifies, settles on-chain, returns data</li>
+                </ol>
+
+                <p>
+                    No API keys. No subscriptions. No human approval. One wallet, pay anywhere.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">crewai-x402: Payments for your crews</h2>
+
+                <p>
+                    We built <code>crewai-x402</code> to bring this to CrewAI. Install it, give your crew a wallet with a budget, and let them work.
+                </p>
+
+                <pre><code>pip install crewai-x402</code></pre>
+
+                <p>
+                    Here's a minimal example:
+                </p>
+
+                <pre><code>from crewai import Agent, Task, Crew
+from crewai_x402 import X402Wallet, X402Tool
+
+# Create wallet with budget
+wallet = X402Wallet(
+    private_key=os.environ["WALLET_PRIVATE_KEY"],
+    network="base-mainnet",
+    budget_usd=5.00
+)
+
+# Create the x402 payment tool
+x402_tool = X402Tool(wallet=wallet)
+
+# Create an agent with payment capabilities
+researcher = Agent(
+    role="Research Analyst",
+    goal="Gather premium data from paid APIs",
+    tools=[x402_tool]
+)
+
+# The agent can now pay for any x402-enabled API
+crew = Crew(agents=[researcher], tasks=[your_task])
+result = crew.kickoff()</code></pre>
+
+                <p>
+                    That's it. Your researcher can now access any x402-enabled API. The wallet enforces the budget. The crew gets the data. No credentials to manage.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">Budget controls built in</h2>
+
+                <p>
+                    Autonomy doesn't mean unlimited spending. The wallet has a budget cap:
+                </p>
+
+                <pre><code># Agent can't spend more than $5
+wallet = X402Wallet(
+    private_key=key,
+    network="base-mainnet",
+    budget_usd=5.00
+)
+
+# Check remaining budget anytime
+print(f"Remaining: ${wallet.remaining_usd}")
+
+# Track what was spent
+for payment in wallet.payments:
+    print(f"{payment.resource_url}: ${payment.amount_usd}")</code></pre>
+
+                <p>
+                    You set the guardrails. The crew operates within them.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">Why this matters now</h2>
+
+                <p>
+                    The agent economy is forming fast. In January 2026 alone, x402 processed over 20 million transactions. Services are pricing between $0.01-$0.10 per request—the sweet spot where stablecoin settlement costs less than credit card fees.
+                </p>
+
+                <p>
+                    Crews that can pay will outperform crews that can't. They'll access better data, use premium services, and complete tasks that budget-locked agents simply can't.
+                </p>
+
+                <p>
+                    The question isn't whether your agents need to pay. It's whether they can.
+                </p>
+
+                <h2 class="text-2xl font-bold text-gray-900">Get started</h2>
+
+                <pre><code>pip install crewai-x402</code></pre>
+
+                <p>
+                    <a href="https://github.com/kmatthewsio/crewai-x402" class="text-primary-600 hover:underline">GitHub</a> ·
+                    <a href="https://pypi.org/project/crewai-x402/" class="text-primary-600 hover:underline">PyPI</a> ·
+                    <a href="/docs" class="text-primary-600 hover:underline">Documentation</a>
+                </p>
+
+                <p>
+                    <strong>Your crews are ready to work. Give them the ability to pay.</strong>
+                </p>
+
+            </div>
+
+            <!-- Author -->
+            <footer class="mt-12 pt-8 border-t border-gray-200">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white font-semibold">
+                        AR
+                    </div>
+                    <div>
+                        <p class="font-semibold">AgentRails Team</p>
+                        <p class="text-sm text-gray-500">Building payment infrastructure for the AI economy</p>
+                    </div>
+                </div>
+            </footer>
+
+            <!-- CTA -->
+            <div class="mt-12 p-8 bg-gradient-to-br from-primary-50 to-cyan-50 rounded-2xl border border-primary-100 text-center">
+                <h3 class="text-xl font-semibold mb-2">Add payments to your CrewAI agents</h3>
+                <p class="text-gray-600 mb-4">One line install. Budget controls built in.</p>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <a href="https://github.com/kmatthewsio/crewai-x402" target="_blank" class="inline-block px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition">
+                        View on GitHub
+                    </a>
+                    <a href="https://pypi.org/project/crewai-x402/" target="_blank" class="inline-block px-6 py-3 bg-white text-gray-700 rounded-xl font-medium border border-gray-200 hover:border-gray-300 transition">
+                        Install from PyPI
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+            <p>&copy; 2026 AgentRails. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
