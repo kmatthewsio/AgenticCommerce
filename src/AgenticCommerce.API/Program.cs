@@ -6,6 +6,7 @@ using AgenticCommerce.Infrastructure.Data;
 using AgenticCommerce.Infrastructure.Email;
 using AgenticCommerce.Infrastructure.Gumroad;
 using AgenticCommerce.Infrastructure.Payments;
+using AgenticCommerce.Infrastructure.Trust;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Resend;
@@ -86,6 +87,9 @@ builder.Services.AddSingleton<IX402PaymentService, X402PaymentService>();
 builder.Services.AddX402Payments();
 builder.Services.AddHttpClient<ICircleGatewayClient, CircleGatewayClient>();
 builder.Services.AddHealthChecks();
+
+// Trust Layer Services
+builder.Services.AddScoped<ITrustService, TrustService>();
 
 // Gumroad integration
 builder.Services.AddScoped<IApiKeyGenerationService, ApiKeyGenerationService>();
