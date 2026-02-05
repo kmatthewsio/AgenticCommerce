@@ -119,6 +119,7 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "AgentRails Sandbox API v1");
     c.DocumentTitle = "AgentRails Sandbox API";
+    c.RoutePrefix = string.Empty; // Serve SwaggerUI at root
 });
 
 app.UseSerilogRequestLogging();
