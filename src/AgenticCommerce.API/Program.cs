@@ -124,8 +124,6 @@ app.UseSwaggerUI(c =>
 
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
-app.UseDefaultFiles();
-app.UseStaticFiles();
 app.UseTenantMiddleware(); // Still needed for extension methods
 app.MapControllers();
 app.MapHealthChecks("/health");
