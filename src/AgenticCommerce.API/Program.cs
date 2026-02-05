@@ -130,8 +130,8 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 app.UseCors();
 
-// Redirect /admin to /admin/index.html
-app.MapGet("/admin", () => Results.Redirect("/admin/index.html"));
+// Redirect /admin to swagger (no admin UI built yet)
+app.MapGet("/admin", () => Results.Redirect("/swagger"));
 
 app.MapGet("/", () => Results.Redirect("/swagger"));
 
