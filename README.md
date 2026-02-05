@@ -306,6 +306,13 @@ Agents that manage corporate funds, execute payments, and maintain budget compli
 - [x] Organization setup
 
 ### Enterprise Features (Separate License)
+
+> **Enterprise extensions available:** Policy engine (spend limits, rate limiting, destination controls), admin dashboard, audit logging, multi-tenant isolation, and hybrid fiat/crypto billing.
+>
+> Govern agent spend at scale. Prevent budget overruns. Comply with enterprise policies.
+>
+> **Contact [sales@agentrails.io](mailto:sales@agentrails.io) for licensing.**
+
 - Policy engine (spending limits, approval workflows)
 - Admin dashboard
 - Audit logging
