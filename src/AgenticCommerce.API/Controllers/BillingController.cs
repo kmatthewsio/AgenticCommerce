@@ -18,17 +18,20 @@ public class BillingController : ControllerBase
     private readonly AgenticCommerceDbContext _db;
     private readonly IUsageTrackingService _usageTrackingService;
     private readonly IStripeBillingService _stripeBillingService;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<BillingController> _logger;
 
     public BillingController(
         AgenticCommerceDbContext db,
         IUsageTrackingService usageTrackingService,
         IStripeBillingService stripeBillingService,
+        IConfiguration configuration,
         ILogger<BillingController> logger)
     {
         _db = db;
         _usageTrackingService = usageTrackingService;
         _stripeBillingService = stripeBillingService;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -165,5 +168,63 @@ public class BillingController : ControllerBase
             unbilledTransactionCount = unbilledUsage.Count(),
             hasSubscription = !string.IsNullOrEmpty(org.StripeSubscriptionId)
         });
+    }
+
+    /// <summary>
+    /// Cron endpoint for monthly billing run.
+    /// Secured with a secret token from configuration.
+    ///
+    /// Usage: GET /api/billing/cron/monthly?token=YOUR_CRON_SECRET
+    ///
+    /// Set up a cron job (e.g., Render Cron) to call this endpoint monthly:
+    /// curl https://sandbox.agentrails.io/api/billing/cron/monthly?token=YOUR_CRON_SECRET
+    /// </summary>
+    [HttpGet("cron/monthly")]
+    public async Task<IActionResult> CronMonthlyBilling([FromQuery] string? token)
+    {
+        // Validate cron secret
+        var cronSecret = _configuration["Billing:CronSecret"];
+        if (string.IsNullOrEmpty(cronSecret))
+        {
+            _logger.LogWarning("Billing:CronSecret not configured");
+            return StatusCode(503, new { error = "Cron endpoint not configured" });
+        }
+
+        if (string.IsNullOrEmpty(token) || token != cronSecret)
+        {
+            _logger.LogWarning("Invalid cron token attempt");
+            return Unauthorized(new { error = "Invalid token" });
+        }
+
+        _logger.LogInformation("Starting monthly billing cron job");
+        var startTime = DateTime.UtcNow;
+
+        try
+        {
+            var count = await _stripeBillingService.ReportAllUsageAsync();
+            var duration = DateTime.UtcNow - startTime;
+
+            _logger.LogInformation(
+                "Monthly billing cron completed: {Count} usage records reported in {Duration}ms",
+                count, duration.TotalMilliseconds);
+
+            return Ok(new
+            {
+                success = true,
+                usageRecordsReported = count,
+                durationMs = duration.TotalMilliseconds,
+                completedAt = DateTime.UtcNow
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Monthly billing cron failed");
+            return StatusCode(500, new
+            {
+                success = false,
+                error = ex.Message,
+                failedAt = DateTime.UtcNow
+            });
+        }
     }
 }
