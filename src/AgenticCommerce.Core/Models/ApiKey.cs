@@ -38,6 +38,14 @@ public class ApiKey
     [MaxLength(20)]
     public string KeyPrefix { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Environment: testnet or mainnet
+    /// </summary>
+    [Required]
+    [Column("environment")]
+    [MaxLength(50)]
+    public string Environment { get; set; } = ApiKeyEnvironments.Testnet;
+
     [Column("last_used_at")]
     public DateTime? LastUsedAt { get; set; }
 
@@ -57,4 +65,16 @@ public class ApiKey
 
     [NotMapped]
     public string MaskedKey => $"{KeyPrefix}...";
+
+    [NotMapped]
+    public bool IsMainnet => Environment == ApiKeyEnvironments.Mainnet;
+}
+
+/// <summary>
+/// API key environment types
+/// </summary>
+public static class ApiKeyEnvironments
+{
+    public const string Testnet = "testnet";
+    public const string Mainnet = "mainnet";
 }

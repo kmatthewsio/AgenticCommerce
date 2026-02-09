@@ -7,6 +7,7 @@ using AgenticCommerce.Infrastructure.Email;
 using AgenticCommerce.Infrastructure.Gumroad;
 using AgenticCommerce.Infrastructure.Payments;
 using AgenticCommerce.Infrastructure.Trust;
+using AgenticCommerce.Infrastructure.Billing;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Resend;
@@ -103,6 +104,9 @@ builder.Services.Configure<ResendClientOptions>(options =>
 });
 builder.Services.AddTransient<IResend, ResendClient>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Usage tracking for billing
+builder.Services.AddScoped<IUsageTrackingService, UsageTrackingService>();
 
 var app = builder.Build();
 
