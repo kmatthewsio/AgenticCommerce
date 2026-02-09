@@ -1,4 +1,5 @@
 using AgenticCommerce.API.Controllers;
+using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
 using AgenticCommerce.Infrastructure.Email;
@@ -27,6 +28,7 @@ public class StripeControllerTests : IDisposable
 {
     private readonly Mock<IApiKeyGenerationService> _mockApiKeyService;
     private readonly Mock<IEmailService> _mockEmailService;
+    private readonly Mock<IStripeBillingService> _mockStripeBillingService;
     private readonly Mock<ILogger<StripeController>> _mockLogger;
     private readonly AgenticCommerceDbContext _dbContext;
 
@@ -34,6 +36,7 @@ public class StripeControllerTests : IDisposable
     {
         _mockApiKeyService = new Mock<IApiKeyGenerationService>();
         _mockEmailService = new Mock<IEmailService>();
+        _mockStripeBillingService = new Mock<IStripeBillingService>();
         _mockLogger = new Mock<ILogger<StripeController>>();
 
         var options = new DbContextOptionsBuilder<AgenticCommerceDbContext>()
@@ -68,6 +71,7 @@ public class StripeControllerTests : IDisposable
             _dbContext,
             _mockApiKeyService.Object,
             _mockEmailService.Object,
+            _mockStripeBillingService.Object,
             configuration,
             _mockLogger.Object);
     }

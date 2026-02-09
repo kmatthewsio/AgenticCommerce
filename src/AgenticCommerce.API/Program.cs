@@ -107,6 +107,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Usage tracking for billing
 builder.Services.AddScoped<IUsageTrackingService, UsageTrackingService>();
+builder.Services.AddScoped<IStripeBillingService, StripeBillingService>();
 
 var app = builder.Build();
 
