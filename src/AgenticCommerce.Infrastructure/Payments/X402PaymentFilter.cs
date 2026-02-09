@@ -14,6 +14,7 @@ namespace AgenticCommerce.Infrastructure.Payments;
 public class X402PaymentFilter : IAsyncActionFilter
 {
     private readonly IX402Service _x402Service;
+    private readonly IUsageTrackingService _usageTrackingService;
     private readonly ILogger<X402PaymentFilter> _logger;
 
     private decimal _amountUsdc;
@@ -23,9 +24,11 @@ public class X402PaymentFilter : IAsyncActionFilter
 
     public X402PaymentFilter(
         IX402Service x402Service,
+        IUsageTrackingService usageTrackingService,
         ILogger<X402PaymentFilter> logger)
     {
         _x402Service = x402Service;
+        _usageTrackingService = usageTrackingService;
         _logger = logger;
     }
 
@@ -152,6 +155,9 @@ public class X402PaymentFilter : IAsyncActionFilter
             "Payment successful for {Resource}: {Amount} USDC from {Payer}, tx: {TxHash}",
             resource, _amountUsdc, verifyResult.Payer, settleResult.TransactionHash);
 
+        // Record usage for billing (if authenticated with API key)
+        await RecordUsageAsync(context.HttpContext, settleResult.TransactionHash);
+
         // Continue to the action
         await next();
     }
@@ -196,5 +202,48 @@ public class X402PaymentFilter : IAsyncActionFilter
         return X402Assets.UsdcContracts.TryGetValue(network, out var address)
             ? address
             : "0x0000000000000000000000000000000000000000";
+    }
+
+    /// <summary>
+    /// Record usage for billing if the request is authenticated with an API key
+    /// </summary>
+    private async Task RecordUsageAsync(HttpContext httpContext, string? transactionHash)
+    {
+        try
+        {
+            // Get organization ID from claims (set by API key authentication)
+            var orgIdClaim = httpContext.User.FindFirst("organization_id");
+            if (orgIdClaim == null || !Guid.TryParse(orgIdClaim.Value, out var organizationId))
+            {
+                // No authenticated organization - skip usage tracking
+                // This happens for unauthenticated x402 payments
+                _logger.LogDebug("No organization context for usage tracking");
+                return;
+            }
+
+            // Get API key ID from claims
+            Guid? apiKeyId = null;
+            var apiKeyIdClaim = httpContext.User.FindFirst("api_key_id");
+            if (apiKeyIdClaim != null && Guid.TryParse(apiKeyIdClaim.Value, out var parsedApiKeyId))
+            {
+                apiKeyId = parsedApiKeyId;
+            }
+
+            // Record the transaction for billing
+            var usageEvent = await _usageTrackingService.RecordTransactionAsync(
+                organizationId,
+                apiKeyId,
+                _amountUsdc,
+                transactionHash);
+
+            _logger.LogInformation(
+                "Recorded usage for org {OrgId}: {Amount} USDC, fee {Fee} USDC",
+                organizationId, _amountUsdc, usageEvent.FeeAmount);
+        }
+        catch (Exception ex)
+        {
+            // Don't fail the request if usage tracking fails
+            _logger.LogError(ex, "Failed to record usage for transaction {TxHash}", transactionHash);
+        }
     }
 }
