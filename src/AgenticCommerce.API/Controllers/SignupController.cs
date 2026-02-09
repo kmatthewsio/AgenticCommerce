@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
 using AgenticCommerce.Infrastructure.Email;
@@ -15,17 +16,20 @@ public class SignupController : ControllerBase
 {
     private readonly AgenticCommerceDbContext _db;
     private readonly IEmailService _emailService;
+    private readonly IStripeBillingService _stripeBillingService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<SignupController> _logger;
 
     public SignupController(
         AgenticCommerceDbContext db,
         IEmailService emailService,
+        IStripeBillingService stripeBillingService,
         IConfiguration configuration,
         ILogger<SignupController> logger)
     {
         _db = db;
         _emailService = emailService;
+        _stripeBillingService = stripeBillingService;
         _configuration = configuration;
         _logger = logger;
         StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
@@ -114,8 +118,36 @@ public class SignupController : ControllerBase
         if (org.Tier != OrganizationTiers.Sandbox)
             return BadRequest(new { error = "Account is already upgraded" });
 
+        // Ensure Stripe customer exists
+        if (string.IsNullOrEmpty(org.StripeCustomerId))
+        {
+            try
+            {
+                var customerService = new CustomerService();
+                var customer = await customerService.CreateAsync(new CustomerCreateOptions { Email = email });
+                org.StripeCustomerId = customer.Id;
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create Stripe customer for {Email}", email);
+                return StatusCode(500, new { error = "Failed to create billing account" });
+            }
+        }
+
         try
         {
+            // Create Stripe metered subscription for usage-based billing
+            try
+            {
+                await _stripeBillingService.CreateMeteredSubscriptionAsync(org.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to create Stripe subscription for {Email} - continuing without subscription", email);
+                // Continue anyway - they can still use the API, we'll bill manually if needed
+            }
+
             org.Tier = OrganizationTiers.PayAsYouGo;
             var (apiKey, rawKey) = GenerateApiKey(org.Id, "Production API Key", ApiKeyEnvironments.Mainnet);
             _db.ApiKeys.Add(apiKey);
@@ -130,7 +162,7 @@ public class SignupController : ControllerBase
                 Tier = org.Tier,
                 ApiKey = rawKey,
                 Environment = apiKey.Environment,
-                Message = "Upgraded to pay-as-you-go."
+                Message = "Upgraded to pay-as-you-go. You'll be billed 0.5% of transaction volume monthly."
             });
         }
         catch (Exception ex)

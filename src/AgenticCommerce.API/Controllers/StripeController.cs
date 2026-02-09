@@ -1,3 +1,4 @@
+using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
 using AgenticCommerce.Infrastructure.Email;
@@ -29,6 +30,7 @@ public class StripeController : ControllerBase
     private readonly AgenticCommerceDbContext _db;
     private readonly IApiKeyGenerationService _apiKeyService;
     private readonly IEmailService _emailService;
+    private readonly IStripeBillingService _stripeBillingService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<StripeController> _logger;
 
@@ -36,12 +38,14 @@ public class StripeController : ControllerBase
         AgenticCommerceDbContext db,
         IApiKeyGenerationService apiKeyService,
         IEmailService emailService,
+        IStripeBillingService stripeBillingService,
         IConfiguration configuration,
         ILogger<StripeController> logger)
     {
         _db = db;
         _apiKeyService = apiKeyService;
         _emailService = emailService;
+        _stripeBillingService = stripeBillingService;
         _configuration = configuration;
         _logger = logger;
 
@@ -172,12 +176,74 @@ public class StripeController : ControllerBase
                 await HandleChargeRefunded(stripeEvent);
                 break;
 
+            // Metered billing events
+            case "invoice.paid":
+                await HandleInvoicePaid(stripeEvent);
+                break;
+
+            case "invoice.payment_failed":
+                await HandleInvoicePaymentFailed(stripeEvent);
+                break;
+
+            case "customer.subscription.deleted":
+                await HandleSubscriptionDeleted(stripeEvent);
+                break;
+
             default:
                 _logger.LogInformation("Unhandled Stripe event type: {EventType}", stripeEvent.Type);
                 break;
         }
 
         return Ok(new { received = true });
+    }
+
+    private async Task HandleInvoicePaid(Event stripeEvent)
+    {
+        var invoice = stripeEvent.Data.Object as Invoice;
+        if (invoice == null)
+        {
+            return;
+        }
+
+        // Get subscription ID from parent.subscription_details.subscription.id
+        var subscriptionId = invoice.Parent?.SubscriptionDetails?.Subscription?.Id;
+        if (string.IsNullOrEmpty(subscriptionId))
+        {
+            _logger.LogDebug("Invoice {InvoiceId} has no subscription ID", invoice.Id);
+            return;
+        }
+
+        await _stripeBillingService.HandleInvoicePaidAsync(subscriptionId, invoice.Id);
+    }
+
+    private async Task HandleInvoicePaymentFailed(Event stripeEvent)
+    {
+        var invoice = stripeEvent.Data.Object as Invoice;
+        if (invoice == null)
+        {
+            return;
+        }
+
+        // Get subscription ID from parent.subscription_details.subscription.id
+        var subscriptionId = invoice.Parent?.SubscriptionDetails?.Subscription?.Id;
+        if (string.IsNullOrEmpty(subscriptionId))
+        {
+            _logger.LogDebug("Invoice {InvoiceId} has no subscription ID", invoice.Id);
+            return;
+        }
+
+        await _stripeBillingService.HandleInvoicePaymentFailedAsync(subscriptionId, invoice.Id);
+    }
+
+    private async Task HandleSubscriptionDeleted(Event stripeEvent)
+    {
+        var subscription = stripeEvent.Data.Object as Subscription;
+        if (subscription == null)
+        {
+            return;
+        }
+
+        await _stripeBillingService.HandleSubscriptionDeletedAsync(subscription.Id);
     }
 
     private async Task HandleCheckoutSessionCompleted(Event stripeEvent, string rawJson)
