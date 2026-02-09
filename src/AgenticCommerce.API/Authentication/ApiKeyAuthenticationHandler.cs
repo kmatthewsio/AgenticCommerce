@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
+using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
@@ -53,18 +54,27 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
             return AuthenticateResult.Fail("Invalid API key");
         }
 
+        // Validate tier vs environment
+        var org = storedKey.Organization;
+        if (storedKey.IsMainnet && org.Tier == OrganizationTiers.Sandbox)
+        {
+            return AuthenticateResult.Fail("Sandbox tier cannot use mainnet API keys. Upgrade to pay-as-you-go to access mainnet.");
+        }
+
         // Update last used timestamp
         storedKey.LastUsedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
 
-        // Create claims
+        // Create claims with tier and environment info
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, $"apikey:{storedKey.Id}"),
+            new Claim(ClaimTypes.NameIdentifier, storedKey.Id.ToString()),
             new Claim("organization_id", storedKey.OrganizationId.ToString()),
-            new Claim("organization_name", storedKey.Organization.Name),
+            new Claim("organization_name", org.Name),
+            new Claim("organization_tier", org.Tier),
             new Claim("api_key_id", storedKey.Id.ToString()),
             new Claim("api_key_name", storedKey.Name),
+            new Claim("api_key_environment", storedKey.Environment),
             new Claim(ClaimTypes.AuthenticationMethod, "ApiKey")
         };
 
@@ -72,8 +82,8 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         var principal = new ClaimsPrincipal(identity);
         var ticket = new AuthenticationTicket(principal, SchemeName);
 
-        Logger.LogInformation("API key authenticated: {KeyName} for org {OrgId}",
-            storedKey.Name, storedKey.OrganizationId);
+        Logger.LogInformation("API key authenticated: {KeyName} ({Environment}) for org {OrgId} ({Tier})",
+            storedKey.Name, storedKey.Environment, storedKey.OrganizationId, org.Tier);
 
         return AuthenticateResult.Success(ticket);
     }
@@ -98,5 +108,46 @@ public static class ApiKeyAuthenticationExtensions
         return builder.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
             ApiKeyAuthenticationHandler.SchemeName,
             options => { });
+    }
+}
+
+/// <summary>
+/// Extension methods for accessing API key context from HttpContext
+/// </summary>
+public static class ApiKeyContextExtensions
+{
+    public static Guid? GetOrganizationId(this HttpContext context)
+    {
+        var claim = context.User.FindFirst("organization_id");
+        return claim != null && Guid.TryParse(claim.Value, out var id) ? id : null;
+    }
+
+    public static string? GetOrganizationTier(this HttpContext context)
+    {
+        return context.User.FindFirst("organization_tier")?.Value;
+    }
+
+    public static Guid? GetApiKeyId(this HttpContext context)
+    {
+        var claim = context.User.FindFirst("api_key_id");
+        return claim != null && Guid.TryParse(claim.Value, out var id) ? id : null;
+    }
+
+    public static string? GetApiKeyEnvironment(this HttpContext context)
+    {
+        return context.User.FindFirst("api_key_environment")?.Value;
+    }
+
+    public static bool IsMainnet(this HttpContext context)
+    {
+        return context.GetApiKeyEnvironment() == ApiKeyEnvironments.Mainnet;
+    }
+
+    public static bool IsPayingTier(this HttpContext context)
+    {
+        var tier = context.GetOrganizationTier();
+        return tier == OrganizationTiers.PayAsYouGo || 
+               tier == OrganizationTiers.Pro || 
+               tier == OrganizationTiers.Enterprise;
     }
 }

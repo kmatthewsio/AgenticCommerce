@@ -1,4 +1,4 @@
-﻿using AgenticCommerce.Core.Models;
+using AgenticCommerce.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AgenticCommerce.Infrastructure.Data;
@@ -22,6 +22,9 @@ public class AgenticCommerceDbContext : DbContext
     public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
     public DbSet<GumroadPurchase> GumroadPurchases => Set<GumroadPurchase>();
     public DbSet<StripePurchase> StripePurchases => Set<StripePurchase>();
+
+    // Usage tracking for billing
+    public DbSet<UsageEvent> UsageEvents => Set<UsageEvent>();
 
     // Trust layer
     public DbSet<ServiceRegistryEntity> ServiceRegistry => Set<ServiceRegistryEntity>();
@@ -65,6 +68,7 @@ public class AgenticCommerceDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Slug).IsUnique();
+            entity.HasIndex(e => e.StripeCustomerId);
 
             entity.HasMany(e => e.Users)
                 .WithOne(e => e.Organization)
@@ -75,6 +79,11 @@ public class AgenticCommerceDbContext : DbContext
                 .WithOne(e => e.Organization)
                 .HasForeignKey(e => e.OrganizationId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasMany(e => e.UsageEvents)
+                .WithOne(e => e.Organization)
+                .HasForeignKey(e => e.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -108,6 +117,7 @@ public class AgenticCommerceDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.KeyHash);
             entity.HasIndex(e => e.OrganizationId);
+            entity.HasIndex(e => e.Environment);
 
             entity.HasOne(e => e.Organization)
                 .WithMany(o => o.ApiKeys)
@@ -131,6 +141,27 @@ public class AgenticCommerceDbContext : DbContext
             entity.HasIndex(e => e.PaymentIntentId);
             entity.HasIndex(e => e.Email);
             entity.HasIndex(e => e.OrganizationId);
+        });
+
+        // Usage tracking for billing
+        modelBuilder.Entity<UsageEvent>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.OrganizationId);
+            entity.HasIndex(e => e.ApiKeyId);
+            entity.HasIndex(e => e.RecordedAt);
+            entity.HasIndex(e => e.Billed);
+            entity.HasIndex(e => new { e.OrganizationId, e.Billed }); // For billing queries
+
+            entity.HasOne(e => e.Organization)
+                .WithMany(o => o.UsageEvents)
+                .HasForeignKey(e => e.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.ApiKey)
+                .WithMany()
+                .HasForeignKey(e => e.ApiKeyId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // Trust layer - Service Registry
