@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
+using AgenticCommerce.Infrastructure.Blockchain;
 using AgenticCommerce.Infrastructure.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -9,11 +10,13 @@ using Microsoft.Extensions.Logging;
 namespace AgenticCommerce.Infrastructure.Payments;
 
 /// <summary>
-/// x402 V2 spec-compliant payment service implementation
+/// x402 V2 spec-compliant payment service implementation.
+/// Supports multiple networks: Arc (via Circle), Base, Ethereum (via generic EVM client).
 /// </summary>
 public class X402Service : IX402Service
 {
     private readonly IArcClient _arcClient;
+    private readonly IEvmClientFactory? _evmClientFactory;
     private readonly ILogger<X402Service> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IEip3009SignatureVerifier _signatureVerifier;
@@ -23,9 +26,11 @@ public class X402Service : IX402Service
         IArcClient arcClient,
         ILogger<X402Service> logger,
         IServiceScopeFactory scopeFactory,
-        IEip3009SignatureVerifier signatureVerifier)
+        IEip3009SignatureVerifier signatureVerifier,
+        IEvmClientFactory? evmClientFactory = null)
     {
         _arcClient = arcClient;
+        _evmClientFactory = evmClientFactory;
         _logger = logger;
         _scopeFactory = scopeFactory;
         _signatureVerifier = signatureVerifier;
@@ -252,24 +257,50 @@ public class X402Service : IX402Service
         try
         {
             string? txHash = null;
+            var tokenContract = GetUsdcAddress(payload.Network);
 
-            // For Arc network, use Circle's transfer API
-            // In production x402, this would call transferWithAuthorization on-chain
+            // Route to appropriate network client
             if (payload.Network.StartsWith("arc"))
             {
-                // Execute transfer via Arc
+                // For Arc network, use Circle's Developer Controlled Wallets API
                 txHash = await _arcClient.SendUsdcAsync(auth.To, amountUsdc);
 
                 _logger.LogInformation(
-                    "x402 payment settled: {TxHash} for {Amount} USDC",
+                    "x402 payment settled on Arc: {TxHash} for {Amount} USDC",
                     txHash, amountUsdc);
+            }
+            else if (IsEvmNetworkSupported(payload.Network))
+            {
+                // For Base, Ethereum, and other EVM chains, use generic EVM client
+                // Execute EIP-3009 transferWithAuthorization on-chain
+                if (_evmClientFactory == null)
+                {
+                    throw new InvalidOperationException(
+                        $"EVM client factory not configured. Cannot settle on {payload.Network}");
+                }
+
+                var evmClient = _evmClientFactory.GetClient(payload.Network);
+
+                txHash = await evmClient.ExecuteTransferWithAuthorizationAsync(
+                    tokenContract,
+                    auth.From,
+                    auth.To,
+                    auth.Value,
+                    auth.ValidAfter,
+                    auth.ValidBefore,
+                    auth.Nonce,
+                    payload.Payload.Signature);
+
+                _logger.LogInformation(
+                    "x402 payment settled on {Network}: {TxHash} for {Amount} USDC",
+                    payload.Network, txHash, amountUsdc);
             }
             else
             {
-                // For other networks, simulate for now (would need EIP-3009 in production)
+                // For unsupported networks, simulate (development only)
                 txHash = $"sim_{Guid.NewGuid():N}";
-                _logger.LogInformation(
-                    "x402 payment simulated on {Network}: {TxHash} for {Amount} USDC",
+                _logger.LogWarning(
+                    "x402 payment simulated on unsupported network {Network}: {TxHash} for {Amount} USDC",
                     payload.Network, txHash, amountUsdc);
             }
 
@@ -355,5 +386,18 @@ public class X402Service : IX402Service
         return X402Assets.UsdcContracts.TryGetValue(network, out var address)
             ? address
             : "0x0000000000000000000000000000000000000000";
+    }
+
+    /// <summary>
+    /// Check if a network is supported by the EVM client
+    /// </summary>
+    private bool IsEvmNetworkSupported(string network)
+    {
+        // Supported EVM networks for x402 settlement
+        return network == X402Networks.BaseSepolia ||
+               network == X402Networks.BaseMainnet ||
+               network == X402Networks.EthereumSepolia ||
+               network == X402Networks.EthereumMainnet ||
+               (_evmClientFactory?.IsNetworkSupported(network) ?? false);
     }
 }

@@ -67,6 +67,22 @@ builder.Services.AddDbContext<AgenticCommerceDbContext>(options =>
 builder.Services.Configure<CircleOptions>(
     builder.Configuration.GetSection("Circle"));
 
+// Configure EVM client for Base/Ethereum networks
+builder.Services.Configure<EvmClientOptions>(options =>
+{
+    options.FacilitatorPrivateKey = builder.Configuration["Evm:FacilitatorPrivateKey"] ?? "";
+
+    // Allow RPC URL overrides from configuration
+    var baseSepoliaRpc = builder.Configuration["Evm:RpcUrls:BaseSepolia"];
+    var baseMainnetRpc = builder.Configuration["Evm:RpcUrls:BaseMainnet"];
+
+    if (!string.IsNullOrEmpty(baseSepoliaRpc))
+        options.RpcUrls["base-sepolia"] = baseSepoliaRpc;
+    if (!string.IsNullOrEmpty(baseMainnetRpc))
+        options.RpcUrls["base-mainnet"] = baseMainnetRpc;
+});
+builder.Services.AddSingleton<IEvmClientFactory, EvmClientFactory>();
+
 // ========================================
 // CONFIGURE AI OPTIONS
 // ========================================
