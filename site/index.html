@@ -667,9 +667,9 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
                             <span class="text-gray-600">Usage dashboard</span>
                         </li>
                     </ul>
-                    <a href="https://app.agentrails.io/login.html" class="block w-full py-3 text-center rounded-xl border-2 border-primary-600 text-primary-600 font-medium hover:bg-primary-50 transition">
+                    <button onclick="startCheckout('payg')" class="block w-full py-3 text-center rounded-xl border-2 border-primary-600 text-primary-600 font-medium hover:bg-primary-50 transition cursor-pointer">
                         Get Started
-                    </a>
+                    </button>
                 </div>
 
                 <!-- Pro ($49/mo) -->
@@ -718,9 +718,9 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
                         </li>
                     </ul>
                     <p class="text-xs text-gray-500 text-center mb-3">Saves money at $9,800+/mo volume</p>
-                    <a href="https://app.agentrails.io/login.html" class="block w-full py-3 text-center rounded-xl bg-primary-600 text-white font-medium hover:bg-primary-700 transition">
+                    <button onclick="startCheckout('pro')" class="block w-full py-3 text-center rounded-xl bg-primary-600 text-white font-medium hover:bg-primary-700 transition cursor-pointer">
                         Upgrade to Pro
-                    </a>
+                    </button>
                 </div>
 
                 <!-- Enterprise ($2,500) -->
@@ -891,6 +891,37 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
 
     <!-- Stripe Checkout Script -->
     <script>
+        // Store original button text to restore on back navigation
+        const buttonLabels = {
+            'payg': 'Get Started',
+            'pro': 'Upgrade to Pro',
+            'enterprise': 'Get Enterprise License'
+        };
+
+        // Reset all checkout buttons when page becomes visible (back button fix)
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                resetAllButtons();
+            }
+        });
+
+        // Also reset on pageshow (handles bfcache)
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                resetAllButtons();
+            }
+        });
+
+        function resetAllButtons() {
+            document.querySelectorAll('button[onclick^="startCheckout"]').forEach(btn => {
+                btn.disabled = false;
+                const tier = btn.getAttribute('onclick').match(/startCheckout\('(\w+)'\)/)?.[1];
+                if (tier && buttonLabels[tier]) {
+                    btn.textContent = buttonLabels[tier];
+                }
+            });
+        }
+
         async function startCheckout(tier = 'enterprise') {
             // Get the clicked button from the event
             const clickedBtn = event.target;
