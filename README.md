@@ -1,165 +1,142 @@
-# Autonomous Agent Commerce Platform
+# AgentRails
 
-> AI agents that research, decide, and execute USDC payments autonomously on Arc blockchain
+> The orchestration layer between AI agents and the financial system
 
-Built with Circle Developer Controlled Wallets, Arc blockchain, and OpenAI GPT-4o for fully autonomous commerce.
+**Agent-agnostic. Model-agnostic. Enterprise-ready.**
+
+AgentRails connects any AI agent to payment infrastructure with the budget controls, transaction logging, and compliance that businesses demand.
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Circle](https://img.shields.io/badge/Circle-API-00D395)](https://developers.circle.com/)
 [![Arc](https://img.shields.io/badge/Arc-Blockchain-4A90E2)](https://www.circle.com/en/pressroom/circle-announces-arc)
-[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-412991?logo=openai)](https://openai.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org/)
 [![x402](https://img.shields.io/badge/x402-V2%20Spec-FF6B35)](https://www.x402.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org/)
 
-## What This Does
+## The Problem
 
-Autonomous AI agents that can:
+As AI agents proliferate, they need to transact. But:
+
+- **LLM providers** (OpenAI, Anthropic, Google) build models, not payment rails
+- **Agent frameworks** (LangChain, CrewAI, Semantic Kernel) orchestrate reasoning, not money
+- **Model routers** (ClawRouter, etc.) optimize inference costs, not compliance
+
+**No one owns the bottleneck between intelligent agents and the financial system.**
+
+## The Solution
+
+AgentRails is payment orchestration infrastructure for the agentic economy:
+
+| What We Do | What We Don't Do |
+|------------|------------------|
+| Connect agents to financial rails | Build AI models |
+| Enforce budget policies | Route to different LLMs |
+| Log every transaction | Compete with agent frameworks |
+| Provide audit trails | Lock you into our stack |
+
+> *"The value is not in the application. It is in the connective tissue between applications, data, and decisions."*
+>
+> *— Jordi Visser, "Palantir as Signal"*
+
+AgentRails is the connective tissue between AI agents and the financial system.
+
+## Why This Matters
+
+### The Shift: SaaS to Value-Based Pricing
+
+| Old Model (SaaS) | New Model (Agentic) |
+|------------------|---------------------|
+| Per-seat pricing | Per-transaction pricing |
+| Humans use software | Agents use APIs |
+| Monthly subscriptions | Micropayments per action |
+| $50/seat/month | $0.001 per API call |
+
+AgentRails provides the payment rails for this new model via the [x402 protocol](https://www.x402.org/).
+
+### The Moat: Switching Costs
+
+Once agents are wired to AgentRails:
+- Transaction history lives here
+- Budget policies are configured here
+- Compliance audit trails are here
+- Switching means rebuilding all of it
+
+## Core Capabilities
+
+### Agent-Agnostic Integration
+Works with any AI agent, any framework, any model:
+- OpenAI GPT-4o, Claude, Gemini, Llama, Mistral
+- LangChain, CrewAI, AutoGen, Semantic Kernel
+- Custom agents, enterprise agents, open-source agents
+
+### Autonomous Commerce
 - **Research options** using built-in knowledge bases
-- **Make informed decisions** via GPT-4o reasoning
+- **Make informed decisions** via AI reasoning
 - **Execute USDC payments** on Arc blockchain
 - **Manage budgets** with constraint enforcement
 - **Settle instantly** with sub-second finality
 - **Persist forever** with PostgreSQL database
-- **Pay for APIs** using x402 protocol (HTTP 402 payments)
 
-**No human intervention required. Built for the institutional settlement model.**
+### x402 Payment Protocol (V2 Spec-Compliant)
+- **Pay for APIs** using HTTP 402 micropayments
+- **Monetize your APIs** with one line of code
+- **EIP-3009** signed authorizations (gasless)
+- **Multi-network** support (Arc, Base, Ethereum)
 
-## x402 Payment Protocol (V2 Spec-Compliant)
+### Enterprise Governance
+- Budget controls (per-transaction, daily, weekly limits)
+- Destination whitelists/blacklists
+- Approval workflows for high-value transactions
+- Complete audit trail for compliance
 
-This platform implements the [x402 protocol](https://www.x402.org/) - an HTTP payment standard by Coinbase/Cloudflare that enables AI agents to pay for API access using cryptocurrency.
+## How It Works
 
-### How x402 Works
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Any AI Agent  │     │   AgentRails    │     │  Financial      │
+│                 │     │                 │     │  System         │
+│  - GPT-4o       │────▶│  - Orchestrate  │────▶│                 │
+│  - Claude       │     │  - Authorize    │     │  - USDC         │
+│  - Llama        │     │  - Log          │     │  - Arc/Base     │
+│  - Custom       │     │  - Settle       │     │  - Banks (soon) │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                               │
+                               ▼
+                        ┌─────────────────┐
+                        │   Governance    │
+                        │                 │
+                        │  - Budgets      │
+                        │  - Policies     │
+                        │  - Audit Logs   │
+                        └─────────────────┘
+```
+
+### x402 Payment Flow
 
 ```
 ┌─────────────┐                              ┌─────────────┐
 │   AI Agent  │                              │  API Server │
 └──────┬──────┘                              └──────┬──────┘
        │                                            │
-       │  1. GET /api/x402/protected/analysis       │
+       │  1. GET /api/protected/data                │
        │ ─────────────────────────────────────────► │
        │                                            │
        │  2. 402 Payment Required                   │
-       │     X-PAYMENT-REQUIRED: <base64>           │
+       │     X-PAYMENT-REQUIRED: {amount, payTo}    │
        │ ◄───────────────────────────────────────── │
        │                                            │
-       │  3. Sign EIP-3009 authorization            │
-       │     (transferWithAuthorization)            │
+       │  3. AgentRails signs EIP-3009 auth         │
+       │     (budget check + policy validation)     │
        │                                            │
-       │  4. GET /api/x402/protected/analysis       │
-       │     X-PAYMENT: <signed_payload>            │
+       │  4. GET /api/protected/data                │
+       │     X-PAYMENT: {signed_authorization}      │
        │ ─────────────────────────────────────────► │
        │                                            │
-       │  5. Verify signature, settle on-chain      │
+       │  5. Verify → Settle → Log                  │
        │                                            │
        │  6. 200 OK + X-PAYMENT-RESPONSE            │
-       │     { paid content }                       │
+       │     {data + transactionHash}               │
        │ ◄───────────────────────────────────────── │
 ```
-
-### x402 Endpoints
-
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/x402/protected/analysis` | Paid endpoint - $0.01 USDC per request |
-| `GET /api/x402/protected/data` | Micropayment endpoint - $0.001 USDC |
-| `GET /api/x402/pricing` | Get pricing info for all endpoints |
-| `POST /api/x402/facilitator/verify` | Verify payment payloads |
-| `POST /api/x402/facilitator/settle` | Execute payment settlement on-chain |
-| `GET /api/x402/payments` | Payment history with filtering |
-| `GET /api/x402/stats` | Aggregated payment statistics |
-
-### x402 Example Flow
-
-**Step 1: Request paid resource (no payment)**
-```bash
-curl https://your-api.com/api/x402/protected/analysis
-
-# Response: 402 Payment Required
-# Header: X-PAYMENT-REQUIRED: eyJ4NDAyVmVyc2lvbiI6Miwi...
-{
-  "x402Version": 2,
-  "accepts": [{
-    "scheme": "exact",
-    "network": "arc-testnet",
-    "maxAmountRequired": "10000",
-    "resource": "/api/x402/protected/analysis",
-    "description": "AI Analysis API - $0.01 per request",
-    "payTo": "0x6255d8dd3f84ec460fc8b07db58ab06384a2f487"
-  }]
-}
-```
-
-**Step 2: Agent signs payment and retries**
-```bash
-curl https://your-api.com/api/x402/protected/analysis \
-  -H "X-PAYMENT: eyJ4NDAyVmVyc2lvbiI6Miwic2NoZW1lIjoi..."
-
-# Response: 200 OK
-# Header: X-PAYMENT-RESPONSE: {"success":true,"transactionHash":"..."}
-{
-  "result": "AI analysis complete!",
-  "analysis": "Premium AI-powered analysis data",
-  "costUsdc": 0.01,
-  "transactionHash": "58026c24-3874-55e9-8e76-6ab6d50fb7d8"
-}
-```
-
-### Test Endpoints (Development)
-
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/x402/test/wallet-status` | Check Circle wallet configuration |
-| `GET /api/x402/test/generate-payload` | Generate mock test payloads |
-| `GET /api/x402/test/generate-signed-payload` | Generate real EIP-712 signed payload (verifiable) |
-| `POST /api/x402/test/execute-payment` | Execute real payment on Arc testnet |
-
-### x402 Payment Persistence
-
-All x402 payments are persisted to PostgreSQL:
-
-```sql
-SELECT * FROM x402_payments;
-
--- Example record:
--- payment_id: x402_abc123_639039159723714890
--- resource: /api/x402/protected/analysis
--- network: arc-testnet
--- amount_usdc: 0.01
--- payer_address: 0xAgent...
--- recipient_address: 0xMerchant...
--- transaction_hash: 58026c24-3874-55e9-8e76-6ab6d50fb7d8
--- status: Settled
--- created_at: 2026-01-13T15:46:12Z
-```
-
-## Key Features
-
-### Autonomous Decision-Making
-- AI-powered research and analysis
-- Budget validation and enforcement
-- Risk assessment and strategy planning
-- Multi-step reasoning with tool use
-
-### Circle + Arc Integration
-- Developer Controlled Wallets for agent custody
-- Native USDC settlement on Arc blockchain
-- Sub-second transaction finality (<1s)
-- Predictable USDC-based gas fees
-- No volatile gas tokens required
-
-### x402 Facilitator Service
-- Spec-compliant V2 implementation
-- Payment verification and settlement
-- EIP-3009 transferWithAuthorization support
-- Multi-network support (Arc, Base, Ethereum)
-- Payment history and analytics
-
-### Production-Ready Database
-- PostgreSQL persistence with EF Core
-- Agents survive application restarts
-- Complete transaction history tracking
-- x402 payment audit trail
-- Relational data model with migrations
 
 ## Quick Start
 
@@ -168,87 +145,106 @@ SELECT * FROM x402_payments;
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) (for PostgreSQL)
 - [Circle Developer Account](https://developers.circle.com/)
-- [OpenAI API Key](https://platform.openai.com/)
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/kmatthewsio/AgenticCommerce.git
-cd AgenticCommerce
-```
+### 1. Clone and Start Database
 
-### 2. Start PostgreSQL Database
 ```bash
-docker run --name agenticcommerce-db \
+git clone https://github.com/agentrails/agentrails.git
+cd agentrails
+
+docker run --name agentrails-db \
   -e POSTGRES_PASSWORD=dev_password_change_in_prod \
-  -e POSTGRES_DB=agenticcommerce \
+  -e POSTGRES_DB=agentrails \
   -p 5432:5432 \
   -d postgres:16
 ```
 
-### 3. Configure Secrets
+### 2. Configure Secrets
 
-**Option A: User Secrets (Recommended for Development)**
 ```bash
 cd src/AgenticCommerce.API
 
-# Circle Configuration
+# Circle Configuration (for blockchain settlement)
 dotnet user-secrets set "Circle:ApiKey" "your-circle-api-key"
 dotnet user-secrets set "Circle:EntitySecret" "your-entity-secret-hex"
 dotnet user-secrets set "Circle:WalletAddress" "0xYourWalletAddress"
 dotnet user-secrets set "Circle:WalletId" "your-wallet-id"
 
-# OpenAI Configuration
+# Optional: OpenAI for built-in agent reasoning
 dotnet user-secrets set "OpenAI:ApiKey" "your-openai-api-key"
-dotnet user-secrets set "OpenAI:Model" "gpt-4o"
 ```
 
-**Option B: Environment Variables (Production)**
-```bash
-# Use double underscore for nested config
-export Circle__ApiKey="your-circle-api-key"
-export Circle__EntitySecret="your-entity-secret-hex"
-export Circle__WalletAddress="0xYourWalletAddress"
-export Circle__WalletId="your-wallet-id"
-export OpenAI__ApiKey="your-openai-api-key"
-```
+### 3. Run
 
-### 4. Run the Application
 ```bash
-cd src/AgenticCommerce.API
 dotnet run --launch-profile https
 ```
 
 Navigate to `https://localhost:7098/swagger` to explore the API.
 
+## Monetize Your API in One Line
+
+```csharp
+[X402Payment(0.01, Description = "Premium analysis")]
+[HttpGet("analysis")]
+public IActionResult Analysis()
+{
+    var payer = HttpContext.GetX402Payer();
+    return Ok(new {
+        data = "Premium content",
+        paidBy = payer
+    });
+}
+```
+
+That's it. Your endpoint now requires $0.01 USDC per request. AgentRails handles verification, settlement, and logging automatically.
+
+## API Endpoints
+
+### Agent Management
+| Endpoint | Description |
+|----------|-------------|
+| `POST /api/agents` | Create agent with budget |
+| `POST /api/agents/{id}/run` | Execute autonomous task |
+| `POST /api/agents/{id}/purchase` | Direct payment execution |
+| `GET /api/agents/{id}` | Get agent state |
+
+### x402 Payments
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/x402/protected/analysis` | Example paid endpoint ($0.01) |
+| `GET /api/x402/protected/data` | Micropayment endpoint ($0.001) |
+| `POST /api/x402/facilitator/verify` | Verify payment signatures |
+| `POST /api/x402/facilitator/settle` | Execute on-chain settlement |
+| `GET /api/x402/payments` | Payment history |
+| `GET /api/x402/stats` | Analytics |
+
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                  AgenticCommerce.API                         │
-│         (REST API + Swagger + x402 Controllers)              │
-└─────────────────────────┬───────────────────────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────────┐
-│              AgenticCommerce.Infrastructure                   │
-│                                                               │
-│  ┌──────────────────┐    ┌────────────────────────────────┐ │
-│  │  Agent Service   │    │     x402 Payment Service       │ │
-│  │  • Lifecycle     │    │     • Verify payments          │ │
-│  │  • AI Execution  │    │     • Settle on-chain          │ │
-│  │  • Budget Mgmt   │    │     • Payment persistence      │ │
-│  └──────────────────┘    └────────────────────────────────┘ │
-│                                                               │
-│  ┌──────────────────┐    ┌────────────────────────────────┐ │
-│  │  Circle/Arc      │    │       Database (EF Core)       │ │
-│  │  • ArcClient     │    │       • Agents                 │ │
-│  │  • USDC Transfers│    │       • Transactions           │ │
-│  │  • Wallet API    │    │       • x402 Payments          │ │
-│  └──────────────────┘    └────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────────┐
-│                  AgenticCommerce.Core                         │
-│           (Domain Models + Interfaces + x402 Spec)           │
+│                    AgentRails.API                           │
+│              (REST Controllers + x402 Middleware)           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │           ORCHESTRATION LAYER                       │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │  • Agent lifecycle management                       │   │
+│  │  • Budget enforcement                               │   │
+│  │  • Policy evaluation                                │   │
+│  │  • x402 payment handling                            │   │
+│  │  • Transaction logging                              │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌──────────────────┐    ┌────────────────────────────┐   │
+│  │  Blockchain      │    │     Persistence            │   │
+│  │  • Circle DCW    │    │     • Agents               │   │
+│  │  • Arc Network   │    │     • Transactions         │   │
+│  │  • EVM Chains    │    │     • x402 Payments        │   │
+│  │  • EIP-3009      │    │     • Audit Logs           │   │
+│  └──────────────────┘    └────────────────────────────┘   │
+│                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -256,72 +252,55 @@ Navigate to `https://localhost:7098/swagger` to explore the API.
 
 - **Backend:** ASP.NET Core 8.0 / C#
 - **Database:** PostgreSQL 16 + Entity Framework Core 8
-- **Blockchain:** Circle Developer Controlled Wallets + Arc (Chain ID: 5042002)
-- **AI:** OpenAI GPT-4o + Microsoft Semantic Kernel 1.30.0
+- **Blockchain:** Circle Developer Controlled Wallets + Arc
 - **Payments:** x402 V2 Protocol (EIP-3009/EIP-712)
 - **Crypto:** Nethereum.Signer for ECDSA signatures
-- **API:** REST with OpenAPI/Swagger documentation
+- **API:** REST with OpenAPI/Swagger
 
-## Use Cases
+## Network Support
 
-### x402 API Monetization
-Monetize your APIs with micropayments. AI agents pay per request automatically.
+| Network | Chain ID | Environment |
+|---------|----------|-------------|
+| arc-testnet | 5042002 | Development |
+| arc-mainnet | TBD | Production |
+| base-sepolia | 84532 | Development |
+| base-mainnet | 8453 | Production |
+| ethereum-sepolia | 11155111 | Development |
+| ethereum-mainnet | 1 | Production |
 
-### Corporate Procurement
-AI agents that research vendors, compare pricing, and execute purchases within approved budgets.
+## Positioning
 
-### x402 Facilitator Service
-Offer payment verification and settlement as a service for other API providers.
+### What AgentRails Is
 
-### Autonomous Treasury
-Agents that manage corporate funds, execute payments, and maintain budget compliance.
+**The orchestration layer for agent payments** — like Palantir connects AI to enterprise data, AgentRails connects AI agents to financial rails.
 
-## Roadmap
+| Layer | Who Wins | Example |
+|-------|----------|---------|
+| AI Models | Commoditizing | OpenAI, Anthropic, open source |
+| Agent Frameworks | Fragmented | LangChain, CrewAI, Semantic Kernel |
+| Model Routers | Niche | ClawRouter |
+| **Payment Orchestration** | **Winner-take-most** | **AgentRails** |
 
-### Phase 1: Core Infrastructure
-- [x] Circle API integration
-- [x] Arc blockchain settlement
-- [x] AI agent reasoning (GPT-4o)
-- [x] Autonomous execution
-- [x] Budget management
+### What AgentRails Is NOT
 
-### Phase 2: Production Database
-- [x] PostgreSQL with Docker
-- [x] Entity Framework Core migrations
-- [x] Agent persistence
-- [x] Transaction history tracking
+- Not an LLM (we're model-agnostic)
+- Not an agent framework (we're agent-agnostic)
+- Not a model router (we don't optimize inference costs)
+- Not a wallet provider (we orchestrate wallets)
 
-### Phase 3: x402 V2 Protocol
-- [x] Spec-compliant implementation
-- [x] Payment verification (EIP-3009/EIP-712)
-- [x] On-chain settlement via Arc
-- [x] Facilitator endpoints (verify/settle)
-- [x] Payment persistence & analytics
-- [x] Test endpoints for development
-- [x] Real EIP-712 signature generation & verification
+> *For LLM cost optimization, we recommend solutions like [ClawRouter](https://github.com/BlockRunAI/ClawRouter). AgentRails focuses on what happens after your agent decides to act—executing compliant, auditable transactions.*
 
-### Phase 4: Production Tiers
-- [x] Stripe payment integration
-- [x] API key provisioning
-- [x] Organization setup
+## Enterprise Edition
 
-### Enterprise Features (Separate License)
+For regulated industries requiring advanced governance:
 
-> **Enterprise extensions available:** Policy engine (spend limits, rate limiting, destination controls), admin dashboard, audit logging, multi-tenant isolation, and hybrid fiat/crypto billing.
->
-> Govern agent spend at scale. Prevent budget overruns. Comply with enterprise policies.
->
-> **Contact [sales@agentrails.io](mailto:sales@agentrails.io) for licensing.**
+- **Policy Engine:** Spend limits, rate limiting, destination controls
+- **Approval Workflows:** Human sign-off for high-value transactions
+- **Advanced Audit:** Immutable decision logs for compliance
+- **Multi-Tenant:** Organization-level isolation
+- **Admin Dashboard:** Real-time monitoring
 
-- Policy engine (spending limits, approval workflows)
-- Admin dashboard
-- Audit logging
-- Advanced multi-tenancy
-
-### Phase 5: Agent Auto-Pay
-- [ ] Agent detects 402 responses
-- [ ] Automatic payment signing
-- [ ] Full autonomous pay-per-call
+**Contact [sales@agentrails.io](mailto:sales@agentrails.io) for licensing.**
 
 ## Security
 
@@ -330,41 +309,50 @@ Agents that manage corporate funds, execute payments, and maintain budget compli
 - Budget constraints enforced cryptographically
 - EIP-712 typed data signing (tamper-proof)
 - EIP-3009 signature verification (ECDSA recovery)
-- Database with proper foreign keys and constraints
+- Complete audit trail for every transaction
 
 ## Performance
 
 - **Transaction Finality:** <1 second (Arc deterministic finality)
-- **Agent Decision Time:** 5-15 seconds (GPT-4o reasoning)
 - **x402 Verification:** <50ms
 - **Database Queries:** <50ms (indexed PostgreSQL)
 
+## Roadmap
+
+- [x] Core orchestration infrastructure
+- [x] x402 V2 protocol implementation
+- [x] Circle/Arc blockchain integration
+- [x] Multi-network support
+- [x] Enterprise policy engine
+- [x] Multi-tenant architecture
+- [ ] Fiat on/off ramps
+- [ ] Additional blockchain networks
+- [ ] SDK for popular languages
+
 ## Contributing
 
-This is a personal project demonstrating autonomous agent commerce and x402 payment facilitation. Feedback and suggestions welcome!
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) file for details
+MIT License - See [LICENSE](LICENSE.md) for details.
 
 ## Acknowledgments
 
 Built with:
 - [Circle](https://www.circle.com/) - USDC infrastructure and Arc blockchain
-- [OpenAI](https://openai.com/) - GPT-4o for agent reasoning
 - [x402.org](https://www.x402.org/) - Payment protocol specification
-- [Coinbase](https://github.com/coinbase/x402) - x402 reference implementation
 - [PostgreSQL](https://www.postgresql.org/) - Production-grade database
-- [Nethereum](https://nethereum.com/) - .NET Ethereum library for EIP-712 signing
+- [Nethereum](https://nethereum.com/) - .NET Ethereum library
 
 ## Contact
 
-Questions? Reach out:
-- GitHub Issues: [Create an issue](https://github.com/kmatthewsio/AgenticCommerce/issues)
-- Twitter: https://x.com/kevlondonbtc
+- GitHub Issues: [Create an issue](https://github.com/agentrails/agentrails/issues)
+- Sales: [sales@agentrails.io](mailto:sales@agentrails.io)
+- Twitter: [@agentrails](https://x.com/agentrails)
 
 ---
 
-**Built in January 2026 using AI-assisted development.**
+**AgentRails: The connective tissue between AI agents and the financial system.**
 
-**Autonomous commerce + x402 payments on institutional settlement infrastructure.**
+*Built for the agentic economy.*
