@@ -14,9 +14,10 @@ namespace AgenticCommerce.API.Controllers;
 /// Stripe payment controller for paid tier purchases.
 ///
 /// Product Tiers:
-/// - Standard/Sandbox: Free tier (no Stripe), uses x402 protocol on testnet
-/// - Startup: $500 one-time via Stripe Checkout, production access
-/// - Enterprise: $2,500 one-time via Stripe Checkout, full production access + support
+/// - Sandbox: Free tier (no Stripe), uses x402 protocol on testnet
+/// - Pay-as-you-go: 0.5% per transaction, billed monthly via Stripe metered billing
+/// - Pro: $49/month subscription via Stripe, 0% transaction fees
+/// - Enterprise: $2,500 one-time via Stripe Checkout, full source + policy engine
 ///
 /// All payment events are logged to:
 /// - Application logs (Serilog - file + console)
@@ -54,9 +55,9 @@ public class StripeController : ControllerBase
     }
 
     /// <summary>
-    /// Create a Stripe Checkout Session for the Implementation Kit
+    /// Create a Stripe Checkout Session for the specified tier
     /// </summary>
-    /// <param name="request">Checkout request with optional email and tier (startup/enterprise)</param>
+    /// <param name="request">Checkout request with optional email and tier (payg/pro/enterprise)</param>
     [HttpPost("create-checkout-session")]
     public async Task<IActionResult> CreateCheckoutSession([FromBody] CreateCheckoutRequest? request)
     {
@@ -65,13 +66,29 @@ public class StripeController : ControllerBase
         string? priceId;
         string productName;
         string amount;
+        string mode;
 
         switch (tier)
         {
+            case "payg":
+                // Pay-as-you-go: Create a subscription with metered billing (0.5% per tx)
+                priceId = _configuration["Stripe:PaygPriceId"];
+                productName = "AgentRails Pay-as-you-go";
+                amount = "0.5% per transaction";
+                mode = "subscription";
+                break;
+            case "pro":
+                // Pro: $49/month subscription
+                priceId = _configuration["Stripe:ProPriceId"];
+                productName = "AgentRails Pro";
+                amount = "$49/month";
+                mode = "subscription";
+                break;
             case "startup":
                 priceId = _configuration["Stripe:StartupPriceId"];
                 productName = "AgentRails Startup";
                 amount = "$500";
+                mode = "payment";
                 break;
             case "enterprise":
             default:
@@ -79,13 +96,14 @@ public class StripeController : ControllerBase
                     ?? _configuration["Stripe:ImplementationKitPriceId"]; // fallback for backward compat
                 productName = "AgentRails Enterprise";
                 amount = "$2,500";
+                mode = "payment";
                 break;
         }
 
         if (string.IsNullOrEmpty(priceId))
         {
             _logger.LogError("Stripe price not configured for tier {Tier}", tier);
-            return StatusCode(500, new { error = $"Product not configured for tier: {tier}" });
+            return StatusCode(500, new { error = $"Product not configured for tier: {tier}. Please contact sales@agentrails.io" });
         }
 
         var domain = _configuration["App:Domain"] ?? "https://agentrails.io";
@@ -100,8 +118,8 @@ public class StripeController : ControllerBase
                     Quantity = 1
                 }
             },
-            Mode = "payment",
-            SuccessUrl = $"{domain}/success?session_id={{CHECKOUT_SESSION_ID}}",
+            Mode = mode,
+            SuccessUrl = $"{domain}/success?session_id={{CHECKOUT_SESSION_ID}}&tier={tier}",
             CancelUrl = $"{domain}/#pricing",
             CustomerEmail = request?.Email, // Pre-fill email if provided
             Metadata = new Dictionary<string, string>
@@ -116,13 +134,13 @@ public class StripeController : ControllerBase
             var service = new SessionService();
             var session = await service.CreateAsync(options);
 
-            _logger.LogInformation("Created {Tier} checkout session {SessionId}", tier, session.Id);
+            _logger.LogInformation("Created {Tier} checkout session {SessionId} ({Amount})", tier, session.Id, amount);
 
             return Ok(new { url = session.Url, sessionId = session.Id });
         }
         catch (StripeException ex)
         {
-            _logger.LogError(ex, "Failed to create checkout session");
+            _logger.LogError(ex, "Failed to create checkout session for tier {Tier}", tier);
 
             return StatusCode(500, new { error = ex.Message });
         }
@@ -396,7 +414,11 @@ public class CreateCheckoutRequest
 {
     public string? Email { get; set; }
     /// <summary>
-    /// Tier: "startup" ($500) or "enterprise" ($2,500). Defaults to enterprise.
+    /// Tier options:
+    /// - "payg": Pay-as-you-go (0.5% per transaction, metered billing)
+    /// - "pro": Pro subscription ($49/month, 0% transaction fees)
+    /// - "enterprise": Enterprise license ($2,500 one-time, full source + policy engine)
+    /// Defaults to enterprise.
     /// </summary>
     public string? Tier { get; set; }
 }
