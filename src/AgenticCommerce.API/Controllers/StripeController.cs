@@ -108,16 +108,16 @@ public class StripeController : ControllerBase
 
         var domain = _configuration["App:Domain"] ?? "https://agentrails.io";
 
+        // For metered prices, don't specify quantity
+        var lineItem = new SessionLineItemOptions { Price = priceId };
+        if (tier != "payg")
+        {
+            lineItem.Quantity = 1;
+        }
+
         var options = new SessionCreateOptions
         {
-            LineItems = new List<SessionLineItemOptions>
-            {
-                new()
-                {
-                    Price = priceId,
-                    Quantity = 1
-                }
-            },
+            LineItems = new List<SessionLineItemOptions> { lineItem },
             Mode = mode,
             SuccessUrl = $"{domain}/success?session_id={{CHECKOUT_SESSION_ID}}&tier={tier}",
             CancelUrl = $"{domain}/#pricing",
