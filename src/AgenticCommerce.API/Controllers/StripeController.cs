@@ -72,7 +72,7 @@ public class StripeController : ControllerBase
         {
             case "payg":
                 // Pay-as-you-go: Create a subscription with metered billing (0.5% per tx)
-                priceId = _configuration["Stripe:PaygPriceId"];
+                priceId = _configuration["Stripe:MeteredPriceId"];
                 productName = "AgentRails Pay-as-you-go";
                 amount = "0.5% per transaction";
                 mode = "subscription";
