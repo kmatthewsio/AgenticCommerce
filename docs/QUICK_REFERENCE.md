@@ -1,13 +1,19 @@
 # AgentRails Quick Reference
 
-## Dashboard URL
-```
-https://localhost:7098/admin/index.html
-```
+## Live URLs
 
-## API Base URL
+| Resource | URL |
+|----------|-----|
+| Marketing Site | https://agentrails.io |
+| Dashboard | https://app.agentrails.io |
+| Production API | https://api.agentrails.io |
+| Sandbox API | https://sandbox.agentrails.io |
+| Docs | https://agentrails.io/docs |
+
+## Local Development
 ```
-https://localhost:7098/api
+Dashboard: https://localhost:7098/admin/index.html
+API: https://localhost:7098/api
 ```
 
 ---
@@ -37,6 +43,37 @@ curl https://localhost:7098/api/agents \
 
 ## Common Endpoints
 
+### Signup & Account
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Create Account | POST | `/api/signup` |
+| Upgrade to PAYG | POST | `/api/signup/upgrade` |
+| Check Status | GET | `/api/signup/status?email=...` |
+
+### Billing & Usage
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Get Usage (API key) | GET | `/api/billing/usage?days=30` |
+| Get Usage (email) | GET | `/api/billing/usage/{email}` |
+| Get Dashboard | GET | `/api/billing/dashboard` |
+
+### x402 Payments
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Get Pricing | GET | `/api/x402/pricing` |
+| Protected Data | GET | `/api/x402/protected/data` |
+| Protected Analysis | GET | `/api/x402/protected/analysis` |
+| Verify Payment | POST | `/api/x402/facilitator/verify` |
+| Settle Payment | POST | `/api/x402/facilitator/settle` |
+
+### Trust & Discovery
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Check Trust | GET | `/api/trust/check?serviceUrl=...` |
+| Register Service | POST | `/api/trust/register` |
+| Browse Registry | GET | `/api/trust/registry` |
+
+### Agents
 | Action | Method | Endpoint |
 |--------|--------|----------|
 | Health Check | GET | `/health` |
@@ -44,12 +81,7 @@ curl https://localhost:7098/api/agents \
 | Create Agent | POST | `/api/agents` |
 | Delete Agent | DELETE | `/api/agents/{id}` |
 | Agent Purchase | POST | `/api/agents/{id}/purchase` |
-| List Policies | GET | `/api/policies` |
-| Create Policy | POST | `/api/policies` |
 | Get Transactions | GET | `/api/agents/transactions` |
-| List API Keys | GET | `/api/auth/api-keys` |
-| Create API Key | POST | `/api/auth/api-keys` |
-| Get Logs | GET | `/api/logs` |
 
 ---
 
@@ -133,6 +165,17 @@ curl https://localhost:7098/api/agents \
 
 ## Useful URLs
 
+### Production
+| Resource | URL |
+|----------|-----|
+| Marketing Site | https://agentrails.io |
+| Dashboard | https://app.agentrails.io |
+| Production API | https://api.agentrails.io |
+| Sandbox API | https://sandbox.agentrails.io |
+| Swagger (Sandbox) | https://sandbox.agentrails.io/swagger |
+| Swagger (Production) | https://api.agentrails.io/swagger |
+
+### Local Development
 | Resource | URL |
 |----------|-----|
 | Dashboard | `/admin/index.html` |

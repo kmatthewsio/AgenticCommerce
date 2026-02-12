@@ -88,6 +88,7 @@
                 <div class="hidden md:flex items-center gap-6">
                     <a href="/" class="text-gray-600 hover:text-gray-900 transition">Home</a>
                     <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="text-gray-600 hover:text-gray-900 transition">API Reference</a>
+                    <a href="https://app.agentrails.io" target="_blank" class="text-gray-600 hover:text-gray-900 transition">Dashboard</a>
                     <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="text-gray-600 hover:text-gray-900 transition">GitHub</a>
                     <a href="https://sandbox.agentrails.io" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
                         Try Sandbox
@@ -113,6 +114,11 @@
 
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6 px-3">Trust & Discovery</p>
                 <a href="#trust-api" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Trust API</a>
+
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6 px-3">Account & Billing</p>
+                <a href="#signup-api" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Signup API</a>
+                <a href="#billing-api" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Billing API</a>
+                <a href="#dashboard" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Dashboard</a>
 
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6 px-3">Reference</p>
                 <a href="#api-reference" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">API Reference</a>
@@ -187,7 +193,10 @@
     {"resource": "/api/x402/protected/analysis", "amountUsdc": 0.01},
     {"resource": "/api/x402/protected/data", "amountUsdc": 0.001}
   ],
-  "supportedNetworks": ["arc-testnet", "base-sepolia"],
+  "supportedNetworks": [
+    "arc-testnet", "base-sepolia", "ethereum-sepolia",
+    "base-mainnet", "ethereum-mainnet"
+  ],
   "payTo": "0x6255d8dd3f84ec460fc8b07db58ab06384a2f487"
 }</pre>
                             </div>
@@ -511,6 +520,169 @@ result = crew.kickoff()</pre>
                     </div>
                 </section>
 
+                <!-- Signup API -->
+                <section id="signup-api" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">Signup API</h2>
+                    <p class="text-gray-600 mb-6">
+                        Create accounts and manage tiers programmatically. Start with a free sandbox account, then upgrade to production when ready.
+                    </p>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">Create Sandbox Account</h3>
+                        <p class="text-gray-600 mb-4">Create a free account with testnet API access:</p>
+                        <div class="code-block rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-sm font-mono text-gray-300">curl -X POST "https://api.agentrails.io/api/signup" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "developer@example.com"}'</pre>
+                        </div>
+                        <div class="mt-4 bg-gray-50 rounded-lg p-4">
+                            <pre class="text-sm font-mono text-gray-700">{
+  "success": true,
+  "email": "developer@example.com",
+  "tier": "sandbox",
+  "apiKey": "ar_test_abc123...",
+  "environment": "testnet",
+  "message": "Sandbox account created."
+}</pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">Upgrade to Pay-as-you-go</h3>
+                        <p class="text-gray-600 mb-4">Upgrade to mainnet access with 0.5% transaction fees:</p>
+                        <div class="code-block rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-sm font-mono text-gray-300">curl -X POST "https://api.agentrails.io/api/signup/upgrade" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "developer@example.com"}'</pre>
+                        </div>
+                        <div class="mt-4 bg-gray-50 rounded-lg p-4">
+                            <pre class="text-sm font-mono text-gray-700">{
+  "success": true,
+  "email": "developer@example.com",
+  "tier": "payg",
+  "apiKey": "ar_live_xyz789...",
+  "environment": "mainnet",
+  "message": "Upgraded to pay-as-you-go. You'll be billed 0.5% of transaction volume monthly."
+}</pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6">
+                        <h3 class="font-semibold mb-4">Check Account Status</h3>
+                        <p class="text-gray-600 mb-4">Get current tier and API key info:</p>
+                        <div class="code-block rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-sm font-mono text-gray-300">curl "https://api.agentrails.io/api/signup/status?email=developer@example.com"</pre>
+                        </div>
+                        <div class="mt-4 bg-gray-50 rounded-lg p-4">
+                            <pre class="text-sm font-mono text-gray-700">{
+  "email": "developer@example.com",
+  "tier": "payg",
+  "apiKeys": [
+    {"prefix": "ar_test_abc1", "environment": "testnet"},
+    {"prefix": "ar_live_xyz7", "environment": "mainnet"}
+  ]
+}</pre>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid sm:grid-cols-2 gap-4">
+                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <h4 class="font-semibold mb-2">API Key Prefixes</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li><code class="bg-gray-100 px-1 rounded">ar_test_</code> - Testnet keys (sandbox)</li>
+                                <li><code class="bg-gray-100 px-1 rounded">ar_live_</code> - Mainnet keys (production)</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <h4 class="font-semibold mb-2">Tiers</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li><code class="bg-gray-100 px-1 rounded">sandbox</code> - Free, testnet only</li>
+                                <li><code class="bg-gray-100 px-1 rounded">payg</code> - 0.5% per transaction</li>
+                                <li><code class="bg-gray-100 px-1 rounded">pro</code> - $49/mo unlimited</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Billing API -->
+                <section id="billing-api" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">Billing API</h2>
+                    <p class="text-gray-600 mb-6">
+                        Track usage and billing for pay-as-you-go accounts. Usage is metered and billed monthly via Stripe.
+                    </p>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">Get Usage (with API Key)</h3>
+                        <p class="text-gray-600 mb-4">Authenticate with your API key to get usage summary:</p>
+                        <div class="code-block rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-sm font-mono text-gray-300">curl "https://api.agentrails.io/api/billing/usage?days=30" \
+  -H "X-Api-Key: ar_live_your_key_here"</pre>
+                        </div>
+                        <div class="mt-4 bg-gray-50 rounded-lg p-4">
+                            <pre class="text-sm font-mono text-gray-700">{
+  "organization": {"id": "...", "tier": "payg"},
+  "period": {"from": "2026-01-12", "to": "2026-02-12", "days": 30},
+  "usage": {
+    "transactionCount": 142,
+    "totalVolumeUsdc": 284.50,
+    "totalFeesUsd": 1.42,
+    "billedFeesUsd": 0.00,
+    "unbilledFeesUsd": 1.42
+  }
+}</pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">Get Usage by Email</h3>
+                        <p class="text-gray-600 mb-4">Check usage for any account (public endpoint):</p>
+                        <div class="code-block rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-sm font-mono text-gray-300">curl "https://api.agentrails.io/api/billing/usage/developer@example.com?days=30"</pre>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-primary-50 rounded-xl border border-primary-100">
+                        <h4 class="font-semibold text-primary-900 mb-2">How Billing Works</h4>
+                        <p class="text-primary-800 text-sm">
+                            Pay-as-you-go accounts are charged 0.5% of transaction volume. Usage is tracked per transaction and aggregated monthly. At the start of each month, unbilled usage is reported to Stripe and invoiced to your card on file. Pro tier ($49/mo) includes unlimited transactions with 0% fees.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Dashboard -->
+                <section id="dashboard" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">Dashboard</h2>
+                    <p class="text-gray-600 mb-6">
+                        Manage your account, view usage metrics, and configure API keys from the web dashboard.
+                    </p>
+
+                    <a href="https://app.agentrails.io" target="_blank" class="inline-block p-6 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition mb-6">
+                        <h3 class="font-semibold mb-2">AgentRails Dashboard</h3>
+                        <p class="text-sm text-gray-600 mb-3">View usage, manage API keys, and access billing</p>
+                        <span class="text-primary-600 text-sm font-medium">Open Dashboard →</span>
+                    </a>
+
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <h4 class="font-semibold mb-2">Dashboard Features</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>Real-time usage metrics</li>
+                                <li>Transaction history</li>
+                                <li>API key management</li>
+                                <li>Billing & invoices</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                            <h4 class="font-semibold mb-2">Quick Links</h4>
+                            <ul class="text-sm space-y-1">
+                                <li><a href="https://app.agentrails.io" target="_blank" class="text-primary-600 hover:underline">Dashboard Home</a></li>
+                                <li><a href="https://sandbox.agentrails.io/swagger" target="_blank" class="text-primary-600 hover:underline">Sandbox API</a></li>
+                                <li><a href="https://api.agentrails.io/swagger" target="_blank" class="text-primary-600 hover:underline">Production API</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- API Reference -->
                 <section id="api-reference" class="mb-16">
                     <h2 class="text-2xl font-bold mb-4">API Reference</h2>
@@ -539,6 +711,7 @@ result = crew.kickoff()</pre>
                                     <th class="text-left px-6 py-3 font-semibold">Network</th>
                                     <th class="text-left px-6 py-3 font-semibold">Chain ID</th>
                                     <th class="text-left px-6 py-3 font-semibold">Environment</th>
+                                    <th class="text-left px-6 py-3 font-semibold">Settlement</th>
                                     <th class="text-left px-6 py-3 font-semibold">Status</th>
                                 </tr>
                             </thead>
@@ -547,25 +720,36 @@ result = crew.kickoff()</pre>
                                     <td class="px-6 py-4 font-medium">Arc Testnet</td>
                                     <td class="px-6 py-4 font-mono text-gray-600">5042002</td>
                                     <td class="px-6 py-4">Development</td>
+                                    <td class="px-6 py-4 text-gray-600">Circle Wallets API</td>
                                     <td class="px-6 py-4"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">Active</span></td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 font-medium">Base Sepolia</td>
                                     <td class="px-6 py-4 font-mono text-gray-600">84532</td>
                                     <td class="px-6 py-4">Development</td>
+                                    <td class="px-6 py-4 text-gray-600">EIP-3009 on-chain</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">Ethereum Sepolia</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">11155111</td>
+                                    <td class="px-6 py-4">Development</td>
+                                    <td class="px-6 py-4 text-gray-600">EIP-3009 on-chain</td>
                                     <td class="px-6 py-4"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">Active</span></td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 font-medium">Base Mainnet</td>
                                     <td class="px-6 py-4 font-mono text-gray-600">8453</td>
                                     <td class="px-6 py-4">Production</td>
-                                    <td class="px-6 py-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">Coming Soon</span></td>
+                                    <td class="px-6 py-4 text-gray-600">EIP-3009 on-chain</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">Active</span></td>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 font-medium">Ethereum Mainnet</td>
                                     <td class="px-6 py-4 font-mono text-gray-600">1</td>
                                     <td class="px-6 py-4">Production</td>
-                                    <td class="px-6 py-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">Coming Soon</span></td>
+                                    <td class="px-6 py-4 text-gray-600">EIP-3009 on-chain</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">Active</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -632,6 +816,7 @@ result = crew.kickoff()</pre>
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
                         <p>© 2026 AgentRails. All rights reserved.</p>
                         <div class="flex gap-6">
+                            <a href="https://app.agentrails.io" target="_blank" class="hover:text-gray-900 transition">Dashboard</a>
                             <a href="https://github.com/kmatthewsio/AgenticCommerce" class="hover:text-gray-900 transition">GitHub</a>
                             <a href="mailto:sales@agentrails.io" class="hover:text-gray-900 transition">Contact</a>
                         </div>

@@ -23,9 +23,9 @@ This guide covers how to use the AgentRails REST APIs for managing autonomous AI
 
 ### Quick Start
 
-1. Purchase a Startup or Enterprise license at [agentrails.io](https://agentrails.io)
-2. Receive your API key via email
-3. Start making API calls with your key
+1. Sign up for a free sandbox account at [agentrails.io](https://agentrails.io) or via the Signup API
+2. Test with testnet USDC on Arc testnet, Base Sepolia, or Ethereum Sepolia
+3. Upgrade to pay-as-you-go (0.5% per tx) or Pro ($49/mo) for mainnet access
 
 ---
 
@@ -208,9 +208,24 @@ X-API-Key: ar_live_abc123...
 
 ### Getting an API Key
 
-1. Purchase a license at [agentrails.io](https://agentrails.io)
-2. Your API key will be emailed to you
-3. Store the key securely - it cannot be retrieved again
+**Option 1: Via API (Recommended)**
+```bash
+# Create free sandbox account
+curl -X POST https://api.agentrails.io/api/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email": "you@example.com"}'
+
+# Returns: {"apiKey": "ar_test_...", "tier": "sandbox"}
+```
+
+**Option 2: Via Dashboard**
+1. Go to [app.agentrails.io](https://app.agentrails.io)
+2. Sign up with your email
+3. Your API key will be displayed in the dashboard
+
+**API Key Prefixes:**
+- `ar_test_` - Testnet keys (sandbox tier)
+- `ar_live_` - Mainnet keys (paid tiers)
 
 ---
 
@@ -252,15 +267,17 @@ curl https://api.agentrails.io/api/x402/protected/analysis \
 
 ## Tiers
 
-| Feature | Sandbox (Free) | Startup ($500) | Enterprise ($2,500) |
-|---------|----------------|----------------|---------------------|
-| x402 Protocol | Test only | Production | Production |
-| API Access | Limited | Full | Full |
-| Agents | 1 | 10 | Unlimited |
-| Support | Community | Email | Priority |
-| Policy Engine | - | - | ✓ |
-| Admin Dashboard | - | - | ✓ |
-| Audit Logging | - | - | ✓ |
+| Feature | Sandbox (Free) | Pay-as-you-go (0.5%) | Pro ($49/mo) | Enterprise ($2,500) |
+|---------|----------------|----------------------|--------------|---------------------|
+| Environment | Testnet only | Mainnet | Mainnet | Self-hosted |
+| Transaction Fees | N/A | 0.5% per tx | 0% (unlimited) | 0% (unlimited) |
+| Networks | Arc, Base, ETH testnets | All networks | All networks | All networks |
+| Support | Community | Email | Priority | Priority + Implementation |
+| Policy Engine | - | - | - | ✓ |
+| Admin Dashboard | - | ✓ | ✓ | ✓ |
+| Full Source Code | - | - | - | ✓ |
+
+**Crossover point:** At $9,800/mo transaction volume, 0.5% = $49. Above that, Pro saves money.
 
 ---
 
