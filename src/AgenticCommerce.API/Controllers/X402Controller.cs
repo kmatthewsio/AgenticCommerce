@@ -248,7 +248,7 @@ public class X402Controller : ControllerBase
                     Description = "Data API"
                 }
             },
-            SupportedNetworks = new[] { X402Networks.ArcTestnet, X402Networks.BaseSepolia },
+            SupportedNetworks = new[] { X402Networks.ArcTestnet, X402Networks.BaseSepolia, X402Networks.BaseMainnet },
             PayTo = _x402Service.GetPayToAddress()
         });
     }
