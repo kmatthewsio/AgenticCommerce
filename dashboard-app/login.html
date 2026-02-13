@@ -4,17 +4,239 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - AgentRails Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #0A0E17;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Animations */
+        @keyframes orbFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, -20px) scale(1.1); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(99, 225, 209, 0.3); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 225, 209, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 225, 209, 0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Input styles */
+        .ar-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+        .ar-input::placeholder { color: rgba(255,255,255,0.25); }
+        .ar-input:focus {
+            outline: none;
+            border-color: #63E1D1;
+            box-shadow: 0 0 0 3px rgba(99,225,209,0.15), inset 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .ar-label {
+            display: block;
+            color: rgba(255,255,255,0.55);
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ar-btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #63E1D1, #5B7FFF);
+            border: none;
+            border-radius: 12px;
+            color: #0A0E17;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: -0.01em;
+        }
+        .ar-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(99,225,209,0.3), 0 2px 8px rgba(99,225,209,0.2);
+        }
+        .ar-btn-primary:active { transform: translateY(0); }
+        .ar-btn-primary:disabled {
+            background: rgba(99,225,209,0.3);
+            cursor: wait;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .ar-btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .ar-btn-secondary:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.12);
+        }
+
+        .ar-status-dot { animation: pulse-ring 2s infinite; }
+
+        /* Floating orbs */
+        .ar-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Layout */
+        .ar-layout {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+        .ar-left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 80px;
+            position: relative;
+            z-index: 1;
+            animation: slideInLeft 0.8s ease-out both;
+        }
+        .ar-right-panel {
+            width: 480px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        .ar-card {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 44px 36px;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+            box-shadow: 0 32px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        /* Tabs */
+        .ar-tab {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.35);
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 2px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .ar-tab.active {
+            color: #63E1D1;
+            border-bottom-color: #63E1D1;
+        }
+
+        .ar-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 28px 0;
+        }
+        .ar-divider-line {
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+        }
+
+        /* Alerts */
+        .ar-alert-error {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 12px;
+            color: #fca5a5;
+            font-size: 13px;
+        }
+        .ar-alert-success {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: rgba(99,225,209,0.1);
+            border: 1px solid rgba(99,225,209,0.2);
+            border-radius: 12px;
+            color: #63E1D1;
+            font-size: 13px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .ar-left-panel { display: none; }
+            .ar-right-panel { width: 100%; }
+            .ar-layout { justify-content: center; }
+        }
     </style>
     <script>
-        // API Configuration - auto-detect production vs development
         const CONFIG = {
             API_BASE_URL: window.location.hostname === 'app.agentrails.io'
                 ? 'https://api.agentrails.io'
-                : '',  // Empty string = same origin (local dev)
+                : '',
             DASHBOARD_URL: window.location.hostname === 'app.agentrails.io'
                 ? '/index.html'
                 : '/admin/index.html',
@@ -24,206 +246,304 @@
         };
     </script>
 </head>
-<body class="bg-gray-900 min-h-screen flex items-center justify-center">
-    <div x-data="loginApp()" x-init="init()" x-cloak class="w-full max-w-md px-6">
-        <!-- Logo -->
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-white">AgentRails</h1>
-            <p class="text-gray-400 mt-2">AI Agent Payment Infrastructure</p>
-        </div>
+<body>
+    <div x-data="loginApp()" x-init="init()" x-cloak class="ar-layout">
+        <!-- Particle canvas background -->
+        <canvas id="particleCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;"></canvas>
 
-        <!-- Login/Register Card -->
-        <div class="bg-gray-800 rounded-lg shadow-xl p-8">
-            <!-- Tabs (hidden during forgot/reset password) -->
-            <div x-show="mode === 'login' || mode === 'register'" class="flex mb-6 border-b border-gray-700">
-                <button
-                    @click="mode = 'login'; error = ''; success = ''"
-                    :class="mode === 'login' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-400'"
-                    class="flex-1 py-2 text-center border-b-2 transition-colors">
-                    Sign In
-                </button>
-                <button
-                    @click="mode = 'register'; error = ''; success = ''"
-                    :class="mode === 'register' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-400'"
-                    class="flex-1 py-2 text-center border-b-2 transition-colors">
-                    Create Account
-                </button>
+        <!-- Floating orbs -->
+        <div class="ar-orb" style="width:400px;height:400px;background:radial-gradient(circle,#63E1D1 0%,transparent 70%);top:-10%;left:-5%;animation:orbFloat 8s ease-in-out 0s infinite alternate;"></div>
+        <div class="ar-orb" style="width:350px;height:350px;background:radial-gradient(circle,#5B7FFF 0%,transparent 70%);top:60%;left:70%;animation:orbFloat 8s ease-in-out 2s infinite alternate;"></div>
+        <div class="ar-orb" style="width:300px;height:300px;background:radial-gradient(circle,#A855F7 0%,transparent 70%);top:30%;left:45%;animation:orbFloat 8s ease-in-out 4s infinite alternate;"></div>
+
+        <!-- Left panel — branding -->
+        <div class="ar-left-panel">
+            <!-- Logo -->
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:48px;">
+                <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#63E1D1,#5B7FFF);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#0A0E17;font-family:'JetBrains Mono',monospace;">AR</div>
+                <span style="color:#fff;font-size:22px;font-weight:600;letter-spacing:-0.02em;">AgentRails</span>
+                <span style="font-size:11px;font-weight:500;color:#63E1D1;background:rgba(99,225,209,0.1);padding:3px 10px;border-radius:100px;border:1px solid rgba(99,225,209,0.2);font-family:'JetBrains Mono',monospace;">DASHBOARD</span>
             </div>
 
-            <!-- Success Message -->
-            <div x-show="success" class="mb-4 p-3 bg-green-900/50 border border-green-700 rounded text-green-300 text-sm">
-                <span x-text="success"></span>
-            </div>
+            <!-- Headline -->
+            <h1 style="font-size:52px;font-weight:700;color:#fff;line-height:1.1;letter-spacing:-0.03em;margin-bottom:20px;">
+                Monitor.<br>
+                <span style="background:linear-gradient(90deg,#63E1D1,#5B7FFF,#63E1D1);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite;">Orchestrate.</span><br>
+                Deploy.
+            </h1>
 
-            <!-- Error Message -->
-            <div x-show="error" class="mb-4 p-3 bg-red-900/50 border border-red-700 rounded text-red-300 text-sm">
-                <span x-text="error"></span>
-            </div>
+            <p style="color:rgba(255,255,255,0.45);font-size:16px;line-height:1.6;max-width:380px;margin-bottom:48px;">
+                Payment infrastructure for AI agents. Manage your x402 transactions, API keys, and billing from one dashboard.
+            </p>
 
-            <!-- Login Form -->
-            <form x-show="mode === 'login'" @submit.prevent="login">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-gray-300 text-sm mb-1">Email</label>
-                        <input
-                            type="email"
-                            x-model="email"
-                            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                            placeholder="you@company.com"
-                            required>
+            <!-- Live stats -->
+            <div style="display:flex;gap:32px;">
+                <div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                        <span class="ar-status-dot" style="width:6px;height:6px;border-radius:50%;background:#63E1D1;display:inline-block;"></span>
+                        <span style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);font-family:'JetBrains Mono',monospace;">Networks</span>
                     </div>
-                    <div>
-                        <label class="block text-gray-300 text-sm mb-1">Password</label>
-                        <input
-                            type="password"
-                            x-model="password"
-                            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                            placeholder="Enter your password"
-                            required>
-                    </div>
-                    <button
-                        type="submit"
-                        :disabled="loading"
-                        class="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white rounded transition-colors">
-                        <span x-show="!loading">Sign In</span>
-                        <span x-show="loading">Signing in...</span>
-                    </button>
-                    <div class="text-center">
-                        <button type="button" @click="mode = 'forgot'; error = ''" class="text-sm text-blue-400 hover:underline">
-                            Forgot your password?
-                        </button>
+                    <div style="display:flex;align-items:baseline;gap:8px;">
+                        <span style="font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.02em;">5</span>
+                        <span style="font-size:12px;color:#63E1D1;font-family:'JetBrains Mono',monospace;">live</span>
                     </div>
                 </div>
-            </form>
+                <div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                        <span class="ar-status-dot" style="width:6px;height:6px;border-radius:50%;background:#63E1D1;display:inline-block;"></span>
+                        <span style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);font-family:'JetBrains Mono',monospace;">Protocol</span>
+                    </div>
+                    <div style="display:flex;align-items:baseline;gap:8px;">
+                        <span style="font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.02em;">x402</span>
+                    </div>
+                </div>
+                <div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                        <span class="ar-status-dot" style="width:6px;height:6px;border-radius:50%;background:#63E1D1;display:inline-block;"></span>
+                        <span style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);font-family:'JetBrains Mono',monospace;">Settlement</span>
+                    </div>
+                    <div style="display:flex;align-items:baseline;gap:8px;">
+                        <span style="font-size:28px;font-weight:700;color:#fff;letter-spacing:-0.02em;">USDC</span>
+                        <span style="font-size:12px;color:#63E1D1;font-family:'JetBrains Mono',monospace;">on-chain</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <!-- Register Form -->
-            <form x-show="mode === 'register'" @submit.prevent="register">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-gray-300 text-sm mb-1">Organization Name</label>
-                        <input
-                            type="text"
-                            x-model="orgName"
-                            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                            placeholder="Acme Inc."
-                            required>
+        <!-- Right panel — forms -->
+        <div class="ar-right-panel">
+            <div class="ar-card">
+                <!-- Login / Register tabs (hidden during forgot/reset) -->
+                <div x-show="mode === 'login' || mode === 'register'" style="display:flex;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <button @click="mode = 'login'; error = ''; success = ''" class="ar-tab" :class="mode === 'login' && 'active'">Sign In</button>
+                    <button @click="mode = 'register'; error = ''; success = ''" class="ar-tab" :class="mode === 'register' && 'active'">Create Account</button>
+                </div>
+
+                <!-- Header -->
+                <div x-show="mode === 'login'" style="margin-bottom:28px;">
+                    <h2 style="color:#fff;font-size:24px;font-weight:600;margin-bottom:8px;letter-spacing:-0.02em;">Welcome back</h2>
+                    <p style="color:rgba(255,255,255,0.4);font-size:14px;">Sign in to your dashboard</p>
+                </div>
+                <div x-show="mode === 'register'" style="margin-bottom:28px;">
+                    <h2 style="color:#fff;font-size:24px;font-weight:600;margin-bottom:8px;letter-spacing:-0.02em;">Get started</h2>
+                    <p style="color:rgba(255,255,255,0.4);font-size:14px;">Create your AgentRails account</p>
+                </div>
+
+                <!-- Success Message -->
+                <div x-show="success" class="ar-alert-success" x-text="success"></div>
+
+                <!-- Error Message -->
+                <div x-show="error" class="ar-alert-error" x-text="error"></div>
+
+                <!-- Login Form -->
+                <form x-show="mode === 'login'" @submit.prevent="login">
+                    <div style="margin-bottom:20px;">
+                        <label class="ar-label">Email</label>
+                        <input type="email" x-model="email" class="ar-input" placeholder="admin@agentrails.io" required>
                     </div>
-                    <div>
-                        <label class="block text-gray-300 text-sm mb-1">Your Name</label>
-                        <input
-                            type="text"
-                            x-model="name"
-                            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                            placeholder="John Doe">
+                    <div style="margin-bottom:20px;">
+                        <label class="ar-label">Password</label>
+                        <div style="position:relative;">
+                            <input :type="showPassword ? 'text' : 'password'" x-model="password" class="ar-input" style="padding-right:48px;" placeholder="••••••••••" required>
+                            <button type="button" @click="showPassword = !showPassword" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:13px;font-family:'JetBrains Mono',monospace;padding:4px;" x-text="showPassword ? 'HIDE' : 'SHOW'"></button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-gray-300 text-sm mb-1">Email</label>
-                        <input
-                            type="email"
-                            x-model="email"
-                            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                            placeholder="you@company.com"
-                            required>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:rgba(255,255,255,0.4);font-size:13px;">
+                            <input type="checkbox" x-model="remember" style="width:16px;height:16px;border-radius:4px;accent-color:#63E1D1;cursor:pointer;">
+                            Remember me
+                        </label>
+                        <button type="button" @click="mode = 'forgot'; error = ''" style="background:none;border:none;color:#63E1D1;font-size:13px;cursor:pointer;opacity:0.8;">Forgot password?</button>
                     </div>
-                    <div>
-                        <label class="block text-gray-300 text-sm mb-1">Password</label>
-                        <input
-                            type="password"
-                            x-model="password"
-                            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                            placeholder="Min 8 characters"
-                            minlength="8"
-                            required>
+
+                    <button type="submit" :disabled="loading" class="ar-btn-primary">
+                        <span x-show="!loading">Sign in to Dashboard</span>
+                        <span x-show="loading" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="animation:spin 1s linear infinite;">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="32 32"/>
+                            </svg>
+                            Authenticating...
+                        </span>
+                    </button>
+
+                    <div class="ar-divider">
+                        <div class="ar-divider-line"></div>
+                        <span style="color:rgba(255,255,255,0.2);font-size:12px;font-family:'JetBrains Mono',monospace;">OR</span>
+                        <div class="ar-divider-line"></div>
                     </div>
-                    <button
-                        type="submit"
-                        :disabled="loading"
-                        class="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white rounded transition-colors">
+
+                    <a href="https://agentrails.io" class="ar-btn-secondary" style="text-decoration:none;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        Visit agentrails.io
+                    </a>
+                </form>
+
+                <!-- Register Form -->
+                <form x-show="mode === 'register'" @submit.prevent="register">
+                    <div style="margin-bottom:20px;">
+                        <label class="ar-label">Organization Name</label>
+                        <input type="text" x-model="orgName" class="ar-input" placeholder="Acme Inc." required>
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label class="ar-label">Your Name</label>
+                        <input type="text" x-model="name" class="ar-input" placeholder="John Doe">
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label class="ar-label">Email</label>
+                        <input type="email" x-model="email" class="ar-input" placeholder="you@company.com" required>
+                    </div>
+                    <div style="margin-bottom:28px;">
+                        <label class="ar-label">Password</label>
+                        <input type="password" x-model="password" class="ar-input" placeholder="Min 8 characters" minlength="8" required>
+                    </div>
+                    <button type="submit" :disabled="loading" class="ar-btn-primary">
                         <span x-show="!loading">Create Account</span>
-                        <span x-show="loading">Creating account...</span>
+                        <span x-show="loading" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="animation:spin 1s linear infinite;">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="32 32"/>
+                            </svg>
+                            Creating account...
+                        </span>
                     </button>
-                </div>
-            </form>
+                </form>
 
-            <!-- Forgot Password Form -->
-            <div x-show="mode === 'forgot'">
-                <div class="mb-6">
-                    <button @click="mode = 'login'; error = ''; success = ''" class="text-gray-400 hover:text-white text-sm flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                        Back to login
-                    </button>
-                    <h3 class="text-lg font-semibold text-white mt-4">Reset your password</h3>
-                    <p class="text-gray-400 text-sm mt-1">Enter your email and we'll send you a reset link.</p>
-                </div>
-                <form @submit.prevent="forgotPassword">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-gray-300 text-sm mb-1">Email</label>
-                            <input
-                                type="email"
-                                x-model="email"
-                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                                placeholder="you@company.com"
-                                required>
+                <!-- Forgot Password Form -->
+                <div x-show="mode === 'forgot'">
+                    <div style="margin-bottom:24px;">
+                        <button @click="mode = 'login'; error = ''; success = ''" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;margin-bottom:16px;">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            BACK
+                        </button>
+                        <h2 style="color:#fff;font-size:24px;font-weight:600;margin-bottom:8px;letter-spacing:-0.02em;">Reset password</h2>
+                        <p style="color:rgba(255,255,255,0.4);font-size:14px;">Enter your email and we'll send you a reset link.</p>
+                    </div>
+                    <form @submit.prevent="forgotPassword">
+                        <div style="margin-bottom:20px;">
+                            <label class="ar-label">Email</label>
+                            <input type="email" x-model="email" class="ar-input" placeholder="you@company.com" required>
                         </div>
-                        <button
-                            type="submit"
-                            :disabled="loading"
-                            class="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white rounded transition-colors">
+                        <button type="submit" :disabled="loading" class="ar-btn-primary">
                             <span x-show="!loading">Send Reset Link</span>
-                            <span x-show="loading">Sending...</span>
+                            <span x-show="loading" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="animation:spin 1s linear infinite;">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="32 32"/>
+                                </svg>
+                                Sending...
+                            </span>
                         </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Reset Password Form (with token) -->
-            <div x-show="mode === 'reset'">
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-white">Set a new password</h3>
-                    <p class="text-gray-400 text-sm mt-1">Enter your new password below.</p>
+                    </form>
                 </div>
-                <form @submit.prevent="resetPassword">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-gray-300 text-sm mb-1">New Password</label>
-                            <input
-                                type="password"
-                                x-model="newPassword"
-                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                                placeholder="Min 8 characters"
-                                minlength="8"
-                                required>
-                        </div>
-                        <div>
-                            <label class="block text-gray-300 text-sm mb-1">Confirm Password</label>
-                            <input
-                                type="password"
-                                x-model="confirmPassword"
-                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:border-blue-500"
-                                placeholder="Confirm your password"
-                                minlength="8"
-                                required>
-                        </div>
-                        <button
-                            type="submit"
-                            :disabled="loading"
-                            class="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white rounded transition-colors">
-                            <span x-show="!loading">Reset Password</span>
-                            <span x-show="loading">Resetting...</span>
-                        </button>
+
+                <!-- Reset Password Form -->
+                <div x-show="mode === 'reset'">
+                    <div style="margin-bottom:24px;">
+                        <h2 style="color:#fff;font-size:24px;font-weight:600;margin-bottom:8px;letter-spacing:-0.02em;">New password</h2>
+                        <p style="color:rgba(255,255,255,0.4);font-size:14px;">Enter your new password below.</p>
                     </div>
-                </form>
+                    <form @submit.prevent="resetPassword">
+                        <div style="margin-bottom:20px;">
+                            <label class="ar-label">New Password</label>
+                            <input type="password" x-model="newPassword" class="ar-input" placeholder="Min 8 characters" minlength="8" required>
+                        </div>
+                        <div style="margin-bottom:28px;">
+                            <label class="ar-label">Confirm Password</label>
+                            <input type="password" x-model="confirmPassword" class="ar-input" placeholder="Confirm your password" minlength="8" required>
+                        </div>
+                        <button type="submit" :disabled="loading" class="ar-btn-primary">
+                            <span x-show="!loading">Reset Password</span>
+                            <span x-show="loading" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="animation:spin 1s linear infinite;">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="32 32"/>
+                                </svg>
+                                Resetting...
+                            </span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Footer -->
+                <p style="text-align:center;color:rgba(255,255,255,0.2);font-size:12px;margin-top:28px;font-family:'JetBrains Mono',monospace;">
+                    Protected by AgentRails Security
+                </p>
             </div>
         </div>
-
-        <!-- Footer -->
-        <p class="text-center text-gray-500 text-sm mt-6">
-            Powered by <a href="https://agentrails.io" class="text-blue-400 hover:underline">AgentRails</a>
-        </p>
     </div>
 
     <script>
+        // Particle background
+        (function() {
+            const canvas = document.getElementById('particleCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const PARTICLE_COUNT = 60;
+
+            function resize() {
+                canvas.width = canvas.offsetWidth * 2;
+                canvas.height = canvas.offsetHeight * 2;
+                ctx.scale(2, 2);
+            }
+            resize();
+            window.addEventListener('resize', () => {
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                resize();
+            });
+
+            class Particle {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * canvas.offsetWidth;
+                    this.y = Math.random() * canvas.offsetHeight;
+                    this.vx = (Math.random() - 0.5) * 0.4;
+                    this.vy = (Math.random() - 0.5) * 0.4;
+                    this.radius = Math.random() * 1.5 + 0.5;
+                    this.opacity = Math.random() * 0.5 + 0.1;
+                }
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    if (this.x < 0 || this.x > canvas.offsetWidth) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.offsetHeight) this.vy *= -1;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(99, 225, 209, ${this.opacity})`;
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+
+            function drawLines() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 120) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(99, 225, 209, ${0.08 * (1 - dist / 120)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+                particles.forEach(p => { p.update(); p.draw(); });
+                drawLines();
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+
+        // Login app
         function loginApp() {
             return {
                 mode: 'login',
@@ -234,12 +554,13 @@
                 error: '',
                 success: '',
                 loading: false,
+                showPassword: false,
+                remember: false,
                 resetToken: '',
                 newPassword: '',
                 confirmPassword: '',
 
                 init() {
-                    // Check for reset token in URL
                     const params = new URLSearchParams(window.location.search);
                     const token = params.get('reset_token');
                     if (token) {
@@ -257,25 +578,14 @@
                         const response = await fetch(CONFIG.API_BASE_URL + '/api/auth/login', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                email: this.email,
-                                password: this.password
-                            })
+                            body: JSON.stringify({ email: this.email, password: this.password })
                         });
-
                         const data = await response.json();
+                        if (!response.ok) { this.error = data.error || 'Login failed'; return; }
 
-                        if (!response.ok) {
-                            this.error = data.error || 'Login failed';
-                            return;
-                        }
-
-                        // Store tokens
                         localStorage.setItem('accessToken', data.accessToken);
                         localStorage.setItem('refreshToken', data.refreshToken);
                         localStorage.setItem('user', JSON.stringify(data.user));
-
-                        // Redirect to dashboard
                         window.location.href = CONFIG.DASHBOARD_URL;
                     } catch (err) {
                         this.error = 'Network error. Please try again.';
@@ -300,20 +610,12 @@
                                 organizationName: this.orgName
                             })
                         });
-
                         const data = await response.json();
+                        if (!response.ok) { this.error = data.error || 'Registration failed'; return; }
 
-                        if (!response.ok) {
-                            this.error = data.error || 'Registration failed';
-                            return;
-                        }
-
-                        // Store tokens
                         localStorage.setItem('accessToken', data.accessToken);
                         localStorage.setItem('refreshToken', data.refreshToken);
                         localStorage.setItem('user', JSON.stringify(data.user));
-
-                        // Redirect to dashboard
                         window.location.href = CONFIG.DASHBOARD_URL;
                     } catch (err) {
                         this.error = 'Network error. Please try again.';
@@ -333,20 +635,12 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email: this.email })
                         });
-
                         const data = await response.json();
+                        if (!response.ok) { this.error = data.error || 'Failed to send reset email'; return; }
 
-                        if (!response.ok) {
-                            this.error = data.error || 'Failed to send reset email';
-                            return;
-                        }
-
-                        // Dev mode: API returns the reset link directly
                         if (data.resetLink) {
                             this.success = 'Reset link generated! Redirecting...';
-                            setTimeout(() => {
-                                window.location.href = data.resetLink;
-                            }, 1000);
+                            setTimeout(() => { window.location.href = data.resetLink; }, 1000);
                         } else {
                             this.success = 'If an account exists with this email, you will receive a password reset link shortly.';
                             this.email = '';
@@ -361,34 +655,19 @@
                 async resetPassword() {
                     this.error = '';
                     this.success = '';
-
-                    if (this.newPassword !== this.confirmPassword) {
-                        this.error = 'Passwords do not match';
-                        return;
-                    }
-
+                    if (this.newPassword !== this.confirmPassword) { this.error = 'Passwords do not match'; return; }
                     this.loading = true;
 
                     try {
                         const response = await fetch(CONFIG.API_BASE_URL + '/api/auth/reset-password', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                token: this.resetToken,
-                                newPassword: this.newPassword
-                            })
+                            body: JSON.stringify({ token: this.resetToken, newPassword: this.newPassword })
                         });
-
                         const data = await response.json();
+                        if (!response.ok) { this.error = data.error || 'Failed to reset password'; return; }
 
-                        if (!response.ok) {
-                            this.error = data.error || 'Failed to reset password';
-                            return;
-                        }
-
-                        // Clear token from URL
                         window.history.replaceState({}, document.title, CONFIG.LOGIN_URL);
-
                         this.success = 'Password reset successfully. You can now sign in.';
                         this.mode = 'login';
                         this.resetToken = '';
