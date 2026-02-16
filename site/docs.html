@@ -160,30 +160,42 @@
                 <section id="quickstart" class="mb-16">
                     <h2 class="text-2xl font-bold mb-4">Quick Start</h2>
                     <p class="text-gray-600 mb-6">
-                        Get started with x402 payments in three steps. This guide uses our sandbox environment with test USDC.
+                        Walk through the full API flow in 8 steps. All commands target the free sandbox environment at <code class="bg-gray-100 px-2 py-1 rounded">sandbox.agentrails.io</code>.
                     </p>
 
                     <div class="space-y-8">
-                        <!-- Step 1 -->
+                        <!-- Step 1: Sign Up -->
                         <div class="bg-white rounded-xl border border-gray-200 p-6">
                             <div class="flex items-center gap-3 mb-4">
                                 <span class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm">1</span>
-                                <h3 class="text-lg font-semibold">Try a Protected Endpoint</h3>
+                                <h3 class="text-lg font-semibold">Sign Up</h3>
                             </div>
-                            <p class="text-gray-600 mb-4">Call our sandbox API without payment - you'll get a 402 response with pricing info:</p>
+                            <p class="text-gray-600 mb-4">Create a free sandbox account. You'll get an API key back immediately:</p>
                             <div class="code-block rounded-lg p-4 overflow-x-auto">
-                                <pre class="text-sm font-mono text-gray-300">curl -i https://sandbox.agentrails.io/api/x402/protected/data</pre>
+                                <pre class="text-sm font-mono text-gray-300">curl -X POST https://sandbox.agentrails.io/api/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email": "you@example.com", "password": "YourPassword123!"}'</pre>
                             </div>
-                            <p class="text-sm text-gray-500 mt-3">Response: <code class="bg-gray-100 px-2 py-1 rounded">402 Payment Required</code> with <code class="bg-gray-100 px-2 py-1 rounded">X-PAYMENT-REQUIRED</code> header</p>
+                            <div class="mt-4 bg-gray-50 rounded-lg p-4">
+                                <pre class="text-sm font-mono text-gray-700">{
+  "success": true,
+  "email": "you@example.com",
+  "tier": "sandbox",
+  "apiKey": "ar_test_abc123...",
+  "environment": "testnet",
+  "message": "Sandbox account created."
+}</pre>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-3">Save the <code class="bg-gray-100 px-2 py-1 rounded">apiKey</code> value — you'll need it for authenticated requests below.</p>
                         </div>
 
-                        <!-- Step 2 -->
+                        <!-- Step 2: Check Pricing -->
                         <div class="bg-white rounded-xl border border-gray-200 p-6">
                             <div class="flex items-center gap-3 mb-4">
                                 <span class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm">2</span>
                                 <h3 class="text-lg font-semibold">Check Pricing</h3>
                             </div>
-                            <p class="text-gray-600 mb-4">Get the pricing for all protected endpoints:</p>
+                            <p class="text-gray-600 mb-4">This is a public endpoint — no auth needed. See what protected endpoints cost:</p>
                             <div class="code-block rounded-lg p-4 overflow-x-auto">
                                 <pre class="text-sm font-mono text-gray-300">curl https://sandbox.agentrails.io/api/x402/pricing</pre>
                             </div>
@@ -202,19 +214,88 @@
                             </div>
                         </div>
 
-                        <!-- Step 3 -->
+                        <!-- Step 3: Hit a Protected Endpoint -->
                         <div class="bg-white rounded-xl border border-gray-200 p-6">
                             <div class="flex items-center gap-3 mb-4">
                                 <span class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm">3</span>
-                                <h3 class="text-lg font-semibold">Make a Payment</h3>
+                                <h3 class="text-lg font-semibold">Hit a Protected Endpoint</h3>
                             </div>
-                            <p class="text-gray-600 mb-4">Use our test endpoint to simulate a payment (sandbox only):</p>
+                            <p class="text-gray-600 mb-4">Call a paid endpoint without paying — you'll get a <code class="bg-gray-100 px-2 py-1 rounded">402 Payment Required</code> response:</p>
                             <div class="code-block rounded-lg p-4 overflow-x-auto">
-                                <pre class="text-sm font-mono text-gray-300">curl -X POST https://sandbox.agentrails.io/api/x402/test/execute-payment \
-  -H "Content-Type: application/json" \
-  -d '{"endpoint": "/api/x402/protected/data"}'</pre>
+                                <pre class="text-sm font-mono text-gray-300">curl -i https://sandbox.agentrails.io/api/x402/protected/analysis</pre>
                             </div>
-                            <p class="text-sm text-gray-500 mt-3">In production, your agent signs an EIP-3009 authorization and includes it in the <code class="bg-gray-100 px-2 py-1 rounded">X-PAYMENT</code> header.</p>
+                            <p class="text-sm text-gray-500 mt-3">The response includes an <code class="bg-gray-100 px-2 py-1 rounded">X-PAYMENT-REQUIRED</code> header with the amount, recipient, and supported networks. In production, your agent reads this and signs a payment automatically.</p>
+                        </div>
+
+                        <!-- Step 4: Create an Agent -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm">4</span>
+                                <h3 class="text-lg font-semibold">Create an Agent</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Register an AI agent on the platform. Requires your API key:</p>
+                            <div class="code-block rounded-lg p-4 overflow-x-auto">
+                                <pre class="text-sm font-mono text-gray-300">curl -X POST https://sandbox.agentrails.io/api/agents \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: ar_test_YOUR_KEY_HERE" \
+  -d '{"name": "My Test Agent", "description": "Testing the API"}'</pre>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-3">Replace <code class="bg-gray-100 px-2 py-1 rounded">ar_test_YOUR_KEY_HERE</code> with the API key from Step 1.</p>
+                        </div>
+
+                        <!-- Step 5: Execute a Test Payment -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm">5</span>
+                                <h3 class="text-lg font-semibold">Execute a Test Payment</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Simulate a payment in sandbox (no real funds). The amount is passed as a query parameter:</p>
+                            <div class="code-block rounded-lg p-4 overflow-x-auto">
+                                <pre class="text-sm font-mono text-gray-300">curl -X POST "https://sandbox.agentrails.io/api/x402/test/execute-payment?amountUsdc=0.01" \
+  -H "X-API-Key: ar_test_YOUR_KEY_HERE"</pre>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-3">In production, your agent signs an EIP-3009 authorization and includes it in the <code class="bg-gray-100 px-2 py-1 rounded">X-PAYMENT</code> header instead.</p>
+                        </div>
+
+                        <!-- Step 6: Check Payment History -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm">6</span>
+                                <h3 class="text-lg font-semibold">Check Payment History</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">See all payments recorded against your account:</p>
+                            <div class="code-block rounded-lg p-4 overflow-x-auto">
+                                <pre class="text-sm font-mono text-gray-300">curl https://sandbox.agentrails.io/api/x402/payments \
+  -H "X-API-Key: ar_test_YOUR_KEY_HERE"</pre>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-3">Returns an array of payment objects with amount, status, network, and timestamps.</p>
+                        </div>
+
+                        <!-- Step 7: Check Stats -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold text-sm">7</span>
+                                <h3 class="text-lg font-semibold">Check Stats</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Get aggregate stats for your payment activity:</p>
+                            <div class="code-block rounded-lg p-4 overflow-x-auto">
+                                <pre class="text-sm font-mono text-gray-300">curl https://sandbox.agentrails.io/api/x402/stats \
+  -H "X-API-Key: ar_test_YOUR_KEY_HERE"</pre>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-3">Returns total payments, volume, success rate, and per-network breakdowns.</p>
+                        </div>
+
+                        <!-- Step 8: Log into Dashboard -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-semibold text-sm">8</span>
+                                <h3 class="text-lg font-semibold">Log into the Dashboard</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">See everything in a web UI. Log in with the same email and password you used in Step 1:</p>
+                            <div class="code-block rounded-lg p-4 overflow-x-auto">
+                                <pre class="text-sm font-mono text-gray-300">open https://app.agentrails.io</pre>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-3">The dashboard shows your agents, payments, stats, and API keys — all synced across sandbox and production.</p>
                         </div>
                     </div>
                 </section>
@@ -531,9 +612,9 @@ result = crew.kickoff()</pre>
                         <h3 class="font-semibold mb-4">Create Sandbox Account</h3>
                         <p class="text-gray-600 mb-4">Create a free account with testnet API access:</p>
                         <div class="code-block rounded-lg p-4 overflow-x-auto">
-                            <pre class="text-sm font-mono text-gray-300">curl -X POST "https://api.agentrails.io/api/signup" \
+                            <pre class="text-sm font-mono text-gray-300">curl -X POST "https://sandbox.agentrails.io/api/signup" \
   -H "Content-Type: application/json" \
-  -d '{"email": "developer@example.com"}'</pre>
+  -d '{"email": "developer@example.com", "password": "SecurePass123!"}'</pre>
                         </div>
                         <div class="mt-4 bg-gray-50 rounded-lg p-4">
                             <pre class="text-sm font-mono text-gray-700">{
@@ -549,11 +630,10 @@ result = crew.kickoff()</pre>
 
                     <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
                         <h3 class="font-semibold mb-4">Upgrade to Pay-as-you-go</h3>
-                        <p class="text-gray-600 mb-4">Upgrade to mainnet access with 0.5% transaction fees:</p>
+                        <p class="text-gray-600 mb-4">Upgrade to mainnet access with 0.5% transaction fees. Requires a JWT token (login first via <code class="bg-gray-100 px-2 py-1 rounded">/api/auth/login</code>):</p>
                         <div class="code-block rounded-lg p-4 overflow-x-auto">
                             <pre class="text-sm font-mono text-gray-300">curl -X POST "https://api.agentrails.io/api/signup/upgrade" \
-  -H "Content-Type: application/json" \
-  -d '{"email": "developer@example.com"}'</pre>
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"</pre>
                         </div>
                         <div class="mt-4 bg-gray-50 rounded-lg p-4">
                             <pre class="text-sm font-mono text-gray-700">{
@@ -569,9 +649,10 @@ result = crew.kickoff()</pre>
 
                     <div class="bg-white rounded-xl border border-gray-200 p-6">
                         <h3 class="font-semibold mb-4">Check Account Status</h3>
-                        <p class="text-gray-600 mb-4">Get current tier and API key info:</p>
+                        <p class="text-gray-600 mb-4">Get current tier and API key info. Requires JWT auth:</p>
                         <div class="code-block rounded-lg p-4 overflow-x-auto">
-                            <pre class="text-sm font-mono text-gray-300">curl "https://api.agentrails.io/api/signup/status?email=developer@example.com"</pre>
+                            <pre class="text-sm font-mono text-gray-300">curl "https://api.agentrails.io/api/signup/status" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"</pre>
                         </div>
                         <div class="mt-4 bg-gray-50 rounded-lg p-4">
                             <pre class="text-sm font-mono text-gray-700">{
@@ -635,9 +716,10 @@ result = crew.kickoff()</pre>
 
                     <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
                         <h3 class="font-semibold mb-4">Get Usage by Email</h3>
-                        <p class="text-gray-600 mb-4">Check usage for any account (public endpoint):</p>
+                        <p class="text-gray-600 mb-4">Check usage for a specific account. Requires API key auth:</p>
                         <div class="code-block rounded-lg p-4 overflow-x-auto">
-                            <pre class="text-sm font-mono text-gray-300">curl "https://api.agentrails.io/api/billing/usage/developer@example.com?days=30"</pre>
+                            <pre class="text-sm font-mono text-gray-300">curl "https://api.agentrails.io/api/billing/usage/developer@example.com?days=30" \
+  -H "X-API-Key: ar_live_your_key_here"</pre>
                         </div>
                     </div>
 
@@ -677,7 +759,7 @@ result = crew.kickoff()</pre>
                             <ul class="text-sm space-y-1">
                                 <li><a href="https://app.agentrails.io" target="_blank" class="text-primary-600 hover:underline">Dashboard Home</a></li>
                                 <li><a href="https://sandbox.agentrails.io/swagger" target="_blank" class="text-primary-600 hover:underline">Sandbox API</a></li>
-                                <li><a href="https://api.agentrails.io/swagger" target="_blank" class="text-primary-600 hover:underline">Production API</a></li>
+                                <li><span class="text-gray-500">Production API — auth required (no public Swagger)</span></li>
                             </ul>
                         </div>
                     </div>
