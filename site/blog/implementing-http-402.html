@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We Implemented HTTP 402 For Real: How AI Agents Pay for APIs - AgentRails</title>
+    <meta name="description" content="HTTP 402 Payment Required has been reserved since 1997. We implemented it for real using EIP-3009 and USDC to let AI agents pay for API access per-request.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="We Implemented HTTP 402 For Real: How AI Agents Pay for APIs">
+    <meta property="og:description" content="HTTP 402 has been reserved since 1997. AI agents finally gave it a reason to exist. Here's how we built it.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://agentrails.io/blog/implementing-http-402.html">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="We Implemented HTTP 402 For Real: How AI Agents Pay for APIs">
+    <meta name="twitter:description" content="HTTP 402 has been reserved since 1997. AI agents finally gave it a reason to exist. Here's how we built it.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    typography: {
+                        DEFAULT: {
+                            css: {
+                                maxWidth: 'none',
+                                color: '#374151',
+                                h2: {
+                                    fontWeight: '600',
+                                    marginTop: '2em',
+                                    marginBottom: '1em',
+                                },
+                                h3: {
+                                    fontWeight: '600',
+                                    marginTop: '1.5em',
+                                    marginBottom: '0.5em',
+                                },
+                                blockquote: {
+                                    borderLeftColor: '#6366f1',
+                                    backgroundColor: '#eef2ff',
+                                    padding: '1rem',
+                                    borderRadius: '0.5rem',
+                                    fontStyle: 'normal',
+                                },
+                                'blockquote p:first-of-type::before': {
+                                    content: 'none',
+                                },
+                                'blockquote p:last-of-type::after': {
+                                    content: 'none',
+                                },
+                                pre: {
+                                    backgroundColor: '#1f2937',
+                                    color: '#e5e7eb',
+                                    borderRadius: '0.75rem',
+                                    padding: '1.25rem',
+                                    overflowX: 'auto',
+                                },
+                                code: {
+                                    backgroundColor: '#f3f4f6',
+                                    padding: '0.2em 0.4em',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.875em',
+                                    fontWeight: '500',
+                                },
+                                'pre code': {
+                                    backgroundColor: 'transparent',
+                                    padding: '0',
+                                    fontSize: '0.875em',
+                                },
+                                table: {
+                                    fontSize: '0.9em',
+                                },
+                                'thead th': {
+                                    fontWeight: '600',
+                                    borderBottomWidth: '2px',
+                                },
+                            },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Tailwind Typography -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                </a>
+
+                <div class="flex items-center gap-6">
+                    <a href="/blog/" class="text-primary-600 font-medium">Blog</a>
+                    <a href="/docs.html" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="https://sandbox.agentrails.io" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Try Sandbox
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="pt-24 pb-16">
+        <header class="bg-white border-b border-gray-100 py-12">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6">
+                <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                    <time datetime="2026-02-17">February 17, 2026</time>
+                    <span>&middot;</span>
+                    <span>12 min read</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
+                    We Implemented HTTP 402 For Real: How AI Agents Pay for APIs
+                </h1>
+                <p class="text-xl text-gray-600">
+                    HTTP 402 Payment Required has been "reserved for future use" since 1997. Twenty-nine years later, AI agents finally gave it a reason to exist.
+                </p>
+            </div>
+        </header>
+
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+            <div class="prose prose-lg">
+
+                <h2>The Problem</h2>
+
+                <p>
+                    AI agents are getting good at using APIs. But every API has the same onboarding friction: create an account, get an API key, set up billing, manage credentials. A human has to do all of this before the agent can make its first request.
+                </p>
+
+                <p>
+                    This doesn't scale. If an agent needs data from 50 different APIs, someone has to sign up for 50 services. And if the agent discovers a new API mid-task? It's stuck.
+                </p>
+
+                <h2>The Protocol: x402</h2>
+
+                <p>
+                    x402 is simple. It uses HTTP the way HTTP was designed:
+                </p>
+
+                <ol>
+                    <li><strong>Agent requests a resource</strong> &mdash; standard GET/POST</li>
+                    <li><strong>Server returns 402</strong> &mdash; with an <code>X-PAYMENT-REQUIRED</code> header containing: amount, recipient address, supported networks, USDC contract addresses</li>
+                    <li><strong>Agent signs a payment</strong> &mdash; EIP-3009 <code>transferWithAuthorization</code> (gasless for the payer)</li>
+                    <li><strong>Agent retries with payment proof</strong> &mdash; <code>X-PAYMENT</code> header contains the signed authorization</li>
+                    <li><strong>Server verifies, settles, returns data</strong> &mdash; <code>X-PAYMENT-RESPONSE</code> header contains the transaction hash</li>
+                </ol>
+
+                <p>
+                    No API keys. No subscriptions. No accounts. The agent has a wallet with USDC and a budget. That's it.
+                </p>
+
+                <h2>Why EIP-3009?</h2>
+
+                <p>
+                    The key insight is EIP-3009's <code>transferWithAuthorization</code>. Unlike a normal ERC-20 transfer, the payer doesn't submit a transaction &mdash; they just sign a message authorizing the transfer. The recipient (or a facilitator) submits it.
+                </p>
+
+                <p>
+                    This means:
+                </p>
+
+                <ul>
+                    <li><strong>The agent doesn't need ETH for gas</strong> &mdash; just USDC</li>
+                    <li><strong>The signature is verifiable off-chain</strong> &mdash; the server can check it before settling</li>
+                    <li><strong>Settlement is atomic</strong> &mdash; verify the signature, submit the transaction, return data</li>
+                </ul>
+
+                <p>
+                    Here's what the payment header looks like (base64-decoded):
+                </p>
+
+<pre><code>{
+  "version": "x402-v2",
+  "amount": "10000",
+  "asset": "0x3600000000000000000000000000000000000000",
+  "payTo": "0x6255d8dd3f84ec460fc8b07db58ab06384a2f487",
+  "network": "arc-testnet",
+  "resource": "/api/x402/protected/analysis",
+  "description": "Premium AI Analysis",
+  "mimeType": "application/json",
+  "maxTimeoutSeconds": 30
+}</code></pre>
+
+                <p>
+                    Amount is in USDC's smallest unit (6 decimals), so 10000 = $0.01.
+                </p>
+
+                <h2>The Server Side</h2>
+
+                <p>
+                    We built this as ASP.NET Core middleware. Protecting an endpoint is one line:
+                </p>
+
+<pre><code>[X402Payment(0.01, Description = "Premium API call")]
+[HttpGet("premium")]
+public IActionResult Premium()
+{
+    var payer = HttpContext.GetX402Payer();
+    return Ok(new { data = "Premium content", payer });
+}</code></pre>
+
+                <p>
+                    The <code>X402PaymentFilter</code> intercepts the request before your controller runs:
+                </p>
+
+                <ol>
+                    <li>No <code>X-PAYMENT</code> header? Return 402 with requirements.</li>
+                    <li>Has header? Decode the base64 payload.</li>
+                    <li>Verify the EIP-3009 signature (EIP-712 typed data hashing + ECDSA recovery).</li>
+                    <li>Check the amount matches the endpoint price.</li>
+                    <li>Submit the <code>transferWithAuthorization</code> transaction on-chain.</li>
+                    <li>Wait for confirmation.</li>
+                    <li>Set <code>X-PAYMENT-RESPONSE</code> header with the transaction hash.</li>
+                    <li>Let the request proceed to your controller.</li>
+                </ol>
+
+                <p>
+                    All of this happens in middleware. Your endpoint code doesn't know about payments.
+                </p>
+
+                <h2>The Agent Side</h2>
+
+                <p>
+                    We built SDKs for LangChain and CrewAI that handle the 402 flow automatically:
+                </p>
+
+<pre><code>from langchain_x402 import X402Wallet, X402PaymentTool
+
+wallet = X402Wallet(
+    private_key=os.environ["WALLET_PRIVATE_KEY"],
+    network="base-sepolia",
+    budget_usd=5.00
+)
+
+tool = X402PaymentTool(wallet=wallet)</code></pre>
+
+                <p>
+                    When the tool makes a request and gets a 402:
+                </p>
+
+                <ol>
+                    <li>Parse the <code>X-PAYMENT-REQUIRED</code> header</li>
+                    <li>Check if the amount is within budget</li>
+                    <li>Sign the EIP-3009 authorization using <code>eth-account</code></li>
+                    <li>Retry the request with the <code>X-PAYMENT</code> header</li>
+                    <li>Return the response to the agent</li>
+                </ol>
+
+                <p>
+                    The agent just sees: "I requested data, I got data." The payment is invisible.
+                </p>
+
+                <h2>Multi-Chain: Not Just Base</h2>
+
+                <p>
+                    Stripe's x402 implementation is Base-only. We support multiple networks because different use cases need different chains:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Network</th>
+                            <th>Chain ID</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Arc Testnet</td>
+                            <td>5042002</td>
+                            <td>Development (Circle Wallets API)</td>
+                        </tr>
+                        <tr>
+                            <td>Base Sepolia</td>
+                            <td>84532</td>
+                            <td>Development (on-chain)</td>
+                        </tr>
+                        <tr>
+                            <td>Base Mainnet</td>
+                            <td>8453</td>
+                            <td>Production (low fees)</td>
+                        </tr>
+                        <tr>
+                            <td>Ethereum Mainnet</td>
+                            <td>1</td>
+                            <td>Production (high security)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    The payment header includes <code>supportedNetworks</code>, so the agent can choose. In practice, Base mainnet wins on fees ($0.001 per settlement vs $2+ on Ethereum).
+                </p>
+
+                <h2>Trust: The Missing Layer</h2>
+
+                <p>
+                    EIP-3009 proves payment authorization. It doesn't prove the service is trustworthy. Before an agent pays $0.01 for "premium data," how does it know the data is worth anything?
+                </p>
+
+                <p>
+                    We built a lightweight trust layer:
+                </p>
+
+<pre><code>curl "https://sandbox.agentrails.io/api/trust/check?serviceUrl=https://api.example.com/data"</code></pre>
+
+                <p>
+                    Response:
+                </p>
+
+<pre><code>{
+  "trustScore": "high",
+  "registered": true,
+  "verified": true,
+  "stats": {
+    "totalPayments": 1247,
+    "settledPayments": 1223,
+    "successRate": 98.1
+  }
+}</code></pre>
+
+                <p>
+                    Trust scores are computed from: service registry verification + on-chain payment history. Simple, but sufficient for agents to make pay/don't-pay decisions.
+                </p>
+
+                <h2>Why This Matters Now</h2>
+
+                <p>
+                    Jordi Visser (macro investor, former CIO of Berard Capital) just published <a href="https://www.jordivisser.com/" target="_blank">"The SaaS Panic Is Just the Beginning of a Bigger Story"</a> arguing that AI agents are compressing competitive cycles from years to months. His thesis: when agents run 24/7 and institutions operate on quarterly clocks, you get a speed asymmetry that breaks traditional business models. His conclusion is striking:
+                </p>
+
+                <blockquote>
+                    <p>"Stablecoins and programmable money become the settlement layer for agent-to-agent commerce, the native rails for an economy where software doesn't just assist transactions but initiates them autonomously. In a machine-speed economy, money itself must move at machine speed."</p>
+                </blockquote>
+
+                <p>
+                    That's what x402 is. HTTP-native, machine-speed payments. No human in the loop. No quarterly invoice. No accounts receivable. Just: request, 402, pay, data.
+                </p>
+
+                <h2>The Economics</h2>
+
+                <p>
+                    Per-request pricing changes the math:
+                </p>
+
+                <ul>
+                    <li>A $0.01 API call costs the developer nothing to offer &mdash; the payment covers compute</li>
+                    <li>An agent making 1,000 requests/day spends $10 &mdash; cheaper than most API subscriptions</li>
+                    <li>The API provider gets paid per-use with zero billing infrastructure</li>
+                    <li>No free tier abuse &mdash; every request that costs money is paid for</li>
+                    <li>No SaaS subscription overhead &mdash; what Visser calls "Ozempic for corporate bloat"</li>
+                </ul>
+
+                <p>
+                    The numbers are already real. The bc1beat <a href="https://github.com/1bcMax/state-of-x402/blob/main/2026-january/State_of_x402_Jan2026.pdf" target="_blank">"State of x402" report</a> from January 2026 tracked 20M+ x402 transactions, 89% priced between $0.01 and $0.10. Base dominates with ~$35M in volume. Stripe just announced x402 support for USDC on Base. The protocol is gaining traction.
+                </p>
+
+                <p>
+                    At scale, this looks like: millions of agents making billions of micropayments per day. The infrastructure to route, verify, and settle those payments is what we're building.
+                </p>
+
+                <h2>Try It</h2>
+
+                <p>
+                    The sandbox is free and requires no signup:
+                </p>
+
+<pre><code># See pricing
+curl https://sandbox.agentrails.io/api/x402/pricing
+
+# See a 402 response
+curl -i https://sandbox.agentrails.io/api/x402/protected/analysis
+
+# Interactive API docs
+open https://sandbox.agentrails.io/swagger</code></pre>
+
+                <p>
+                    Everything is open source: <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank">github.com/kmatthewsio/AgenticCommerce</a>
+                </p>
+
+                <p>
+                    Agent SDKs: <code>pip install langchain-x402</code> / <code>pip install crewai-x402</code>
+                </p>
+
+                <p>
+                    <em>If you're building APIs that agents should pay for, or building agents that need to pay for APIs, I'd love to hear what you're working on.</em>
+                </p>
+
+                <div class="mt-12 p-6 bg-gradient-to-br from-primary-50 to-cyan-50 rounded-2xl border border-primary-100">
+                    <h3 class="text-lg font-semibold mb-2 mt-0">Try the sandbox</h3>
+                    <p class="mb-4 text-gray-600">Free x402 sandbox with Swagger UI. No signup required. See the full 402 payment flow in action.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="inline-block px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition">
+                            Open Sandbox
+                        </a>
+                        <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="inline-block px-6 py-3 bg-white text-gray-700 rounded-xl font-medium border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                            View Source
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </article>
+
+    <!-- More Articles -->
+    <section class="py-12 bg-white border-t border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <h2 class="text-2xl font-bold mb-8">More Articles</h2>
+            <div class="space-y-6">
+                <a href="/blog/the-missing-layer-in-every-agi-forecast.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 12, 2026</div>
+                    <div class="font-semibold text-gray-900">The Missing Layer in Every AGI Forecast</div>
+                </a>
+                <a href="/blog/elon-can-delete-the-coders-but-not-the-payment-rails.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 12, 2026</div>
+                    <div class="font-semibold text-gray-900">Elon Can Delete the Coders, But Not the Payment Rails</div>
+                </a>
+                <a href="/blog/what-is-x402.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">January 31, 2026</div>
+                    <div class="font-semibold text-gray-900">What is x402? The Protocol Powering AI Agent Payments</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-200 bg-white">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+            <p>&copy; 2026 AgentRails. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
