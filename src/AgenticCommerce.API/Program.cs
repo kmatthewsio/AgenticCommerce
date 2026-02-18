@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using AgenticCommerce.API.Middleware;
 using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Infrastructure.Agents;
@@ -9,6 +10,7 @@ using AgenticCommerce.Infrastructure.Payments;
 using AgenticCommerce.Infrastructure.Trust;
 using AgenticCommerce.Infrastructure.Billing;
 using DotNetEnv;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Resend;
 using Serilog;
@@ -56,6 +58,38 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
+});
+
+// ========================================
+// RATE LIMITING (60 req/min global, 10 req/min auth)
+// ========================================
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = 429;
+
+    options.AddFixedWindowLimiter("global", opt =>
+    {
+        opt.PermitLimit = 60;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueLimit = 0;
+    });
+
+    options.AddFixedWindowLimiter("auth", opt =>
+    {
+        opt.PermitLimit = 10;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueLimit = 0;
+    });
+
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 60,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
 });
 
 // ========================================
@@ -147,9 +181,10 @@ app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseTenantMiddleware(); // Still needed for extension methods
-app.MapControllers();
-app.MapHealthChecks("/health");
+app.UseRateLimiter();
 app.UseCors();
+app.MapControllers();
+app.MapHealthChecks("/health").DisableRateLimiting();
 
 
 try

@@ -5,6 +5,7 @@ using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
 using AgenticCommerce.Infrastructure.Email;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 
@@ -12,6 +13,7 @@ namespace AgenticCommerce.API.Controllers;
 
 [ApiController]
 [Route("api/signup")]
+[EnableRateLimiting("auth")]
 public class SignupController : ControllerBase
 {
     private readonly AgenticCommerceDbContext _db;
