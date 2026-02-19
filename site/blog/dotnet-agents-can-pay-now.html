@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>.NET Agents Can Pay Now: x402 Comes to Semantic Kernel - AgentRails</title>
+    <meta name="description" content="Every x402 payment SDK targets Python. We just shipped the first one for .NET. Here's why 7 million developers shouldn't have to switch languages to build agents that pay.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content=".NET Agents Can Pay Now: x402 Comes to Semantic Kernel">
+    <meta property="og:description" content="Every x402 payment SDK targets Python. We just shipped the first one for .NET. 7 million developers shouldn't have to switch languages to build agents that pay.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://agentrails.io/blog/dotnet-agents-can-pay-now.html">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content=".NET Agents Can Pay Now: x402 Comes to Semantic Kernel">
+    <meta name="twitter:description" content="Every x402 payment SDK targets Python. We just shipped the first one for .NET. 7 million developers shouldn't have to switch languages to build agents that pay.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    typography: {
+                        DEFAULT: {
+                            css: {
+                                maxWidth: 'none',
+                                color: '#374151',
+                                h2: {
+                                    fontWeight: '600',
+                                    marginTop: '2em',
+                                    marginBottom: '1em',
+                                },
+                                h3: {
+                                    fontWeight: '600',
+                                    marginTop: '1.5em',
+                                    marginBottom: '0.5em',
+                                },
+                                blockquote: {
+                                    borderLeftColor: '#6366f1',
+                                    backgroundColor: '#eef2ff',
+                                    padding: '1rem',
+                                    borderRadius: '0.5rem',
+                                    fontStyle: 'normal',
+                                },
+                                'blockquote p:first-of-type::before': {
+                                    content: 'none',
+                                },
+                                'blockquote p:last-of-type::after': {
+                                    content: 'none',
+                                },
+                                pre: {
+                                    backgroundColor: '#1f2937',
+                                    color: '#e5e7eb',
+                                    borderRadius: '0.75rem',
+                                    padding: '1.25rem',
+                                    overflowX: 'auto',
+                                },
+                                code: {
+                                    backgroundColor: '#f3f4f6',
+                                    padding: '0.2em 0.4em',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.875em',
+                                    fontWeight: '500',
+                                },
+                                'pre code': {
+                                    backgroundColor: 'transparent',
+                                    padding: '0',
+                                    fontSize: '0.875em',
+                                },
+                                table: {
+                                    fontSize: '0.9em',
+                                },
+                                'thead th': {
+                                    fontWeight: '600',
+                                    borderBottomWidth: '2px',
+                                },
+                            },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Tailwind Typography -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                </a>
+
+                <div class="flex items-center gap-6">
+                    <a href="/blog/" class="text-primary-600 font-medium">Blog</a>
+                    <a href="/docs.html" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="https://sandbox.agentrails.io" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Try Sandbox
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="pt-24 pb-16">
+        <header class="bg-white border-b border-gray-100 py-12">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6">
+                <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                    <time datetime="2026-02-19">February 19, 2026</time>
+                    <span>&middot;</span>
+                    <span>8 min read</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
+                    .NET Agents Can Pay Now: x402 Comes to Semantic Kernel
+                </h1>
+                <p class="text-xl text-gray-600">
+                    Every x402 payment tool targets Python. We just shipped the first one for .NET. Seven million developers shouldn't have to switch languages to build agents that pay.
+                </p>
+            </div>
+        </header>
+
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+            <div class="prose prose-lg">
+
+                <h2>The Gap Nobody Talks About</h2>
+
+                <p>
+                    Open any x402 tutorial. Open any agent payment guide. They all start the same way:
+                </p>
+
+<pre><code>pip install langchain-x402</code></pre>
+
+                <p>
+                    Python. Always Python. LangChain, CrewAI, AutoGen, OpenClaw&mdash;the entire AI agent ecosystem runs on Python. Which is fine, unless you're one of the 7 million developers building on .NET.
+                </p>
+
+                <p>
+                    Microsoft's Semantic Kernel is the most popular AI orchestration framework in the .NET world. It powers agents inside Teams, Copilot extensions, Azure AI services, and thousands of enterprise applications. It has <a href="https://github.com/microsoft/semantic-kernel" target="_blank">24,000+ GitHub stars</a> and deep integration with Azure OpenAI.
+                </p>
+
+                <p>
+                    But before today, if you wanted your Semantic Kernel agent to pay for an API using x402? You couldn't. There was literally zero integration. Not from Microsoft, not from the x402 community, not from anyone.
+                </p>
+
+                <h2>Why This Matters</h2>
+
+                <p>
+                    This isn't a language preference debate. It's a market access problem.
+                </p>
+
+                <p>
+                    85% of Fortune 500 companies run on Azure. Microsoft 365 has 450 million seats. .NET runs inside every bank, every hospital system, every government agency. These organizations don't run Python scripts&mdash;they run C# services behind enterprise firewalls.
+                </p>
+
+                <p>
+                    When these organizations build AI agents (and they are), they build them in C# with Semantic Kernel. If x402 doesn't work in that stack, it doesn't exist for them.
+                </p>
+
+                <blockquote>
+                    <p>
+                        The x402 ecosystem had 10 Python integrations and zero .NET integrations. That's not a technical limitation&mdash;it's a distribution gap.
+                    </p>
+                </blockquote>
+
+                <h2>The Plugin: AgentRails.SemanticKernel.X402</h2>
+
+<pre><code>dotnet add package AgentRails.SemanticKernel.X402</code></pre>
+
+                <p>
+                    One NuGet package. Three lines to configure. Your Semantic Kernel agent can now pay for any x402-enabled API.
+                </p>
+
+                <p>
+                    Here's the full setup:
+                </p>
+
+<pre><code>using AgentRails.SemanticKernel.X402;
+using AgentRails.SemanticKernel.X402.Extensions;
+using Microsoft.SemanticKernel;
+
+var builder = Kernel.CreateBuilder();
+builder.AddOpenAIChatCompletion("gpt-4o", apiKey);
+
+// Register x402 payment plugin
+builder.Services.AddX402Plugin(options =&gt;
+{
+    options.PrivateKey = Environment.GetEnvironmentVariable("WALLET_PRIVATE_KEY")!;
+    options.Network = "eip155:84532";  // Base Sepolia testnet
+    options.BudgetUsd = 5.00m;         // Max spend per session
+});
+builder.Plugins.AddFromType&lt;X402Plugin&gt;();
+
+var kernel = builder.Build();
+
+// Agent can now access any x402-protected API
+var result = await kernel.InvokePromptAsync(
+    "Get the analysis from https://sandbox.agentrails.io/api/x402/protected/analysis");
+Console.WriteLine(result);</code></pre>
+
+                <p>
+                    That's it. The agent requests the URL, gets a 402 response, the plugin signs a USDC payment authorization, retries with the payment proof, and returns the data. The agent never sees the payment mechanics.
+                </p>
+
+                <h2>What the Plugin Does</h2>
+
+                <p>
+                    The plugin exposes three functions to your AI agent via Semantic Kernel's <code>[KernelFunction]</code> system:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Function</th>
+                            <th>What It Does</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>make_paid_request</code></td>
+                            <td>Make an HTTP request. If the API returns 402, automatically sign a USDC payment and retry.</td>
+                        </tr>
+                        <tr>
+                            <td><code>check_budget</code></td>
+                            <td>Check wallet address, network, budget, spending, and remaining balance.</td>
+                        </tr>
+                        <tr>
+                            <td><code>get_payment_history</code></td>
+                            <td>Get a log of all payments made during the session.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    The LLM sees these as available tools. When it decides to call <code>make_paid_request</code>, the full x402 flow happens under the hood:
+                </p>
+
+                <ol>
+                    <li>Make the HTTP request</li>
+                    <li>If 200, return the response directly</li>
+                    <li>If 402, parse the <code>PAYMENT-REQUIRED</code> header</li>
+                    <li>Find a compatible payment option for the wallet's network</li>
+                    <li>Check the price against per-request limit and session budget</li>
+                    <li>Sign an EIP-3009 <code>TransferWithAuthorization</code> locally</li>
+                    <li>Retry with the <code>PAYMENT-SIGNATURE</code> header</li>
+                    <li>Return the response prefixed with payment details</li>
+                </ol>
+
+                <h2>Local Signing, No External Services</h2>
+
+                <p>
+                    The plugin signs payments locally using <a href="https://github.com/Nethereum/Nethereum" target="_blank">Nethereum</a>. Your private key never leaves the process. There's no Circle API dependency, no external signing service, no network calls beyond the actual API request.
+                </p>
+
+                <p>
+                    The signing uses EIP-712 typed structured data to construct an EIP-3009 <code>TransferWithAuthorization</code> message. This is the same standard used by USDC for gasless transfers&mdash;the payer signs an authorization, and the facilitator submits the on-chain transaction.
+                </p>
+
+<pre><code>// What happens inside SignPayment():
+// 1. Build EIP-712 domain separator (USDC contract, chain ID)
+// 2. Build struct hash (from, to, value, validAfter, validBefore, nonce)
+// 3. Compute digest: keccak256("\x19\x01" + domainSeparator + structHash)
+// 4. Sign with ECDSA using the wallet's private key
+// 5. Return (signature, nonce) — both hex-encoded</code></pre>
+
+                <p>
+                    The signature proves you authorized the transfer without actually moving funds. The API's facilitator verifies the signature and settles on-chain. If the facilitator doesn't settle, no money moves.
+                </p>
+
+                <h2>Budget Controls</h2>
+
+                <p>
+                    Giving an AI agent a wallet is dangerous without guardrails. The plugin has three layers of protection:
+                </p>
+
+                <p>
+                    <strong>Session budget.</strong> Set a total USD cap when you configure the plugin. Once the agent hits the limit, all further payment requests are rejected. Thread-safe&mdash;concurrent requests can't race past the budget.
+                </p>
+
+<pre><code>options.BudgetUsd = 5.00m;  // Hard cap for the session</code></pre>
+
+                <p>
+                    <strong>Per-request limit.</strong> A default maximum price per individual request. Even if the budget has room, the agent won't pay more than this for a single call.
+                </p>
+
+<pre><code>options.DefaultMaxPriceUsd = 1.00m;  // No single request costs more than $1</code></pre>
+
+                <p>
+                    <strong>AutoPay toggle.</strong> Set <code>AutoPay = false</code> and the plugin returns the payment requirements to the agent without signing. Useful for approval workflows or human-in-the-loop systems.
+                </p>
+
+<pre><code>options.AutoPay = false;
+// Agent sees: "Payment required: $0.01 USDC to 0x70997... Auto-pay is disabled."</code></pre>
+
+                <h2>Multi-Network Support</h2>
+
+                <p>
+                    The plugin supports five EVM networks out of the box:
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Network</th>
+                            <th>CAIP-2 ID</th>
+                            <th>Environment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Base Sepolia</td>
+                            <td><code>eip155:84532</code></td>
+                            <td>Testnet</td>
+                        </tr>
+                        <tr>
+                            <td>Ethereum Sepolia</td>
+                            <td><code>eip155:11155111</code></td>
+                            <td>Testnet</td>
+                        </tr>
+                        <tr>
+                            <td>Arc Testnet</td>
+                            <td><code>eip155:5042002</code></td>
+                            <td>Testnet</td>
+                        </tr>
+                        <tr>
+                            <td>Base</td>
+                            <td><code>eip155:8453</code></td>
+                            <td>Mainnet</td>
+                        </tr>
+                        <tr>
+                            <td>Ethereum</td>
+                            <td><code>eip155:1</code></td>
+                            <td>Mainnet</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    Network identifiers use CAIP-2 format, consistent with the x402 V2 spec. Legacy names like <code>"base-sepolia"</code> are accepted and normalized automatically.
+                </p>
+
+                <h2>x402 V2 Compliant</h2>
+
+                <p>
+                    The plugin implements the full x402 V2 protocol:
+                </p>
+
+                <ul>
+                    <li><strong>V2 headers:</strong> <code>PAYMENT-REQUIRED</code>, <code>PAYMENT-SIGNATURE</code>, <code>PAYMENT-RESPONSE</code></li>
+                    <li><strong>V1 backwards compatibility:</strong> reads legacy <code>X-PAYMENT-REQUIRED</code> and <code>X-PAYMENT-RESPONSE</code> headers</li>
+                    <li><strong>CAIP-2 network IDs:</strong> <code>eip155:8453</code> format</li>
+                    <li><strong>Multi-option accepts array:</strong> selects compatible network from server's offered payment options</li>
+                </ul>
+
+                <p>
+                    If a server only supports V1, the plugin still works. It reads V1 headers, but always sends V2 payment payloads. Forward-compatible by default.
+                </p>
+
+                <h2>DI-Native</h2>
+
+                <p>
+                    The plugin follows standard ASP.NET Core patterns. One extension method registers everything:
+                </p>
+
+<pre><code>// Lambda configuration
+builder.Services.AddX402Plugin(options =&gt;
+{
+    options.PrivateKey = "...";
+    options.Network = "eip155:84532";
+});
+
+// Or bind from appsettings.json
+builder.Services.AddX402Plugin(configuration.GetSection("X402"));</code></pre>
+
+                <p>
+                    The wallet is registered as a singleton (shared budget across all invocations), <code>HttpClient</code> uses <code>IHttpClientFactory</code> for proper lifecycle management, and the plugin itself is transient. Standard patterns that .NET developers expect.
+                </p>
+
+                <h2>32 Tests Passing</h2>
+
+                <p>
+                    The package ships with comprehensive test coverage:
+                </p>
+
+                <ul>
+                    <li><strong>9 signer tests</strong> &mdash; EIP-3009 signature format, determinism, cross-network, address derivation</li>
+                    <li><strong>12 wallet tests</strong> &mdash; budget tracking, payment history, thread safety under concurrency, unit conversion</li>
+                    <li><strong>11 plugin tests</strong> &mdash; full 402 flow with mocked HTTP, network mismatch, price limits, budget enforcement, V1 fallback, auto-pay toggle</li>
+                </ul>
+
+                <p>
+                    The signing implementation is ported from a proven test helper in our main AgenticCommerce codebase, where it's been running against real EIP-3009 verifiers on Base Sepolia.
+                </p>
+
+                <h2>The Bigger Picture</h2>
+
+                <p>
+                    x402 has 200+ projects in its ecosystem. Before today, all of them targeted Python or JavaScript. The entire .NET developer population&mdash;the people building the enterprise software that runs the world&mdash;was locked out.
+                </p>
+
+                <p>
+                    This isn't just about Semantic Kernel. Microsoft's <a href="https://devblogs.microsoft.com/semantic-kernel/microsofts-agentic-frameworks-autogen-semantic-kernel-and-more/" target="_blank">Agent Framework</a> is converging Semantic Kernel and AutoGen into a unified agent platform. Building on Semantic Kernel today means building on the foundation that Microsoft's entire agent strategy runs on.
+                </p>
+
+                <p>
+                    When those enterprise agents need to pay for data, for compute, for third-party intelligence&mdash;they'll need x402. And now they have it.
+                </p>
+
+                <h2>Get Started</h2>
+
+<pre><code>dotnet add package AgentRails.SemanticKernel.X402</code></pre>
+
+                <ul>
+                    <li><a href="https://www.nuget.org/packages/AgentRails.SemanticKernel.X402" target="_blank">NuGet package</a></li>
+                    <li><a href="https://github.com/kmatthewsio/semantickernel-x402" target="_blank">GitHub source</a></li>
+                    <li><a href="https://agentrails.io/docs.html#client-side" target="_blank">Documentation</a></li>
+                    <li><a href="https://sandbox.agentrails.io/swagger" target="_blank">Sandbox</a> &mdash; test against a live x402 API, no signup required</li>
+                </ul>
+
+                <p>
+                    We also have Python SDKs for <a href="https://pypi.org/project/langchain-x402/" target="_blank">LangChain</a> and <a href="https://pypi.org/project/crewai-x402/" target="_blank">CrewAI</a> if that's your stack.
+                </p>
+
+                <p>
+                    <em>If you're building .NET agents that need to access paid APIs, or building APIs that agents should pay for, I'd like to hear what you're working on: <a href="mailto:sales@agentrails.io">sales@agentrails.io</a></em>
+                </p>
+
+                <div class="mt-12 p-6 bg-gradient-to-br from-primary-50 to-cyan-50 rounded-2xl border border-primary-100">
+                    <h3 class="text-lg font-semibold mb-2 mt-0">Try it now</h3>
+                    <p class="mb-4 text-gray-600">Test against a live x402 API. The sandbox returns a 402 response with real payment requirements. No signup, no API key.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="inline-block px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition">
+                            Open Sandbox
+                        </a>
+                        <a href="https://github.com/kmatthewsio/semantickernel-x402" target="_blank" class="inline-block px-6 py-3 bg-white text-gray-700 rounded-xl font-medium border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                            View Source
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </article>
+
+    <!-- More Articles -->
+    <section class="py-12 bg-white border-t border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <h2 class="text-2xl font-bold mb-8">More Articles</h2>
+            <div class="space-y-6">
+                <a href="/blog/implementing-http-402.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 17, 2026</div>
+                    <div class="font-semibold text-gray-900">We Implemented HTTP 402 For Real: How AI Agents Pay for APIs</div>
+                </a>
+                <a href="/blog/the-missing-layer-in-every-agi-forecast.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 12, 2026</div>
+                    <div class="font-semibold text-gray-900">The Missing Layer in Every AGI Forecast</div>
+                </a>
+                <a href="/blog/autonomous-crews-need-autonomous-payments.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 5, 2026</div>
+                    <div class="font-semibold text-gray-900">Autonomous Crews Need Autonomous Payments</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-200 bg-white">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+            <p>&copy; 2026 AgentRails. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
