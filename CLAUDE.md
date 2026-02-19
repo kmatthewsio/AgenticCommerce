@@ -71,10 +71,10 @@ src/
 ### x402 Flow
 
 1. Client requests protected resource
-2. Server returns 402 with `X-PAYMENT-REQUIRED` header (base64-encoded requirements)
+2. Server returns 402 with `PAYMENT-REQUIRED` header (base64-encoded requirements)
 3. Client signs EIP-3009 authorization
-4. Client retries with `X-PAYMENT` header containing signed payload
-5. Server verifies signature, settles on-chain, returns `X-PAYMENT-RESPONSE`
+4. Client retries with `PAYMENT-SIGNATURE` header containing signed payload
+5. Server verifies signature, settles on-chain, returns `PAYMENT-RESPONSE`
 
 ### Adding x402 to an Endpoint
 
@@ -93,9 +93,9 @@ public IActionResult Premium()
 
 ```csharp
 [X402Payment(0.01,
-    Network = "arc-testnet",
+    Network = "eip155:5042002",
     AllowMultipleNetworks = true,
-    AlternativeNetworks = "base-sepolia,ethereum-sepolia")]
+    AlternativeNetworks = "eip155:84532,eip155:11155111")]
 ```
 
 ## Arc Integration (Completed)
@@ -178,22 +178,22 @@ PostgreSQL with auto-migration on startup. Key tables:
 
 ## Networks Supported
 
-| Network | Chain ID | Environment |
-|---------|----------|-------------|
-| arc-testnet | 5042002 | Development |
-| arc-mainnet | TBD | Production |
-| base-sepolia | 84532 | Development |
-| base-mainnet | 8453 | Production |
-| ethereum-sepolia | 11155111 | Development |
-| ethereum-mainnet | 1 | Production |
+| Network ID (CAIP-2) | Chain ID | Environment |
+|---------------------|----------|-------------|
+| eip155:5042002 | 5042002 | Development |
+| eip155:0 | TBD | Production |
+| eip155:84532 | 84532 | Development |
+| eip155:8453 | 8453 | Production |
+| eip155:11155111 | 11155111 | Development |
+| eip155:1 | 1 | Production |
 
 ## Key Constants
 
 ```csharp
-// Headers
-X402Headers.PaymentRequired = "X-PAYMENT-REQUIRED"
-X402Headers.Payment = "X-PAYMENT"
-X402Headers.PaymentResponse = "X-PAYMENT-RESPONSE"
+// Headers (V2)
+X402Headers.PaymentRequired = "PAYMENT-REQUIRED"
+X402Headers.Payment = "PAYMENT-SIGNATURE"
+X402Headers.PaymentResponse = "PAYMENT-RESPONSE"
 
 // USDC has 6 decimals
 $0.01 = 10000 smallest units

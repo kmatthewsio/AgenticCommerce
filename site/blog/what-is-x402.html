@@ -144,12 +144,12 @@ Host: api.example.com</code></pre>
                     <strong>Step 2:</strong> Server returns 402 with payment requirements
                 </p>
                 <pre><code>HTTP/1.1 402 Payment Required
-X-PAYMENT-REQUIRED: eyJhbW91bnQiOiIxMDAwMCIsImFzc2V0Ijoi...
+PAYMENT-REQUIRED: eyJhbW91bnQiOiIxMDAwMCIsImFzc2V0Ijoi...
 
 {
   "amount": "10000",        // $0.01 in USDC (6 decimals)
   "asset": "USDC",
-  "network": "base-mainnet",
+  "network": "eip155:8453",
   "payTo": "0x1234...5678",
   "validUntil": 1706745600
 }</code></pre>
@@ -159,13 +159,13 @@ X-PAYMENT-REQUIRED: eyJhbW91bnQiOiIxMDAwMCIsImFzc2V0Ijoi...
                 </p>
                 <pre><code>GET /api/premium-data HTTP/1.1
 Host: api.example.com
-X-PAYMENT: eyJzaWduYXR1cmUiOiIweDEyMzQ1Njc4Li4uIiwiYXV0aCI6ey4uLn19</code></pre>
+PAYMENT-SIGNATURE: eyJzaWduYXR1cmUiOiIweDEyMzQ1Njc4Li4uIiwiYXV0aCI6ey4uLn19</code></pre>
 
                 <p>
                     <strong>Step 4:</strong> Server verifies the signature, settles on-chain, returns data
                 </p>
                 <pre><code>HTTP/1.1 200 OK
-X-PAYMENT-RESPONSE: {"txHash": "0xabc...def", "settled": true}
+PAYMENT-RESPONSE: {"txHash": "0xabc...def", "settled": true}
 
 {"data": "Your premium content here"}</code></pre>
 
