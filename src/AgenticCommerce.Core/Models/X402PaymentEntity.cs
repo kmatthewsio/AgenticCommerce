@@ -78,6 +78,13 @@ public class X402PaymentEntity
     public string RecipientAddress { get; set; } = string.Empty;
 
     /// <summary>
+    /// EIP-3009 nonce (for replay prevention)
+    /// </summary>
+    [Column("nonce")]
+    [MaxLength(100)]
+    public string? Nonce { get; set; }
+
+    /// <summary>
     /// Blockchain transaction hash
     /// </summary>
     [Column("transaction_hash")]

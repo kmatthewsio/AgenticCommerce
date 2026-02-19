@@ -346,6 +346,7 @@ public static class X402Assets
         // Testnets (free sandbox)
         [X402Networks.ArcTestnet] = "0x3600000000000000000000000000000000000000", // Arc native USDC
         [X402Networks.BaseSepolia] = "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        [X402Networks.EthereumSepolia] = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
         // Mainnets (production access required)
         [X402Networks.ArcMainnet] = "0x3600000000000000000000000000000000000000",
         [X402Networks.BaseMainnet] = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",

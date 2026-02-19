@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AgenticCommerce.API.Controllers;
 
+
+
 /// <summary>
 /// Trust layer endpoints for checking service reputation and managing the service registry
 /// </summary>
@@ -158,7 +160,7 @@ public class TrustController : ControllerBase
     }
 
     /// <summary>
-    /// Mark a service as verified (admin operation)
+    /// Mark a service as verified (admin operation — requires Trust:AdminToken)
     /// </summary>
     /// <remarks>
     /// Verification indicates that AgentRails has confirmed the service endpoint
@@ -166,9 +168,20 @@ public class TrustController : ControllerBase
     /// </remarks>
     [HttpPost("verify")]
     [ProducesResponseType(typeof(ServiceRegistryEntity), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ServiceRegistryEntity>> VerifyService([FromBody] VerifyServiceRequest request)
+    public async Task<ActionResult<ServiceRegistryEntity>> VerifyService(
+        [FromBody] VerifyServiceRequest request,
+        [FromServices] IConfiguration configuration)
     {
+        var adminToken = configuration["Trust:AdminToken"];
+        if (string.IsNullOrEmpty(adminToken))
+            return StatusCode(500, new { error = "Trust:AdminToken not configured" });
+
+        var providedToken = Request.Headers["X-Admin-Token"].FirstOrDefault();
+        if (providedToken != adminToken)
+            return Unauthorized(new { error = "Invalid or missing X-Admin-Token header" });
+
         if (string.IsNullOrWhiteSpace(request.ServiceUrl))
         {
             return BadRequest(new { error = "serviceUrl is required" });

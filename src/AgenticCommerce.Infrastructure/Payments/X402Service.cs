@@ -4,6 +4,7 @@ using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Blockchain;
 using AgenticCommerce.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -254,6 +255,24 @@ public class X402Service : IX402Service
         var amountUsdc = amountSmallestUnit / 1_000_000m;
         var paymentId = $"x402_{auth.Nonce}_{DateTime.UtcNow.Ticks}";
 
+        // Nonce replay prevention: reject if this nonce+network was already settled
+        if (!string.IsNullOrEmpty(auth.Nonce))
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AgenticCommerceDbContext>();
+            var nonceExists = await db.X402Payments.AnyAsync(
+                p => p.Nonce == auth.Nonce && p.Network == payload.Network);
+            if (nonceExists)
+            {
+                _logger.LogWarning("Nonce replay rejected: {Nonce} on {Network}", auth.Nonce, payload.Network);
+                return new X402SettleResponse
+                {
+                    Success = false,
+                    ErrorMessage = "Nonce already used"
+                };
+            }
+        }
+
         try
         {
             string? txHash = null;
@@ -308,6 +327,7 @@ public class X402Service : IX402Service
             await PersistPaymentAsync(new X402PaymentEntity
             {
                 PaymentId = paymentId,
+                Nonce = auth.Nonce,
                 Resource = requirement.Resource,
                 Scheme = payload.Scheme,
                 Network = payload.Network,
