@@ -171,7 +171,7 @@ from crewai_x402 import X402Wallet, X402Tool
 # Create wallet with budget
 wallet = X402Wallet(
     private_key=os.environ["WALLET_PRIVATE_KEY"],
-    network="base-mainnet",
+    network="eip155:8453",  # Base mainnet
     budget_usd=5.00
 )
 
@@ -202,7 +202,7 @@ result = crew.kickoff()</code></pre>
                 <pre><code># Agent can't spend more than $5
 wallet = X402Wallet(
     private_key=key,
-    network="base-mainnet",
+    network="eip155:8453",  # Base mainnet
     budget_usd=5.00
 )
 

@@ -174,10 +174,10 @@
 
                 <ol>
                     <li><strong>Agent requests a resource</strong> &mdash; standard GET/POST</li>
-                    <li><strong>Server returns 402</strong> &mdash; with an <code>X-PAYMENT-REQUIRED</code> header containing: amount, recipient address, supported networks, USDC contract addresses</li>
+                    <li><strong>Server returns 402</strong> &mdash; with a <code>PAYMENT-REQUIRED</code> header containing: amount, recipient address, supported networks, USDC contract addresses</li>
                     <li><strong>Agent signs a payment</strong> &mdash; EIP-3009 <code>transferWithAuthorization</code> (gasless for the payer)</li>
-                    <li><strong>Agent retries with payment proof</strong> &mdash; <code>X-PAYMENT</code> header contains the signed authorization</li>
-                    <li><strong>Server verifies, settles, returns data</strong> &mdash; <code>X-PAYMENT-RESPONSE</code> header contains the transaction hash</li>
+                    <li><strong>Agent retries with payment proof</strong> &mdash; <code>PAYMENT-SIGNATURE</code> header contains the signed authorization</li>
+                    <li><strong>Server verifies, settles, returns data</strong> &mdash; <code>PAYMENT-RESPONSE</code> header contains the transaction hash</li>
                 </ol>
 
                 <p>
@@ -209,7 +209,7 @@
   "amount": "10000",
   "asset": "0x3600000000000000000000000000000000000000",
   "payTo": "0x6255d8dd3f84ec460fc8b07db58ab06384a2f487",
-  "network": "arc-testnet",
+  "network": "eip155:5042002",
   "resource": "/api/x402/protected/analysis",
   "description": "Premium AI Analysis",
   "mimeType": "application/json",
@@ -239,13 +239,13 @@ public IActionResult Premium()
                 </p>
 
                 <ol>
-                    <li>No <code>X-PAYMENT</code> header? Return 402 with requirements.</li>
+                    <li>No <code>PAYMENT-SIGNATURE</code> header? Return 402 with requirements.</li>
                     <li>Has header? Decode the base64 payload.</li>
                     <li>Verify the EIP-3009 signature (EIP-712 typed data hashing + ECDSA recovery).</li>
                     <li>Check the amount matches the endpoint price.</li>
                     <li>Submit the <code>transferWithAuthorization</code> transaction on-chain.</li>
                     <li>Wait for confirmation.</li>
-                    <li>Set <code>X-PAYMENT-RESPONSE</code> header with the transaction hash.</li>
+                    <li>Set <code>PAYMENT-RESPONSE</code> header with the transaction hash.</li>
                     <li>Let the request proceed to your controller.</li>
                 </ol>
 
@@ -263,7 +263,7 @@ public IActionResult Premium()
 
 wallet = X402Wallet(
     private_key=os.environ["WALLET_PRIVATE_KEY"],
-    network="base-sepolia",
+    network="eip155:84532",  # Base Sepolia
     budget_usd=5.00
 )
 
@@ -274,10 +274,10 @@ tool = X402PaymentTool(wallet=wallet)</code></pre>
                 </p>
 
                 <ol>
-                    <li>Parse the <code>X-PAYMENT-REQUIRED</code> header</li>
+                    <li>Parse the <code>PAYMENT-REQUIRED</code> header</li>
                     <li>Check if the amount is within budget</li>
                     <li>Sign the EIP-3009 authorization using <code>eth-account</code></li>
-                    <li>Retry the request with the <code>X-PAYMENT</code> header</li>
+                    <li>Retry the request with the <code>PAYMENT-SIGNATURE</code> header</li>
                     <li>Return the response to the agent</li>
                 </ol>
 

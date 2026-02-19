@@ -206,8 +206,8 @@
     {"resource": "/api/x402/protected/data", "amountUsdc": 0.001}
   ],
   "supportedNetworks": [
-    "arc-testnet", "base-sepolia", "ethereum-sepolia",
-    "base-mainnet", "ethereum-mainnet"
+    "eip155:5042002", "eip155:84532", "eip155:11155111",
+    "eip155:8453", "eip155:1"
   ],
   "payTo": "0x6255d8dd3f84ec460fc8b07db58ab06384a2f487"
 }</pre>
@@ -224,7 +224,7 @@
                             <div class="code-block rounded-lg p-4 overflow-x-auto">
                                 <pre class="text-sm font-mono text-gray-300">curl -i https://sandbox.agentrails.io/api/x402/protected/analysis</pre>
                             </div>
-                            <p class="text-sm text-gray-500 mt-3">The response includes an <code class="bg-gray-100 px-2 py-1 rounded">X-PAYMENT-REQUIRED</code> header with the amount, recipient, and supported networks. In production, your agent reads this and signs a payment automatically.</p>
+                            <p class="text-sm text-gray-500 mt-3">The response includes a <code class="bg-gray-100 px-2 py-1 rounded">PAYMENT-REQUIRED</code> header with the amount, recipient, and supported networks. In production, your agent reads this and signs a payment automatically.</p>
                         </div>
 
                         <!-- Step 4: Create an Agent -->
@@ -254,7 +254,7 @@
                                 <pre class="text-sm font-mono text-gray-300">curl -X POST "https://sandbox.agentrails.io/api/x402/test/execute-payment?amountUsdc=0.01" \
   -H "X-API-Key: ar_test_YOUR_KEY_HERE"</pre>
                             </div>
-                            <p class="text-sm text-gray-500 mt-3">In production, your agent signs an EIP-3009 authorization and includes it in the <code class="bg-gray-100 px-2 py-1 rounded">X-PAYMENT</code> header instead.</p>
+                            <p class="text-sm text-gray-500 mt-3">In production, your agent signs an EIP-3009 authorization and includes it in the <code class="bg-gray-100 px-2 py-1 rounded">PAYMENT-SIGNATURE</code> header instead.</p>
                         </div>
 
                         <!-- Step 6: Check Payment History -->
@@ -321,7 +321,7 @@
                                 <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">2</div>
                                 <div>
                                     <p class="font-medium">Server returns 402 + payment requirements</p>
-                                    <p class="text-sm text-gray-500"><code class="bg-gray-100 px-1 rounded">X-PAYMENT-REQUIRED</code> header contains: amount, recipient, network, asset</p>
+                                    <p class="text-sm text-gray-500"><code class="bg-gray-100 px-1 rounded">PAYMENT-REQUIRED</code> header contains: amount, recipient, network, asset</p>
                                 </div>
                             </div>
                             <div class="flex gap-4">
@@ -335,14 +335,14 @@
                                 <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">4</div>
                                 <div>
                                     <p class="font-medium">Client retries with payment proof</p>
-                                    <p class="text-sm text-gray-500"><code class="bg-gray-100 px-1 rounded">X-PAYMENT</code> header contains signed authorization</p>
+                                    <p class="text-sm text-gray-500"><code class="bg-gray-100 px-1 rounded">PAYMENT-SIGNATURE</code> header contains signed authorization</p>
                                 </div>
                             </div>
                             <div class="flex gap-4">
                                 <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">5</div>
                                 <div>
                                     <p class="font-medium">Server verifies, settles, and returns data</p>
-                                    <p class="text-sm text-gray-500">Payment settles on-chain, response includes <code class="bg-gray-100 px-1 rounded">X-PAYMENT-RESPONSE</code> with transaction hash</p>
+                                    <p class="text-sm text-gray-500">Payment settles on-chain, response includes <code class="bg-gray-100 px-1 rounded">PAYMENT-RESPONSE</code> with transaction hash</p>
                                 </div>
                             </div>
                         </div>
@@ -431,7 +431,7 @@
 <span class="text-gray-500"># 1. Create a wallet with a USDC budget</span>
 wallet = X402Wallet(
     private_key=os.environ[<span class="text-emerald-400">"WALLET_PRIVATE_KEY"</span>],
-    network=<span class="text-emerald-400">"base-mainnet"</span>,
+    network=<span class="text-emerald-400">"eip155:8453"</span>,  <span class="text-gray-500"># Base mainnet</span>
     budget_usd=<span class="text-amber-400">10.00</span>
 )
 
@@ -461,7 +461,7 @@ result = executor.invoke({
 <span class="text-gray-500"># Create wallet with budget</span>
 wallet = X402Wallet(
     private_key=os.environ[<span class="text-emerald-400">"WALLET_PRIVATE_KEY"</span>],
-    network=<span class="text-emerald-400">"base-mainnet"</span>,
+    network=<span class="text-emerald-400">"eip155:8453"</span>,  <span class="text-gray-500"># Base mainnet</span>
     budget_usd=<span class="text-amber-400">5.00</span>
 )
 
@@ -508,7 +508,7 @@ result = crew.kickoff()</pre>
     "payer": "0x1234...5678",
     "recipient": "0x8765...4321",
     "transactionHash": "0xabc...def",
-    "network": "arc-testnet",
+    "network": "eip155:5042002",
     "resource": "/api/x402/protected/analysis",
     "timestamp": "2026-01-31T12:00:00Z"
   }
@@ -791,6 +791,7 @@ result = crew.kickoff()</pre>
                             <thead class="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th class="text-left px-6 py-3 font-semibold">Network</th>
+                                    <th class="text-left px-6 py-3 font-semibold">Network ID (CAIP-2)</th>
                                     <th class="text-left px-6 py-3 font-semibold">Chain ID</th>
                                     <th class="text-left px-6 py-3 font-semibold">Environment</th>
                                     <th class="text-left px-6 py-3 font-semibold">Settlement</th>
@@ -800,6 +801,7 @@ result = crew.kickoff()</pre>
                             <tbody class="divide-y divide-gray-100">
                                 <tr>
                                     <td class="px-6 py-4 font-medium">Arc Testnet</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">eip155:5042002</td>
                                     <td class="px-6 py-4 font-mono text-gray-600">5042002</td>
                                     <td class="px-6 py-4">Development</td>
                                     <td class="px-6 py-4 text-gray-600">Circle Wallets API</td>
@@ -807,6 +809,7 @@ result = crew.kickoff()</pre>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 font-medium">Base Sepolia</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">eip155:84532</td>
                                     <td class="px-6 py-4 font-mono text-gray-600">84532</td>
                                     <td class="px-6 py-4">Development</td>
                                     <td class="px-6 py-4 text-gray-600">EIP-3009 on-chain</td>
@@ -814,6 +817,7 @@ result = crew.kickoff()</pre>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 font-medium">Ethereum Sepolia</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">eip155:11155111</td>
                                     <td class="px-6 py-4 font-mono text-gray-600">11155111</td>
                                     <td class="px-6 py-4">Development</td>
                                     <td class="px-6 py-4 text-gray-600">EIP-3009 on-chain</td>
@@ -821,6 +825,7 @@ result = crew.kickoff()</pre>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 font-medium">Base Mainnet</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">eip155:8453</td>
                                     <td class="px-6 py-4 font-mono text-gray-600">8453</td>
                                     <td class="px-6 py-4">Production</td>
                                     <td class="px-6 py-4 text-gray-600">EIP-3009 on-chain</td>
@@ -828,6 +833,7 @@ result = crew.kickoff()</pre>
                                 </tr>
                                 <tr>
                                     <td class="px-6 py-4 font-medium">Ethereum Mainnet</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">eip155:1</td>
                                     <td class="px-6 py-4 font-mono text-gray-600">1</td>
                                     <td class="px-6 py-4">Production</td>
                                     <td class="px-6 py-4 text-gray-600">EIP-3009 on-chain</td>
