@@ -113,7 +113,8 @@ public class X402Client
 
         // Get transaction hash from response header if present
         string? txHash = null;
-        if (retryResponse.Headers.TryGetValues(X402Headers.PaymentResponse, out var paymentResponses))
+        if (retryResponse.Headers.TryGetValues(X402Headers.PaymentResponse, out var paymentResponses)
+            || retryResponse.Headers.TryGetValues(X402Headers.LegacyPaymentResponse, out paymentResponses))
         {
             var prJson = paymentResponses.FirstOrDefault();
             if (!string.IsNullOrEmpty(prJson))
@@ -139,7 +140,8 @@ public class X402Client
     private async Task<X402PaymentRequired?> ParsePaymentRequiredAsync(HttpResponseMessage response)
     {
         // Try header first
-        if (response.Headers.TryGetValues(X402Headers.PaymentRequired, out var headerValues))
+        if (response.Headers.TryGetValues(X402Headers.PaymentRequired, out var headerValues)
+            || response.Headers.TryGetValues(X402Headers.LegacyPaymentRequired, out headerValues))
         {
             var base64 = headerValues.FirstOrDefault();
             if (!string.IsNullOrEmpty(base64))

@@ -279,7 +279,7 @@ public class X402Service : IX402Service
             var tokenContract = GetUsdcAddress(payload.Network);
 
             // Route to appropriate network client
-            if (payload.Network.StartsWith("arc"))
+            if (X402Networks.IsArcNetwork(payload.Network))
             {
                 // For Arc network, use Circle's Developer Controlled Wallets API
                 txHash = await _arcClient.SendUsdcAsync(auth.To, amountUsdc);

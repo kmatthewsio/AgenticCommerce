@@ -74,9 +74,9 @@ public class X402ExampleController : ControllerBase
     /// </summary>
     [HttpGet("multichain")]
     [X402Payment(0.05,
-        Network = "arc-testnet",
+        Network = "eip155:5042002",
         AllowMultipleNetworks = true,
-        AlternativeNetworks = "base-sepolia,ethereum-sepolia")]
+        AlternativeNetworks = "eip155:84532,eip155:11155111")]
     public IActionResult GetMultichain()
     {
         return Ok(new

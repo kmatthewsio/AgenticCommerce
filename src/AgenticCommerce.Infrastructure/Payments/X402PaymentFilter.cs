@@ -19,7 +19,7 @@ public class X402PaymentFilter : IAsyncActionFilter
 
     private decimal _amountUsdc;
     private string _description = "API Request";
-    private string _network = "arc-testnet";
+    private string _network = X402Networks.ArcTestnet;
     private List<string> _networks = new();
 
     public X402PaymentFilter(
@@ -55,7 +55,8 @@ public class X402PaymentFilter : IAsyncActionFilter
         var resource = request.Path.ToString();
 
         // Check for payment header
-        var paymentHeader = request.Headers[X402Headers.Payment].FirstOrDefault();
+        var paymentHeader = request.Headers[X402Headers.Payment].FirstOrDefault()
+            ?? request.Headers[X402Headers.LegacyPayment].FirstOrDefault();
 
         if (string.IsNullOrEmpty(paymentHeader))
         {
