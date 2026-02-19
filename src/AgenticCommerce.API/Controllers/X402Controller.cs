@@ -45,7 +45,8 @@ public class X402Controller : ControllerBase
     public async Task<IActionResult> GetAnalysis()
     {
         // Check for payment header
-        var paymentHeader = Request.Headers[X402Headers.Payment].FirstOrDefault();
+        var paymentHeader = Request.Headers[X402Headers.Payment].FirstOrDefault()
+            ?? Request.Headers[X402Headers.LegacyPayment].FirstOrDefault();
 
         if (string.IsNullOrEmpty(paymentHeader))
         {
@@ -122,7 +123,8 @@ public class X402Controller : ControllerBase
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetData()
     {
-        var paymentHeader = Request.Headers[X402Headers.Payment].FirstOrDefault();
+        var paymentHeader = Request.Headers[X402Headers.Payment].FirstOrDefault()
+            ?? Request.Headers[X402Headers.LegacyPayment].FirstOrDefault();
 
         if (string.IsNullOrEmpty(paymentHeader))
         {
@@ -257,7 +259,7 @@ public class X402Controller : ControllerBase
     /// Get x402 payment history with optional filtering.
     /// Returns all payments processed through this facilitator.
     /// </summary>
-    /// <param name="network">Filter by blockchain network (e.g., arc-testnet, base-sepolia)</param>
+    /// <param name="network">Filter by blockchain network in CAIP-2 format (e.g., eip155:84532)</param>
     /// <param name="status">Filter by status (Pending, Verified, Settled, Failed)</param>
     /// <param name="limit">Maximum number of records to return (default: 50, max: 500)</param>
     /// <response code="200">Returns list of payment records</response>
@@ -346,12 +348,12 @@ public class X402Controller : ControllerBase
     /// Returns a payload that can be used with /facilitator/verify and /facilitator/settle.
     /// </summary>
     /// <param name="amountUsdc">Amount in USDC (default: 0.01)</param>
-    /// <param name="network">Network (default: arc-testnet)</param>
+    /// <param name="network">Network in CAIP-2 format (default: eip155:5042002)</param>
     [HttpGet("test/generate-payload")]
     [ProducesResponseType(typeof(TestPayloadResponse), StatusCodes.Status200OK)]
     public IActionResult GenerateTestPayload(
         [FromQuery] decimal amountUsdc = 0.01m,
-        [FromQuery] string network = "arc-testnet")
+        [FromQuery] string network = "eip155:5042002")
     {
         var payToAddress = _x402Service.GetPayToAddress();
         var amountSmallestUnit = ((long)(amountUsdc * 1_000_000)).ToString();

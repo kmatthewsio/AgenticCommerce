@@ -9,6 +9,7 @@ using AgenticCommerce.Infrastructure.Gumroad;
 using AgenticCommerce.Infrastructure.Payments;
 using AgenticCommerce.Infrastructure.Trust;
 using AgenticCommerce.Infrastructure.Billing;
+using AgenticCommerce.Core.Models;
 using DotNetEnv;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -111,9 +112,9 @@ builder.Services.Configure<EvmClientOptions>(options =>
     var baseMainnetRpc = builder.Configuration["Evm:RpcUrls:BaseMainnet"];
 
     if (!string.IsNullOrEmpty(baseSepoliaRpc))
-        options.RpcUrls["base-sepolia"] = baseSepoliaRpc;
+        options.RpcUrls[X402Networks.BaseSepolia] = baseSepoliaRpc;
     if (!string.IsNullOrEmpty(baseMainnetRpc))
-        options.RpcUrls["base-mainnet"] = baseMainnetRpc;
+        options.RpcUrls[X402Networks.BaseMainnet] = baseMainnetRpc;
 });
 builder.Services.AddSingleton<IEvmClientFactory, EvmClientFactory>();
 

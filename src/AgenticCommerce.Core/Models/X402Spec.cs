@@ -250,24 +250,29 @@ public class X402SettleResponse
 #region Header Constants
 
 /// <summary>
-/// x402 HTTP header names
+/// x402 V2 HTTP header names
 /// </summary>
 public static class X402Headers
 {
     /// <summary>
-    /// Server sends: Base64-encoded PaymentRequired
+    /// Server sends: Base64-encoded PaymentRequired (V2)
     /// </summary>
-    public const string PaymentRequired = "X-PAYMENT-REQUIRED";
+    public const string PaymentRequired = "PAYMENT-REQUIRED";
 
     /// <summary>
-    /// Client sends: Base64-encoded PaymentPayload
+    /// Client sends: Base64-encoded PaymentPayload (V2)
     /// </summary>
-    public const string Payment = "X-PAYMENT";
+    public const string Payment = "PAYMENT-SIGNATURE";
 
     /// <summary>
-    /// Server sends: Settlement confirmation
+    /// Server sends: Settlement confirmation (V2)
     /// </summary>
-    public const string PaymentResponse = "X-PAYMENT-RESPONSE";
+    public const string PaymentResponse = "PAYMENT-RESPONSE";
+
+    // V1 legacy headers (for backwards-compatible reading)
+    public const string LegacyPaymentRequired = "X-PAYMENT-REQUIRED";
+    public const string LegacyPayment = "X-PAYMENT";
+    public const string LegacyPaymentResponse = "X-PAYMENT-RESPONSE";
 }
 
 #endregion
@@ -279,16 +284,40 @@ public static class X402Headers
 /// </summary>
 public static class X402Networks
 {
-    // === TESTNET (Free - Sandbox) ===
-    public const string ArcTestnet = "arc-testnet";
-    public const string BaseSepolia = "base-sepolia";
-    public const string EthereumSepolia = "ethereum-sepolia";
+    // === TESTNET (Free - Sandbox) === CAIP-2 format: eip155:<chainId>
+    public const string ArcTestnet = "eip155:5042002";
+    public const string BaseSepolia = "eip155:84532";
+    public const string EthereumSepolia = "eip155:11155111";
 
     // === MAINNET (Requires Production Access - https://agentrails.io/#pricing) ===
-    // Contact kematth.007@protonmail.com for production API keys
-    public const string ArcMainnet = "arc-mainnet";
-    public const string BaseMainnet = "base-mainnet";
-    public const string EthereumMainnet = "ethereum-mainnet";
+    public const string ArcMainnet = "eip155:0"; // Arc mainnet - not yet launched
+    public const string BaseMainnet = "eip155:8453";
+    public const string EthereumMainnet = "eip155:1";
+
+    /// <summary>
+    /// Map V1 legacy network names to CAIP-2 identifiers
+    /// </summary>
+    public static readonly Dictionary<string, string> LegacyNetworkMap = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["arc-testnet"] = ArcTestnet,
+        ["arc-mainnet"] = ArcMainnet,
+        ["base-sepolia"] = BaseSepolia,
+        ["base-mainnet"] = BaseMainnet,
+        ["ethereum-sepolia"] = EthereumSepolia,
+        ["ethereum-mainnet"] = EthereumMainnet
+    };
+
+    /// <summary>
+    /// Normalize a network ID — accepts both V1 ("base-sepolia") and CAIP-2 ("eip155:84532")
+    /// </summary>
+    public static string NormalizeNetwork(string network) =>
+        LegacyNetworkMap.TryGetValue(network, out var caip2) ? caip2 : network;
+
+    /// <summary>
+    /// Check if a network is an Arc network
+    /// </summary>
+    public static bool IsArcNetwork(string network) =>
+        network == ArcTestnet || network == ArcMainnet;
 
     /// <summary>
     /// Testnet networks available in the free sandbox

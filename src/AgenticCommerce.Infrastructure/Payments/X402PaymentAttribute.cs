@@ -26,9 +26,9 @@ public class X402PaymentAttribute : Attribute, IFilterFactory
     public string? Description { get; set; }
 
     /// <summary>
-    /// Blockchain network to accept payment on (default: arc-testnet)
+    /// Blockchain network in CAIP-2 format (default: eip155:5042002)
     /// </summary>
-    public string Network { get; set; } = "arc-testnet";
+    public string Network { get; set; } = "eip155:5042002";
 
     /// <summary>
     /// Whether to also accept payments on alternative networks
@@ -39,7 +39,7 @@ public class X402PaymentAttribute : Attribute, IFilterFactory
     /// Alternative networks to accept (comma-separated)
     /// Only used if AllowMultipleNetworks is true
     /// </summary>
-    public string? AlternativeNetworks { get; set; } = "base-sepolia";
+    public string? AlternativeNetworks { get; set; } = "eip155:84532";
 
     public bool IsReusable => false;
 

@@ -192,9 +192,9 @@ public class X402ControllerTests
     public void X402Headers_CorrectValues()
     {
         // Assert
-        X402Headers.PaymentRequired.Should().Be("X-PAYMENT-REQUIRED");
-        X402Headers.Payment.Should().Be("X-PAYMENT");
-        X402Headers.PaymentResponse.Should().Be("X-PAYMENT-RESPONSE");
+        X402Headers.PaymentRequired.Should().Be("PAYMENT-REQUIRED");
+        X402Headers.Payment.Should().Be("PAYMENT-SIGNATURE");
+        X402Headers.PaymentResponse.Should().Be("PAYMENT-RESPONSE");
     }
 
     #endregion
@@ -205,12 +205,12 @@ public class X402ControllerTests
     public void X402Networks_AllNetworksDefined()
     {
         // Assert
-        X402Networks.ArcTestnet.Should().Be("arc-testnet");
-        X402Networks.ArcMainnet.Should().Be("arc-mainnet");
-        X402Networks.BaseSepolia.Should().Be("base-sepolia");
-        X402Networks.BaseMainnet.Should().Be("base-mainnet");
-        X402Networks.EthereumSepolia.Should().Be("ethereum-sepolia");
-        X402Networks.EthereumMainnet.Should().Be("ethereum-mainnet");
+        X402Networks.ArcTestnet.Should().Be("eip155:5042002");
+        X402Networks.ArcMainnet.Should().Be("eip155:0");
+        X402Networks.BaseSepolia.Should().Be("eip155:84532");
+        X402Networks.BaseMainnet.Should().Be("eip155:8453");
+        X402Networks.EthereumSepolia.Should().Be("eip155:11155111");
+        X402Networks.EthereumMainnet.Should().Be("eip155:1");
     }
 
     [Fact]
