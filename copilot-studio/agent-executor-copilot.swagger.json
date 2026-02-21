@@ -1,0 +1,380 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "AgenticCommerce Agent Executor Copilot",
+    "description": "Manage and execute AI agents on the AgenticCommerce platform. Use this plugin to list agents, create new agents, run agent tasks, delete agents, and view execution logs.",
+    "version": "1.0.0"
+  },
+  "host": "api.agentrails.io",
+  "basePath": "/",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "name": "X-API-Key",
+      "in": "header",
+      "description": "API key for authenticating with the AgenticCommerce API"
+    }
+  },
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "paths": {
+    "/api/agents": {
+      "get": {
+        "operationId": "listAgents",
+        "summary": "List all AI agents",
+        "description": "Returns a list of all registered AI agents with their id, name, description, status, budget, currentBalance, walletAddress, capabilities, transactionCount, createdAt, and lastActiveAt. Use this to answer questions like 'Show me all agents' or 'Which agents are active?'",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "List of all registered agents returned successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AgentInfo"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createAgent",
+        "summary": "Create a new AI agent",
+        "description": "Creates and registers a new AI agent with a name, description, and USDC budget. Use this when the user says 'Create a research agent' or 'Set up a new agent with $5 budget'.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "Agent creation details including name, description, and budget",
+            "schema": {
+              "$ref": "#/definitions/CreateAgentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Agent created successfully",
+            "schema": {
+              "$ref": "#/definitions/AgentInfo"
+            }
+          }
+        }
+      }
+    },
+    "/api/agents/{agentId}/info": {
+      "get": {
+        "operationId": "getAgentInfo",
+        "summary": "Get agent details",
+        "description": "Returns detailed information about a specific agent including its status, budget, remaining balance, wallet address, and transaction count. Use this to answer questions like 'Show me details for agent X' or 'What is the balance of the research agent?'",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "agentId",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "The unique identifier of the agent (e.g. agent_7bda...)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent details returned successfully",
+            "schema": {
+              "$ref": "#/definitions/AgentInfo"
+            }
+          },
+          "404": {
+            "description": "Agent not found"
+          }
+        }
+      }
+    },
+    "/api/agents/{agentId}/run": {
+      "post": {
+        "operationId": "runAgent",
+        "summary": "Execute a task with an agent",
+        "description": "Sends a task to a specific agent for execution. The agent will process the task and return a result with success status, the result text, amountSpent in USDC, and timing information. Use this when the user says 'Run the analyst agent' or 'Ask the research agent to summarize market trends'.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "agentId",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "The unique identifier of the agent to run"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "The task for the agent to execute",
+            "schema": {
+              "$ref": "#/definitions/RunAgentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent executed the task successfully",
+            "schema": {
+              "$ref": "#/definitions/RunAgentResult"
+            }
+          },
+          "404": {
+            "description": "Agent not found"
+          }
+        }
+      }
+    },
+    "/api/agents/{agentId}": {
+      "delete": {
+        "operationId": "deleteAgent",
+        "summary": "Delete an agent",
+        "description": "Permanently deletes a registered agent. Returns a confirmation message. Use this when the user says 'Delete the test agent' or 'Remove agent X'.",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "agentId",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "The unique identifier of the agent to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agent deleted successfully",
+            "schema": {
+              "$ref": "#/definitions/DeleteResult"
+            }
+          },
+          "404": {
+            "description": "Agent not found"
+          }
+        }
+      }
+    },
+    "/api/logs": {
+      "get": {
+        "operationId": "getLogs",
+        "summary": "Get recent execution logs",
+        "description": "Returns recent execution logs with timestamps, levels, and messages. Supports filtering by log level and limiting the number of results. Use this to answer questions like 'Show me recent logs' or 'Are there any warnings?'",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "level",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Filter by log level: Information, Warning, or Error"
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "Maximum number of log entries to return (default: 100)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Log entries returned successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogEntry"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/logs/errors": {
+      "get": {
+        "operationId": "getErrorLogs",
+        "summary": "Get recent error logs",
+        "description": "Returns only error-level logs from recent executions. Use this to answer questions like 'Show me errors' or 'Are there any failures in the logs?'",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "count",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "Maximum number of error entries to return (default: 50)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Error log entries returned successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogEntry"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AgentInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Agent identifier (e.g. agent_7bda...)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Agent display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "What this agent does"
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status: Active, Working, Paused, Error, or Deleted"
+        },
+        "budget": {
+          "type": "number",
+          "description": "Maximum USDC budget allocated to this agent"
+        },
+        "currentBalance": {
+          "type": "number",
+          "description": "Remaining USDC balance for this agent"
+        },
+        "walletAddress": {
+          "type": "string",
+          "description": "Agent's Ethereum wallet address"
+        },
+        "transactionCount": {
+          "type": "integer",
+          "description": "Number of transactions completed by this agent"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO 8601 creation timestamp"
+        },
+        "lastActiveAt": {
+          "type": "string",
+          "description": "ISO 8601 last activity timestamp (may be null)"
+        }
+      }
+    },
+    "CreateAgentRequest": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name for the new agent"
+        },
+        "description": {
+          "type": "string",
+          "description": "What this agent will do"
+        },
+        "budget": {
+          "type": "number",
+          "description": "USDC budget to allocate (default: 1.00)"
+        }
+      }
+    },
+    "RunAgentRequest": {
+      "type": "object",
+      "required": ["task"],
+      "properties": {
+        "task": {
+          "type": "string",
+          "description": "The task description for the agent to execute"
+        }
+      }
+    },
+    "RunAgentResult": {
+      "type": "object",
+      "properties": {
+        "agentId": {
+          "type": "string",
+          "description": "ID of the agent that executed the task"
+        },
+        "taskDescription": {
+          "type": "string",
+          "description": "The task that was executed"
+        },
+        "success": {
+          "type": "boolean",
+          "description": "Whether the task completed successfully"
+        },
+        "result": {
+          "type": "string",
+          "description": "Agent execution result text"
+        },
+        "amountSpent": {
+          "type": "number",
+          "description": "USDC amount spent executing this task"
+        },
+        "startedAt": {
+          "type": "string",
+          "description": "ISO 8601 timestamp when execution started"
+        },
+        "completedAt": {
+          "type": "string",
+          "description": "ISO 8601 timestamp when execution completed"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "Error message if the task failed (null on success)"
+        }
+      }
+    },
+    "DeleteResult": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Confirmation message that the agent was deleted"
+        }
+      }
+    },
+    "LogEntry": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Log entry identifier"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO 8601 log timestamp"
+        },
+        "level": {
+          "type": "string",
+          "description": "Log level: Information, Warning, or Error"
+        },
+        "message": {
+          "type": "string",
+          "description": "Log message content"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source component that generated the log"
+        },
+        "requestPath": {
+          "type": "string",
+          "description": "HTTP request path associated with this log entry"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,297 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "AgenticCommerce FinanceOps Copilot",
+    "description": "Finance and operations queries for x402 payment infrastructure. Use this plugin to check revenue, payment stats, wallet balances, agent budgets, and billing usage for the AgenticCommerce platform.",
+    "version": "1.0.0"
+  },
+  "host": "api.agentrails.io",
+  "basePath": "/",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "name": "X-API-Key",
+      "in": "header",
+      "description": "API key for authenticating with the AgenticCommerce API"
+    }
+  },
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "paths": {
+    "/api/x402/stats": {
+      "get": {
+        "operationId": "getX402Stats",
+        "summary": "Get x402 payment statistics",
+        "description": "Returns x402 payment statistics including total payments processed, total USDC volume, and counts of settled and failed payments. The response also includes a networkBreakdown array with per-network stats. Use this to answer questions like 'What is our x402 revenue?' or 'How many payments have settled?'",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Payment statistics returned successfully",
+            "schema": {
+              "$ref": "#/definitions/X402Stats"
+            }
+          }
+        }
+      }
+    },
+    "/api/x402/payments": {
+      "get": {
+        "operationId": "getX402Payments",
+        "summary": "List recent x402 payments",
+        "description": "Returns recent x402 payments. The response contains a 'payments' array with payment details (paymentId, resource, network, amountUsdc, payerAddress, recipientAddress, transactionHash, status, createdAt, settledAt) plus totalCount and returnedCount fields. Use this to answer questions like 'Show today's payments' or 'List failed payments on Base'.",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "network",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Filter by blockchain network CAIP-2 ID (e.g. eip155:8453 for Base)"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Filter by payment status: settled, pending, or failed"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "Maximum number of payments to return (default: 50, max: 500)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment history returned successfully",
+            "schema": {
+              "$ref": "#/definitions/X402PaymentHistory"
+            }
+          }
+        }
+      }
+    },
+    "/api/x402/pricing": {
+      "get": {
+        "operationId": "getX402Pricing",
+        "summary": "Get x402 endpoint pricing",
+        "description": "Returns pricing info for x402-protected API endpoints. The response contains an 'endpoints' array where each item has resource (path), amountUsdc (price), and description fields. Also includes supportedNetworks (array of CAIP-2 network IDs) and payTo (recipient wallet address). Use this to answer questions like 'How much does each API call cost?' or 'What are the supported networks?'",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Pricing info returned successfully",
+            "schema": {
+              "$ref": "#/definitions/X402PricingInfo"
+            }
+          }
+        }
+      }
+    },
+    "/api/agents/dashboard": {
+      "get": {
+        "operationId": "getAgentDashboard",
+        "summary": "Get agent summary dashboard",
+        "description": "Returns a dashboard with an 'agents' array (each with id, name, status, budget, currentBalance, spent) and a 'summary' object containing totalAgents, activeAgents, totalBudget, and totalSpent. Use this to answer questions like 'How many agents are running?' or 'What is our total agent spend?'",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Agent dashboard returned successfully",
+            "schema": {
+              "$ref": "#/definitions/AgentDashboard"
+            }
+          }
+        }
+      }
+    },
+    "/api/transactions/balance/total": {
+      "get": {
+        "operationId": "getWalletBalanceTotal",
+        "summary": "Get total USDC wallet balance",
+        "description": "Returns the total USDC wallet balance across all blockchain networks. Use this to answer questions like 'What is our wallet balance?' or 'How much USDC do we have?'",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Total wallet balance returned successfully",
+            "schema": {
+              "$ref": "#/definitions/WalletBalance"
+            }
+          }
+        }
+      }
+    },
+    "/api/transactions/balance/by-chain": {
+      "get": {
+        "operationId": "getWalletBalanceByChain",
+        "summary": "Get USDC balance by blockchain network",
+        "description": "Returns the total USDC balance with a breakdown by blockchain network. The response includes a 'balances' object mapping chain names to amounts, plus total, currency, and source fields. Use this to answer questions like 'How much USDC is on Base?' or 'Show balance per chain'.",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Balance breakdown by chain returned successfully",
+            "schema": {
+              "$ref": "#/definitions/ChainBalances"
+            }
+          }
+        }
+      }
+    },
+    "/api/billing/usage": {
+      "get": {
+        "operationId": "getBillingUsage",
+        "summary": "Get billing usage for current period",
+        "description": "Returns billing usage. The response contains an 'organization' object (id, tier), a 'period' object (from, to, days), and a 'usage' object with transactionCount, totalVolumeUsdc, totalFeesUsd, billedFeesUsd, and unbilledFeesUsd. Use this to answer questions like 'What are our platform fees?' or 'How much have we been billed?'",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "Number of days to include in the billing period (default: 30)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Billing usage returned successfully",
+            "schema": {
+              "$ref": "#/definitions/BillingUsage"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "X402Stats": {
+      "type": "object",
+      "properties": {
+        "totalPayments": {
+          "type": "integer",
+          "description": "Total number of x402 payments processed"
+        },
+        "totalVolumeUsdc": {
+          "type": "number",
+          "description": "Total USDC volume across all payments"
+        },
+        "settledPayments": {
+          "type": "integer",
+          "description": "Number of successfully settled payments"
+        },
+        "failedPayments": {
+          "type": "integer",
+          "description": "Number of failed payments"
+        }
+      }
+    },
+    "X402PaymentHistory": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "integer",
+          "description": "Total number of payments matching the filter"
+        },
+        "returnedCount": {
+          "type": "integer",
+          "description": "Number of payments returned in this response"
+        }
+      }
+    },
+    "X402PricingInfo": {
+      "type": "object",
+      "properties": {
+        "payTo": {
+          "type": "string",
+          "description": "Ethereum wallet address that receives payments"
+        }
+      }
+    },
+    "AgentDashboard": {
+      "type": "object",
+      "properties": {
+        "totalAgents": {
+          "type": "integer",
+          "description": "Total number of registered agents (in the summary object)"
+        },
+        "activeAgents": {
+          "type": "integer",
+          "description": "Number of currently active agents (in the summary object)"
+        },
+        "totalBudget": {
+          "type": "number",
+          "description": "Sum of all agent budgets in USDC (in the summary object)"
+        },
+        "totalSpent": {
+          "type": "number",
+          "description": "Sum of all agent spending in USDC (in the summary object)"
+        }
+      }
+    },
+    "WalletBalance": {
+      "type": "object",
+      "properties": {
+        "totalBalance": {
+          "type": "number",
+          "description": "Total USDC balance across all chains"
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency type, always USDC"
+        },
+        "source": {
+          "type": "string",
+          "description": "Balance data source (e.g. Circle Gateway)"
+        }
+      }
+    },
+    "ChainBalances": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "number",
+          "description": "Total USDC balance across all blockchain networks"
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency type, always USDC"
+        },
+        "source": {
+          "type": "string",
+          "description": "Balance data source (e.g. Circle Gateway)"
+        }
+      }
+    },
+    "BillingUsage": {
+      "type": "object",
+      "properties": {
+        "transactionCount": {
+          "type": "integer",
+          "description": "Number of transactions in the billing period (in the usage object)"
+        },
+        "totalVolumeUsdc": {
+          "type": "number",
+          "description": "Total USDC volume in the billing period (in the usage object)"
+        },
+        "totalFeesUsd": {
+          "type": "number",
+          "description": "Total platform fees in USD (in the usage object)"
+        },
+        "billedFeesUsd": {
+          "type": "number",
+          "description": "Already billed fees in USD (in the usage object)"
+        },
+        "unbilledFeesUsd": {
+          "type": "number",
+          "description": "Pending unbilled fees in USD (in the usage object)"
+        }
+      }
+    }
+  }
+}
