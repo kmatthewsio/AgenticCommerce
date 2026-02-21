@@ -110,6 +110,7 @@
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6 px-3">Integration</p>
                 <a href="#server-side" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Server Integration</a>
                 <a href="#client-side" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Agent SDKs</a>
+                <a href="#copilot-studio" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Copilot Studio</a>
                 <a href="#webhooks" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Webhooks</a>
 
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6 px-3">Trust & Discovery</p>
@@ -396,7 +397,7 @@
                     </p>
 
                     <!-- Install boxes -->
-                    <div class="grid sm:grid-cols-3 gap-4 mb-8">
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                         <div class="bg-gradient-to-br from-primary-500 to-cyan-500 rounded-xl p-6 text-white">
                             <h3 class="font-semibold mb-2">LangChain</h3>
                             <div class="bg-black/20 rounded-lg p-3 font-mono text-sm mb-3">
@@ -425,6 +426,16 @@
                             <div class="flex gap-3 text-sm">
                                 <a href="https://www.nuget.org/packages/AgentRails.SemanticKernel.X402" target="_blank" class="underline hover:no-underline">NuGet</a>
                                 <a href="https://github.com/kmatthewsio/semantickernel-x402" target="_blank" class="underline hover:no-underline">GitHub</a>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-teal-500 to-emerald-500 rounded-xl p-6 text-white">
+                            <h3 class="font-semibold mb-2">Copilot Studio</h3>
+                            <div class="bg-black/20 rounded-lg p-3 font-mono text-sm mb-3">
+                                Import .swagger.json
+                            </div>
+                            <div class="flex gap-3 text-sm">
+                                <a href="#copilot-studio" class="underline hover:no-underline">Setup Guide</a>
+                                <a href="https://github.com/kmatthewsio/AgenticCommerce-Enterprise/tree/main/copilot-studio" target="_blank" class="underline hover:no-underline">GitHub</a>
                             </div>
                         </div>
                     </div>
@@ -524,6 +535,92 @@ builder.Plugins.AddFromType&lt;X402Plugin&gt;();
                         <h4 class="font-semibold text-primary-900 mb-2">How it works</h4>
                         <p class="text-primary-800 text-sm">
                             When your agent requests a paid resource, the SDK automatically detects the 402 response, signs a USDC payment authorization, and retries the request. Your agent gets the data, the API gets paid. No API keys, no subscriptions. Works with Python (LangChain, CrewAI) and .NET (Semantic Kernel).
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Copilot Studio Integration -->
+                <section id="copilot-studio" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">Copilot Studio Integration</h2>
+                    <p class="text-gray-600 mb-6">
+                        Connect the AgentRails API to Microsoft Copilot Studio so your team can query payment data, manage agents, and run operations using natural language in Microsoft Teams. No code required — just import an OpenAPI spec and configure authentication.
+                    </p>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">What's Included</h3>
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div class="p-4 bg-teal-50 rounded-lg border border-teal-100">
+                                <h4 class="font-semibold text-teal-900 mb-2">FinanceOps Copilot</h4>
+                                <p class="text-sm text-teal-800 mb-2">7 operations for finance teams</p>
+                                <ul class="text-sm text-teal-700 space-y-1">
+                                    <li>Revenue summaries & payment history</li>
+                                    <li>Network breakdowns & stats</li>
+                                    <li>Billing usage & account status</li>
+                                    <li>Service trust verification</li>
+                                </ul>
+                            </div>
+                            <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
+                                <h4 class="font-semibold text-emerald-900 mb-2">Agent Executor Copilot</h4>
+                                <p class="text-sm text-emerald-800 mb-2">7 operations for agent management</p>
+                                <ul class="text-sm text-emerald-700 space-y-1">
+                                    <li>Create & list agents</li>
+                                    <li>Execute test payments</li>
+                                    <li>Check pricing & wallet status</li>
+                                    <li>Browse the service registry</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">Setup (4 steps)</h3>
+                        <div class="space-y-4">
+                            <div class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">1</div>
+                                <div>
+                                    <p class="font-medium">Upload the OpenAPI spec</p>
+                                    <p class="text-sm text-gray-500">In Copilot Studio, go to <strong>Actions → Add an action → New action → Connector</strong>. Upload the <code class="bg-gray-100 px-1 rounded">.swagger.json</code> file from the GitHub repo.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">2</div>
+                                <div>
+                                    <p class="font-medium">Configure API key authentication</p>
+                                    <p class="text-sm text-gray-500">Set auth type to <strong>API Key</strong>, header name <code class="bg-gray-100 px-1 rounded">X-API-Key</code>, and paste your AgentRails API key.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">3</div>
+                                <div>
+                                    <p class="font-medium">Select operations</p>
+                                    <p class="text-sm text-gray-500">Choose which API operations to enable. You can start with a few and add more later.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">4</div>
+                                <div>
+                                    <p class="font-medium">Test in Teams</p>
+                                    <p class="text-sm text-gray-500">Publish the copilot and ask it questions in Microsoft Teams. It calls the AgentRails API and returns answers in natural language.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">Example Prompts</h3>
+                        <p class="text-gray-600 mb-3">Once connected, your team can ask things like:</p>
+                        <div class="grid sm:grid-cols-2 gap-3">
+                            <div class="bg-gray-50 rounded-lg p-3 text-sm font-mono text-gray-700">"What's our total x402 revenue this month?"</div>
+                            <div class="bg-gray-50 rounded-lg p-3 text-sm font-mono text-gray-700">"Show me payments on Base mainnet"</div>
+                            <div class="bg-gray-50 rounded-lg p-3 text-sm font-mono text-gray-700">"Create a new agent called DataBot"</div>
+                            <div class="bg-gray-50 rounded-lg p-3 text-sm font-mono text-gray-700">"Is api.example.com trustworthy?"</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-teal-50 rounded-xl border border-teal-100">
+                        <h4 class="font-semibold text-teal-900 mb-2">Get the specs</h4>
+                        <p class="text-teal-800 text-sm">
+                            Both OpenAPI specs are in the <a href="https://github.com/kmatthewsio/AgenticCommerce-Enterprise/tree/main/copilot-studio" target="_blank" class="underline hover:no-underline font-medium">copilot-studio folder on GitHub</a>. See the README for detailed setup instructions and screenshots.
                         </p>
                     </div>
                 </section>
