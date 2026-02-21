@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Finance Team Just Got an AI Copilot for x402 - AgentRails</title>
+    <meta name="description" content="We built two Copilot Studio plugins that let your team query x402 revenue, manage agents, and run operations in Microsoft Teams. No code, no dashboards — just ask.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Your Finance Team Just Got an AI Copilot for x402">
+    <meta property="og:description" content="Two Copilot Studio plugins that let your team query x402 revenue, manage agents, and run operations in Microsoft Teams. No code required.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://agentrails.io/blog/your-finance-team-just-got-an-ai-copilot.html">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Your Finance Team Just Got an AI Copilot for x402">
+    <meta name="twitter:description" content="Two Copilot Studio plugins that let your team query x402 revenue, manage agents, and run operations in Microsoft Teams. No code required.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    typography: {
+                        DEFAULT: {
+                            css: {
+                                maxWidth: 'none',
+                                color: '#374151',
+                                h2: {
+                                    fontWeight: '600',
+                                    marginTop: '2em',
+                                    marginBottom: '1em',
+                                },
+                                h3: {
+                                    fontWeight: '600',
+                                    marginTop: '1.5em',
+                                    marginBottom: '0.5em',
+                                },
+                                blockquote: {
+                                    borderLeftColor: '#6366f1',
+                                    backgroundColor: '#eef2ff',
+                                    padding: '1rem',
+                                    borderRadius: '0.5rem',
+                                    fontStyle: 'normal',
+                                },
+                                'blockquote p:first-of-type::before': {
+                                    content: 'none',
+                                },
+                                'blockquote p:last-of-type::after': {
+                                    content: 'none',
+                                },
+                                pre: {
+                                    backgroundColor: '#1f2937',
+                                    color: '#e5e7eb',
+                                    borderRadius: '0.75rem',
+                                    padding: '1.25rem',
+                                    overflowX: 'auto',
+                                },
+                                code: {
+                                    backgroundColor: '#f3f4f6',
+                                    padding: '0.2em 0.4em',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.875em',
+                                    fontWeight: '500',
+                                },
+                                'pre code': {
+                                    backgroundColor: 'transparent',
+                                    padding: '0',
+                                    fontSize: '0.875em',
+                                },
+                                table: {
+                                    fontSize: '0.9em',
+                                },
+                                'thead th': {
+                                    fontWeight: '600',
+                                    borderBottomWidth: '2px',
+                                },
+                            },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Tailwind Typography -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                </a>
+
+                <div class="flex items-center gap-6">
+                    <a href="/blog/" class="text-primary-600 font-medium">Blog</a>
+                    <a href="/docs.html" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="https://sandbox.agentrails.io" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Try Sandbox
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="pt-24 pb-16">
+        <header class="bg-white border-b border-gray-100 py-12">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6">
+                <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                    <time datetime="2026-02-21">February 21, 2026</time>
+                    <span>&middot;</span>
+                    <span>6 min read</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
+                    Your Finance Team Just Got an AI Copilot for x402
+                </h1>
+                <p class="text-xl text-gray-600">
+                    We built two Copilot Studio plugins that let your team query x402 revenue, manage agents, and run operations in Microsoft Teams. No code, no dashboards&mdash;just ask.
+                </p>
+            </div>
+        </header>
+
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+            <div class="prose prose-lg">
+
+                <h2>The Problem with Dashboards</h2>
+
+                <p>
+                    You built the dashboard. You wired up the charts. You deployed it at <code>app.agentrails.io</code> with real-time metrics, payment history, network breakdowns, and API key management.
+                </p>
+
+                <p>
+                    Nobody opens it.
+                </p>
+
+                <p>
+                    Not because it's bad. Because dashboards require context switching. Your finance lead doesn't want to leave Teams, log into a separate app, navigate to the right page, and interpret a chart. They want to type "What's our x402 revenue this month?" and get an answer.
+                </p>
+
+                <blockquote>
+                    <p>
+                        The best interface is the one your team already uses. For 450 million Microsoft 365 users, that's Teams.
+                    </p>
+                </blockquote>
+
+                <h2>What We Built</h2>
+
+                <p>
+                    Two OpenAPI specs designed specifically for Microsoft Copilot Studio. Each exposes a curated subset of the AgentRails API as natural-language-callable operations.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Plugin</th>
+                            <th>Operations</th>
+                            <th>Who It's For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>FinanceOps Copilot</strong></td>
+                            <td>7</td>
+                            <td>Finance, ops, leadership</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Agent Executor Copilot</strong></td>
+                            <td>7</td>
+                            <td>Engineering, DevOps</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    Import a <code>.swagger.json</code> file, configure an API key, and your team can talk to the AgentRails API in plain English through Teams.
+                </p>
+
+                <h2>FinanceOps: 7 Operations for the Money People</h2>
+
+                <p>
+                    The FinanceOps copilot turns your finance team into power users of the AgentRails API without them knowing what an API is.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>What It Does</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>getPaymentStats</code></td>
+                            <td>Total payments, volume, success rate, per-network breakdown</td>
+                        </tr>
+                        <tr>
+                            <td><code>getPayments</code></td>
+                            <td>Recent payment history with amounts, status, and networks</td>
+                        </tr>
+                        <tr>
+                            <td><code>getPricing</code></td>
+                            <td>Current endpoint prices, supported networks, pay-to address</td>
+                        </tr>
+                        <tr>
+                            <td><code>getAgentDashboard</code></td>
+                            <td>Agent count, active/paused/error breakdown, budget totals</td>
+                        </tr>
+                        <tr>
+                            <td><code>getWalletBalance</code></td>
+                            <td>USDC balance per chain (Base, Ethereum, Arc)</td>
+                        </tr>
+                        <tr>
+                            <td><code>getBillingUsage</code></td>
+                            <td>Transaction count, volume, fees (billed vs unbilled)</td>
+                        </tr>
+                        <tr>
+                            <td><code>checkServiceTrust</code></td>
+                            <td>Trust score for any x402 service URL</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    Your CFO types "What's our total x402 revenue?" in Teams. The copilot calls <code>getPaymentStats</code>, gets back the numbers, and answers in natural language. No login, no navigation, no SQL queries.
+                </p>
+
+                <h2>Agent Executor: 7 Operations for the Builders</h2>
+
+                <p>
+                    The Agent Executor copilot gives your engineering team a conversational interface to the agent management API.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>What It Does</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>listAgents</code></td>
+                            <td>All agents with status, budget, balance, and wallet addresses</td>
+                        </tr>
+                        <tr>
+                            <td><code>createAgent</code></td>
+                            <td>Register a new agent with name, description, and USDC budget</td>
+                        </tr>
+                        <tr>
+                            <td><code>getAgentInfo</code></td>
+                            <td>Detailed info for a specific agent</td>
+                        </tr>
+                        <tr>
+                            <td><code>runAgent</code></td>
+                            <td>Execute a task and get the result, cost, and timing</td>
+                        </tr>
+                        <tr>
+                            <td><code>deleteAgent</code></td>
+                            <td>Remove an agent permanently</td>
+                        </tr>
+                        <tr>
+                            <td><code>getLogs</code></td>
+                            <td>Recent execution logs, filterable by level</td>
+                        </tr>
+                        <tr>
+                            <td><code>getErrorLogs</code></td>
+                            <td>Error-only logs for quick debugging</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    A developer types "Create a new research agent with a $5 budget" in Teams. The copilot calls <code>createAgent</code> with the right parameters and confirms the agent was created. No curl, no Swagger UI, no terminal.
+                </p>
+
+                <h2>Setup: 4 Steps, 10 Minutes</h2>
+
+                <p>
+                    You don't write code. You don't deploy anything. You upload a file and configure a key.
+                </p>
+
+                <ol>
+                    <li><strong>Upload the spec.</strong> In <a href="https://copilotstudio.microsoft.com" target="_blank">Copilot Studio</a>, go to Actions &rarr; Add an action &rarr; OpenAPI. Upload the <code>.swagger.json</code> file.</li>
+                    <li><strong>Configure auth.</strong> Set authentication type to API Key, header name to <code>X-API-Key</code>, paste your AgentRails API key.</li>
+                    <li><strong>Select operations.</strong> Choose which of the 7 operations to enable. Start with a few, add more later.</li>
+                    <li><strong>Publish.</strong> Deploy to Teams. Your team can start asking questions immediately.</li>
+                </ol>
+
+                <p>
+                    That's it. The copilot handles intent detection, parameter extraction, API calls, and response formatting. You just gave it the swagger file and a key.
+                </p>
+
+                <h2>Why Swagger 2.0?</h2>
+
+                <p>
+                    Copilot Studio has specific requirements that constrain the spec format:
+                </p>
+
+                <ul>
+                    <li><strong>Swagger 2.0 JSON only.</strong> No OpenAPI v3, no YAML. Copilot Studio's connector parser only supports the older format.</li>
+                    <li><strong>Flat schemas.</strong> No nested objects, no <code>oneOf</code>/<code>allOf</code>/<code>anyOf</code>, no circular <code>$ref</code>. The LLM handles flat key-value responses much better.</li>
+                    <li><strong>Rich descriptions.</strong> Every operation, parameter, and response property has a description written for the LLM. These aren't developer docs&mdash;they're prompts that tell the copilot <em>when</em> and <em>how</em> to call each endpoint.</li>
+                    <li><strong>7 operations per spec.</strong> Quality degrades above ~10 operations. Two focused specs beat one bloated one.</li>
+                </ul>
+
+                <p>
+                    We tested all 14 operations against the live <code>api.agentrails.io</code> API before publishing. Every endpoint returns 200, every response shape matches the schema.
+                </p>
+
+                <h2>Example Conversations</h2>
+
+                <p>
+                    Here's what these look like in practice:
+                </p>
+
+<pre><code>User: What's our total x402 revenue?
+Copilot: Your total x402 payment volume is $284.50 USDC
+         across 142 transactions with a 96.5% success rate.
+         Base mainnet accounts for 78% of volume.
+
+User: Are there any failed payments?
+Copilot: There are 5 failed payments in the last 30 days,
+         all on Ethereum Sepolia. The most recent was
+         $0.01 USDC on Feb 19 at 3:42 PM.
+
+User: Create a new agent called DataBot with a $10 budget
+Copilot: Done. Created agent "DataBot" (agent_8f2a...)
+         with a $10.00 USDC budget on Arc Testnet.
+         Status: Active.
+
+User: Show me recent error logs
+Copilot: 3 errors in the last 24 hours:
+         - [Feb 21 09:15] Timeout calling external API
+         - [Feb 21 07:33] Agent budget exceeded
+         - [Feb 20 22:41] Network mismatch on payment</code></pre>
+
+                <p>
+                    The copilot formats the API's JSON response into readable natural language. Your team never sees raw JSON.
+                </p>
+
+                <h2>Who This Is For</h2>
+
+                <p>
+                    This is an enterprise feature. You need:
+                </p>
+
+                <ul>
+                    <li><strong>Microsoft 365</strong> with a Copilot Studio license (included in some plans)</li>
+                    <li><strong>An AgentRails API key</strong> (free sandbox key works)</li>
+                    <li><strong>10 minutes</strong> to upload and configure</li>
+                </ul>
+
+                <p>
+                    If your organization runs on Microsoft 365 and you're using AgentRails for x402 payments, this is the fastest way to give non-technical team members access to operational data.
+                </p>
+
+                <p>
+                    If you're a solo developer, you probably don't need this&mdash;the dashboard and API are more direct. But if you're selling AgentRails to an enterprise customer, "works in Teams" is a line item that closes deals.
+                </p>
+
+                <h2>Get the Specs</h2>
+
+                <p>
+                    Both OpenAPI specs are open source:
+                </p>
+
+                <ul>
+                    <li><a href="https://github.com/kmatthewsio/AgenticCommerce/tree/master/copilot-studio" target="_blank">GitHub: copilot-studio/</a> &mdash; both swagger files + README with setup instructions</li>
+                    <li><a href="https://agentrails.io/docs.html#copilot-studio" target="_blank">Documentation</a> &mdash; full setup guide with example prompts</li>
+                    <li><a href="https://sandbox.agentrails.io/swagger" target="_blank">Sandbox</a> &mdash; get a free API key to test with</li>
+                </ul>
+
+                <p>
+                    <em>If you're running AgentRails in an enterprise environment and want help setting up the Copilot Studio integration, reach out: <a href="mailto:sales@agentrails.io">sales@agentrails.io</a></em>
+                </p>
+
+                <div class="mt-12 p-6 bg-gradient-to-br from-primary-50 to-cyan-50 rounded-2xl border border-primary-100">
+                    <h3 class="text-lg font-semibold mb-2 mt-0">Try it now</h3>
+                    <p class="mb-4 text-gray-600">Download the OpenAPI specs and import them into Copilot Studio. Works with the free sandbox API key&mdash;no production account needed.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="https://github.com/kmatthewsio/AgenticCommerce/tree/master/copilot-studio" target="_blank" class="inline-block px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition">
+                            Get the Specs
+                        </a>
+                        <a href="https://agentrails.io/docs.html#copilot-studio" target="_blank" class="inline-block px-6 py-3 bg-white text-gray-700 rounded-xl font-medium border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                            Setup Guide
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </article>
+
+    <!-- More Articles -->
+    <section class="py-12 bg-white border-t border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <h2 class="text-2xl font-bold mb-8">More Articles</h2>
+            <div class="space-y-6">
+                <a href="/blog/dotnet-agents-can-pay-now.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 19, 2026</div>
+                    <div class="font-semibold text-gray-900">.NET Agents Can Pay Now: x402 Comes to Semantic Kernel</div>
+                </a>
+                <a href="/blog/implementing-http-402.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 17, 2026</div>
+                    <div class="font-semibold text-gray-900">We Implemented HTTP 402 For Real: How AI Agents Pay for APIs</div>
+                </a>
+                <a href="/blog/the-missing-layer-in-every-agi-forecast.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 12, 2026</div>
+                    <div class="font-semibold text-gray-900">The Missing Layer in Every AGI Forecast</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-200 bg-white">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+            <p>&copy; 2026 AgentRails. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
