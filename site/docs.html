@@ -410,7 +410,7 @@
                     </p>
 
                     <!-- Install boxes -->
-                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
                         <div class="bg-gradient-to-br from-primary-500 to-cyan-500 rounded-xl p-6 text-white">
                             <h3 class="font-semibold mb-2">LangChain</h3>
                             <div class="bg-black/20 rounded-lg p-3 font-mono text-sm mb-3">
@@ -439,6 +439,16 @@
                             <div class="flex gap-3 text-sm">
                                 <a href="https://www.nuget.org/packages/AgentRails.SemanticKernel.X402" target="_blank" class="underline hover:no-underline">NuGet</a>
                                 <a href="https://github.com/kmatthewsio/semantickernel-x402" target="_blank" class="underline hover:no-underline">GitHub</a>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-6 text-white">
+                            <h3 class="font-semibold mb-2">Agent Framework</h3>
+                            <div class="bg-black/20 rounded-lg p-3 font-mono text-sm mb-3">
+                                dotnet add package<br>AgentRails.AgentFramework.X402
+                            </div>
+                            <div class="flex gap-3 text-sm">
+                                <a href="https://www.nuget.org/packages/AgentRails.AgentFramework.X402" target="_blank" class="underline hover:no-underline">NuGet</a>
+                                <a href="https://github.com/kmatthewsio/agentframework-x402" target="_blank" class="underline hover:no-underline">GitHub</a>
                             </div>
                         </div>
                         <div class="bg-gradient-to-br from-teal-500 to-emerald-500 rounded-xl p-6 text-white">
@@ -544,10 +554,36 @@ builder.Plugins.AddFromType&lt;X402Plugin&gt;();
                         </div>
                     </div>
 
+                    <div class="bg-white rounded-xl border border-gray-200 p-6 mt-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <h3 class="font-semibold">Agent Framework Integration <span class="text-xs font-normal bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">.NET</span></h3>
+                        </div>
+                        <div class="code-block rounded-lg p-4 overflow-x-auto">
+                            <pre class="text-sm font-mono text-gray-300"><span class="text-blue-400">using</span> AgentRails.AgentFramework.X402;
+<span class="text-blue-400">using</span> AgentRails.AgentFramework.X402.Models;
+<span class="text-blue-400">using</span> Microsoft.Extensions.AI;
+
+<span class="text-gray-500">// 1. Create x402 tools</span>
+<span class="text-blue-400">var</span> options = <span class="text-blue-400">new</span> X402PluginOptions
+{
+    PrivateKey = Environment.GetEnvironmentVariable(<span class="text-emerald-400">"WALLET_PRIVATE_KEY"</span>)!,
+    Network = <span class="text-emerald-400">"eip155:84532"</span>,  <span class="text-gray-500">// Base Sepolia</span>
+    BudgetUsd = <span class="text-amber-400">5.00m</span>,
+};
+<span class="text-blue-400">var</span> wallet = <span class="text-blue-400">new</span> X402Wallet(options);
+<span class="text-blue-400">var</span> x402 = <span class="text-blue-400">new</span> X402Tools(wallet, httpFactory, options);
+
+<span class="text-gray-500">// 2. Register tools on any IChatClient-based agent</span>
+<span class="text-blue-400">var</span> response = <span class="text-blue-400">await</span> chatClient.GetResponseAsync(
+    <span class="text-emerald-400">"Get the analysis from https://sandbox.agentrails.io/api/x402/protected/analysis"</span>,
+    <span class="text-blue-400">new</span> ChatOptions { Tools = x402.GetTools() });</pre>
+                        </div>
+                    </div>
+
                     <div class="mt-6 p-4 bg-primary-50 rounded-xl border border-primary-100">
                         <h4 class="font-semibold text-primary-900 mb-2">How it works</h4>
                         <p class="text-primary-800 text-sm">
-                            When your agent requests a paid resource, the SDK automatically detects the 402 response, signs a USDC payment authorization, and retries the request. Your agent gets the data, the API gets paid. No API keys, no subscriptions. Works with Python (LangChain, CrewAI) and .NET (Semantic Kernel).
+                            When your agent requests a paid resource, the SDK automatically detects the 402 response, signs a USDC payment authorization, and retries the request. Your agent gets the data, the API gets paid. No API keys, no subscriptions. Works with Python (LangChain, CrewAI) and .NET (Semantic Kernel, Agent Framework).
                         </p>
                     </div>
                 </section>

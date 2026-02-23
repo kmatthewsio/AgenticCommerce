@@ -432,7 +432,7 @@ builder.Services.AddX402Plugin(configuration.GetSection("X402"));</code></pre>
                 </p>
 
                 <p>
-                    This isn't just about Semantic Kernel. Microsoft's <a href="https://devblogs.microsoft.com/semantic-kernel/microsofts-agentic-frameworks-autogen-semantic-kernel-and-more/" target="_blank">Agent Framework</a> is converging Semantic Kernel and AutoGen into a unified agent platform. Building on Semantic Kernel today means building on the foundation that Microsoft's entire agent strategy runs on.
+                    This isn't just about Semantic Kernel. Microsoft's <a href="https://devblogs.microsoft.com/semantic-kernel/microsofts-agentic-frameworks-autogen-semantic-kernel-and-more/" target="_blank">Agent Framework</a> has converged Semantic Kernel and AutoGen into a unified agent platform. We now support both: <a href="https://www.nuget.org/packages/AgentRails.AgentFramework.X402" target="_blank">AgentRails.AgentFramework.X402</a> targets the new <code>Microsoft.Extensions.AI</code> surface, while the Semantic Kernel package continues to work for existing projects.
                 </p>
 
                 <p>
@@ -441,11 +441,14 @@ builder.Services.AddX402Plugin(configuration.GetSection("X402"));</code></pre>
 
                 <h2>Get Started</h2>
 
-<pre><code>dotnet add package AgentRails.SemanticKernel.X402</code></pre>
+<pre><code>dotnet add package AgentRails.SemanticKernel.X402    # Semantic Kernel
+dotnet add package AgentRails.AgentFramework.X402    # Agent Framework (Microsoft.Extensions.AI)</code></pre>
 
                 <ul>
-                    <li><a href="https://www.nuget.org/packages/AgentRails.SemanticKernel.X402" target="_blank">NuGet package</a></li>
-                    <li><a href="https://github.com/kmatthewsio/semantickernel-x402" target="_blank">GitHub source</a></li>
+                    <li><a href="https://www.nuget.org/packages/AgentRails.AgentFramework.X402" target="_blank">Agent Framework NuGet package</a> (recommended for new projects)</li>
+                    <li><a href="https://www.nuget.org/packages/AgentRails.SemanticKernel.X402" target="_blank">Semantic Kernel NuGet package</a></li>
+                    <li><a href="https://github.com/kmatthewsio/agentframework-x402" target="_blank">Agent Framework GitHub</a></li>
+                    <li><a href="https://github.com/kmatthewsio/semantickernel-x402" target="_blank">Semantic Kernel GitHub</a></li>
                     <li><a href="https://agentrails.io/docs.html#client-side" target="_blank">Documentation</a></li>
                     <li><a href="https://sandbox.agentrails.io/swagger" target="_blank">Sandbox</a> &mdash; test against a live x402 API, no signup required</li>
                 </ul>
