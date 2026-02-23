@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise - AgentRails | Agent Infrastructure for Microsoft 365</title>
+    <meta name="description" content="Agent payment infrastructure that speaks your Microsoft stack. Power Automate connectors, Copilot Studio actions, Dataverse sync, and enterprise governance for x402 payments.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Custom animations */
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-fade-up {
+            animation: fade-up 0.6s ease-out forwards;
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Gradient border */
+        .gradient-border {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            border-radius: 14px;
+            z-index: -1;
+        }
+
+        /* Code block styling */
+        .code-block {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
+
+        /* Blob background */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased" x-data="{ mobileMenu: false }">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                </a>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="/#features" class="text-gray-600 hover:text-gray-900 transition">Features</a>
+                    <a href="/#use-cases" class="text-gray-600 hover:text-gray-900 transition">Use Cases</a>
+                    <a href="/#pricing" class="text-gray-600 hover:text-gray-900 transition">Pricing</a>
+                    <a href="/docs.html" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="/blog/" class="text-gray-600 hover:text-gray-900 transition">Blog</a>
+                    <a href="/enterprise.html" class="text-primary-600 font-medium">Enterprise</a>
+                    <a href="https://app.agentrails.io" target="_blank" class="text-gray-600 hover:text-gray-900 transition">Dashboard</a>
+                    <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="text-gray-600 hover:text-gray-900 transition">GitHub</a>
+                    <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Try Sandbox
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Nav -->
+            <div x-show="mobileMenu" x-transition class="md:hidden py-4 border-t border-gray-100">
+                <a href="/#features" class="block py-2 text-gray-600">Features</a>
+                <a href="/#use-cases" class="block py-2 text-gray-600">Use Cases</a>
+                <a href="/#pricing" class="block py-2 text-gray-600">Pricing</a>
+                <a href="/docs.html" class="block py-2 text-gray-600">Docs</a>
+                <a href="/blog/" class="block py-2 text-gray-600">Blog</a>
+                <a href="/enterprise.html" class="block py-2 text-primary-600 font-medium">Enterprise</a>
+                <a href="https://app.agentrails.io" target="_blank" class="block py-2 text-gray-600">Dashboard</a>
+                <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="block py-2 text-gray-600">GitHub</a>
+                <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="block py-2 mt-2 text-center bg-primary-600 text-white rounded-lg font-medium">
+                    Try Sandbox
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
+        <!-- Background blobs -->
+        <div class="blob w-96 h-96 bg-primary-300 top-20 -left-48"></div>
+        <div class="blob w-96 h-96 bg-cyan-300 top-40 right-0"></div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center max-w-3xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 text-primary-700 text-sm font-medium mb-6 animate-fade-up">
+                    <span class="w-2 h-2 rounded-full bg-primary-500"></span>
+                    Power Platform Native
+                </div>
+
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fade-up delay-100">
+                    Agent infrastructure that speaks your <span class="gradient-text">Microsoft stack</span>
+                </h1>
+
+                <p class="text-lg sm:text-xl text-gray-600 mb-8 animate-fade-up delay-200">
+                    AI agents + M365 + x402 payments. One custom connector brings autonomous agent payments to Power Automate, Power Apps, Copilot Studio, and Dataverse.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up delay-300">
+                    <a href="mailto:sales@agentrails.io?subject=Enterprise%20Demo%20Request" class="px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition shadow-lg shadow-primary-500/25">
+                        Book a Demo
+                    </a>
+                    <a href="/docs.html#power-platform" class="px-6 py-3 bg-white text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition border border-gray-200">
+                        View Docs
+                    </a>
+                </div>
+
+                <!-- Stats -->
+                <div class="flex flex-wrap gap-8 mt-12 justify-center animate-fade-up delay-400">
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900">450M+</div>
+                        <div class="text-sm text-gray-500">M365 seats</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900">24</div>
+                        <div class="text-sm text-gray-500">Connector operations</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900">5</div>
+                        <div class="text-sm text-gray-500">Security roles</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section class="py-12 border-y border-gray-100 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <p class="text-center text-sm text-gray-500 mb-8">Built on trusted infrastructure</p>
+            <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-16 opacity-60">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">C</div>
+                    <span class="font-semibold text-gray-700">Circle</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center text-white font-bold text-sm">P</div>
+                    <span class="font-semibold text-gray-700">Microsoft Power Platform</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-gray-700">X402 Protocol</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-gray-700">USDC</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Works With Your Stack -->
+    <section class="py-20 lg:py-32">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Works with your stack</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    One custom connector. Four surfaces. No custom development required.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Power Automate -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Power Automate</h3>
+                    <p class="text-gray-600 text-sm">
+                        Automate agent workflows, payment notifications, daily summaries, and compliance reporting.
+                    </p>
+                </div>
+
+                <!-- Power Apps -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Power Apps</h3>
+                    <p class="text-gray-600 text-sm">
+                        Build internal apps for agent management and payment monitoring. No code required.
+                    </p>
+                </div>
+
+                <!-- Copilot Studio -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Copilot Studio</h3>
+                    <p class="text-gray-600 text-sm">
+                        Natural-language agent operations in Teams. "What's our revenue?" "Create a research agent."
+                    </p>
+                </div>
+
+                <!-- Dataverse -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Dataverse</h3>
+                    <p class="text-gray-600 text-sm">
+                        Sync payment data for Power BI dashboards, model-driven apps, and enterprise security roles.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What Enterprise Gets -->
+    <section class="py-20 lg:py-32 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">What enterprise gets</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Everything you need to govern AI agent payments at scale within your existing Microsoft infrastructure.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Custom Connector -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Custom Connector</h3>
+                    <p class="text-gray-600">
+                        24 operations in one OpenAPI connector. Import into Power Automate, Power Apps, or Copilot Studio in minutes.
+                    </p>
+                </div>
+
+                <!-- Spending Policies -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Spending Policies</h3>
+                    <p class="text-gray-600">
+                        Per-agent budget limits, per-transaction caps, destination whitelists, and rate controls. Policy engine enforced server-side.
+                    </p>
+                </div>
+
+                <!-- Security Roles -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Security Roles</h3>
+                    <p class="text-gray-600">
+                        Five pre-built Dataverse roles: System Admin, Finance Manager, Agent Operator, Auditor, and Read-Only Viewer.
+                    </p>
+                </div>
+
+                <!-- Column-Level Security -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Column-Level Security</h3>
+                    <p class="text-gray-600">
+                        Wallet addresses, transaction hashes, and private keys protected at the Dataverse column level. Only authorized roles see sensitive fields.
+                    </p>
+                </div>
+
+                <!-- Dataverse Sync -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Dataverse Sync</h3>
+                    <p class="text-gray-600">
+                        Agents, payments, and policies sync to Dataverse tables via Power Automate flows. Build Power BI dashboards on live data.
+                    </p>
+                </div>
+
+                <!-- Audit Trail -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
+                    <div class="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Audit Trail</h3>
+                    <p class="text-gray-600">
+                        Every agent action, payment, and policy change logged with timestamps, user identity, and on-chain transaction hashes.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-20 lg:py-32">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">How it works</h2>
+                <p class="text-lg text-gray-600">Three steps from download to governed agent payments</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+                <!-- Step 1 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
+                        1
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Import the connector</h3>
+                    <p class="text-gray-600">
+                        Download the OpenAPI spec from GitHub. Import it as a custom connector in Power Automate. Set API key auth. Done.
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
+                        2
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Build workflows</h3>
+                    <p class="text-gray-600">
+                        Create Power Automate flows, Power Apps screens, or Copilot Studio actions that call the connector. All 24 operations are available.
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
+                        3
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Govern at scale</h3>
+                    <p class="text-gray-600">
+                        Sync data to Dataverse. Assign security roles. Set spending policies. Monitor with Power BI. Enterprise governance from day one.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Open Source Repos -->
+    <section class="py-20 lg:py-32 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Open source, enterprise ready</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    All three Power Platform repos are open source. Fork, customize, and deploy on your own terms.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Power Platform Demo -->
+                <a href="https://github.com/kmatthewsio/agentrails-powerplatform-demo" target="_blank" class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition block">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-violet-500 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">agentrails-powerplatform-demo</h3>
+                    <p class="text-gray-600 text-sm mb-4">
+                        Custom connector (24 ops), Power Automate flows, solution package, and security role definitions.
+                    </p>
+                    <span class="text-primary-600 text-sm font-medium">View on GitHub &rarr;</span>
+                </a>
+
+                <!-- Copilot Actions -->
+                <a href="https://github.com/kmatthewsio/agentrails-copilot-actions" target="_blank" class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition block">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">agentrails-copilot-actions</h3>
+                    <p class="text-gray-600 text-sm mb-4">
+                        FinanceOps + Agent Executor Copilot Studio actions. Natural-language agent management in Teams.
+                    </p>
+                    <span class="text-primary-600 text-sm font-medium">View on GitHub &rarr;</span>
+                </a>
+
+                <!-- Dataverse Integration -->
+                <a href="https://github.com/kmatthewsio/agentrails-dataverse-integration" target="_blank" class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition block">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">agentrails-dataverse-integration</h3>
+                    <p class="text-gray-600 text-sm mb-4">
+                        Dataverse table definitions, sync flows, security roles, and column-level security profiles.
+                    </p>
+                    <span class="text-primary-600 text-sm font-medium">View on GitHub &rarr;</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 lg:py-32 bg-gradient-to-br from-primary-600 to-primary-800">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to govern agent payments at scale?</h2>
+            <p class="text-lg text-primary-100 mb-8">
+                See how AgentRails fits your Microsoft infrastructure. We'll walk through the connector, Dataverse sync, and security roles.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                    href="mailto:sales@agentrails.io?subject=Enterprise%20Demo%20Request"
+                    class="inline-block px-8 py-4 bg-white text-primary-700 rounded-xl font-semibold hover:bg-primary-50 transition text-lg"
+                >
+                    Book a Demo
+                </a>
+                <a
+                    href="/docs.html#power-platform"
+                    class="inline-block px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white/10 transition text-lg"
+                >
+                    View Documentation
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 bg-gray-900 text-gray-400">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <!-- Brand -->
+                <div class="md:col-span-2">
+                    <a href="/" class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <span class="font-semibold text-lg text-white">AgentRails</span>
+                    </a>
+                    <p class="text-sm max-w-xs">
+                        Payments for the AI economy. Let your agents pay for APIs, data, and compute—per-request, instant settlement.
+                    </p>
+                </div>
+
+                <!-- Links -->
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Product</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/#features" class="hover:text-white transition">Features</a></li>
+                        <li><a href="/#how-it-works" class="hover:text-white transition">How It Works</a></li>
+                        <li><a href="/#pricing" class="hover:text-white transition">Pricing</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Developers</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="https://app.agentrails.io" target="_blank" class="hover:text-white transition">Dashboard</a></li>
+                        <li><a href="https://sandbox.agentrails.io/swagger" target="_blank" class="hover:text-white transition">Sandbox</a></li>
+                        <li><a href="https://api.agentrails.io/swagger" target="_blank" class="hover:text-white transition">API Reference</a></li>
+                        <li><a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="hover:text-white transition">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm">
+                <p>&copy; 2026 AgentRails. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-white transition">Privacy</a>
+                    <a href="#" class="hover:text-white transition">Terms</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
