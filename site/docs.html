@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentation - AgentRails</title>
-    <meta name="description" content="Learn how to integrate x402 payments into your APIs. Guides, tutorials, and API reference for AgentRails.">
+    <title>Documentation - AgentRails | AI Agent Infrastructure</title>
+    <meta name="description" content="Build, govern, and scale AI agents on Microsoft 365. MCP server development, Copilot Studio integration, agent governance, and x402 autonomous payments.">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -113,6 +113,14 @@
                 <a href="#client-side" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Agent SDKs</a>
                 <a href="#copilot-studio" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Copilot Studio</a>
                 <a href="#power-platform" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Power Platform</a>
+                <a href="#mcp-servers" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">MCP Servers</a>
+
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6 px-3">Agent Governance</p>
+                <a href="#governance" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Overview</a>
+                <a href="#spending-policies" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Spending Policies</a>
+                <a href="#approval-workflows" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Approval Workflows</a>
+                <a href="#audit-trails" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Audit Trails</a>
+
                 <a href="#webhooks" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Webhooks</a>
 
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6 px-3">Trust & Discovery</p>
@@ -138,7 +146,7 @@
                 <section id="introduction" class="mb-16">
                     <h1 class="text-4xl font-bold mb-4">AgentRails Documentation</h1>
                     <p class="text-xl text-gray-600 mb-8">
-                        Build payment-enabled APIs for AI agents using the x402 protocol. Let software pay software, per-request, with instant USDC settlement.
+                        Build, govern, and scale AI agents on Microsoft 365. From Copilot Studio agent development to MCP server integration to x402 autonomous payments — AgentRails is the full-stack agent infrastructure platform.
                     </p>
                     <div class="grid sm:grid-cols-3 gap-4">
                         <a href="#quickstart" class="block p-4 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
@@ -146,10 +154,10 @@
                             <h3 class="font-semibold mb-1">Quick Start</h3>
                             <p class="text-sm text-gray-600">Get up and running in 5 minutes</p>
                         </a>
-                        <a href="#how-it-works" class="block p-4 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                        <a href="#governance" class="block p-4 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
                             <div class="text-2xl mb-2">📖</div>
-                            <h3 class="font-semibold mb-1">How x402 Works</h3>
-                            <p class="text-sm text-gray-600">Understand the protocol</p>
+                            <h3 class="font-semibold mb-1">Agent Governance</h3>
+                            <p class="text-sm text-gray-600">Policies, approvals, audit trails</p>
                         </a>
                         <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="block p-4 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
                             <div class="text-2xl mb-2">🔧</div>
@@ -306,8 +314,11 @@
                 <!-- How It Works -->
                 <section id="how-it-works" class="mb-16">
                     <h2 class="text-2xl font-bold mb-4">How x402 Works</h2>
-                    <p class="text-gray-600 mb-6">
+                    <p class="text-gray-600 mb-4">
                         x402 is an open protocol that enables HTTP-native payments. It uses the HTTP 402 status code to signal that payment is required, along with machine-readable headers that tell the client exactly how to pay.
+                    </p>
+                    <p class="text-gray-600 mb-6">
+                        x402 is the payment layer that makes AI agents commercially autonomous. While <a href="#governance" class="text-primary-600 hover:underline">governance</a> controls what agents can do, x402 enables them to pay for APIs, data, and compute without human intervention.
                     </p>
 
                     <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
@@ -706,6 +717,141 @@ builder.Plugins.AddFromType&lt;X402Plugin&gt;();
                         <h4 class="font-semibold text-primary-900 mb-2">Enterprise-Ready</h4>
                         <p class="text-primary-800 text-sm">
                             AgentRails is the only x402 payment infrastructure with native Power Platform support. For the 450M+ Microsoft 365 seats, this means AI agent payments work with existing enterprise tools — no custom development required. See the <a href="https://github.com/kmatthewsio/agentrails-powerplatform-demo/tree/master/security-roles" target="_blank" class="underline hover:no-underline font-medium">security roles guide</a> for RBAC configuration.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- MCP Servers -->
+                <section id="mcp-servers" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">MCP Servers</h2>
+                    <p class="text-gray-600 mb-6">
+                        The Model Context Protocol (MCP) is an open standard that lets AI agents securely access external data sources, tools, and APIs through a unified interface. We build custom MCP servers that connect your Copilot Studio agents to internal systems — with enterprise-grade security and scoping.
+                    </p>
+
+                    <div class="bg-primary-50 rounded-xl p-6 border border-primary-100 mb-6">
+                        <h4 class="font-semibold text-primary-900 mb-2">What is MCP?</h4>
+                        <p class="text-primary-800 text-sm">
+                            The Model Context Protocol (MCP) standardizes how AI models interact with external data and tools. Instead of building custom integrations for each data source, MCP provides a single protocol that any AI agent can use. Think of it as a universal adapter between AI agents and your enterprise systems.
+                        </p>
+                    </div>
+
+                    <div class="grid sm:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center mb-3">
+                                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                                </svg>
+                            </div>
+                            <h3 class="font-semibold mb-2">Internal Data Access</h3>
+                            <p class="text-sm text-gray-600">Connect agents to SharePoint, Dataverse, SQL databases, and internal APIs through secure MCP endpoints. Agents query data without direct database access.</p>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center mb-3">
+                                <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <h3 class="font-semibold mb-2">Tool Orchestration</h3>
+                            <p class="text-sm text-gray-600">Expose internal tools — approval workflows, ticket creation, report generation — as MCP tools that agents can invoke within defined guardrails.</p>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center mb-3">
+                                <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                            </div>
+                            <h3 class="font-semibold mb-2">Security & Scoping</h3>
+                            <p class="text-sm text-gray-600">Every MCP server enforces row-level security, column-level masking, and role-based access. Agents see only what their permissions allow.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50 rounded-xl p-6 border border-amber-100">
+                        <h4 class="font-semibold text-amber-900 mb-2">Coming Soon</h4>
+                        <p class="text-amber-800 text-sm">
+                            Pre-built MCP server templates for common enterprise data sources: SharePoint document libraries, Dataverse tables, SQL Server databases, and Azure Blob Storage. Contact us for early access to the template library.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Agent Governance -->
+                <section id="governance" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">Agent Governance</h2>
+                    <p class="text-gray-600 mb-6">
+                        Enterprise AI agent deployment requires more than just building agents — it requires a governance framework that controls what agents can do, how much they can spend, and who approves exceptions. AgentRails provides a governance layer that integrates directly with your M365 security model.
+                    </p>
+
+                    <!-- Spending Policies -->
+                    <div id="spending-policies" class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">Spending Policies</h3>
+                        <p class="text-gray-600 mb-4">Define granular controls over agent financial activity. Policies are enforced server-side — agents cannot bypass them.</p>
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
+                                <h4 class="font-semibold text-emerald-900 mb-2">Budget Limits</h4>
+                                <p class="text-sm text-emerald-800">Set per-agent, per-team, or organization-wide budgets. Daily, weekly, and monthly caps with automatic enforcement.</p>
+                            </div>
+                            <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
+                                <h4 class="font-semibold text-emerald-900 mb-2">Transaction Caps</h4>
+                                <p class="text-sm text-emerald-800">Maximum spend per transaction. Prevent runaway agent costs with hard limits on individual payment amounts.</p>
+                            </div>
+                            <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
+                                <h4 class="font-semibold text-emerald-900 mb-2">Destination Whitelists</h4>
+                                <p class="text-sm text-emerald-800">Restrict which services and APIs agents can pay. Whitelist trusted destinations and block everything else.</p>
+                            </div>
+                            <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
+                                <h4 class="font-semibold text-emerald-900 mb-2">Rate Controls</h4>
+                                <p class="text-sm text-emerald-800">Limit transaction frequency per agent. Prevent burst spending and enforce cool-down periods between payments.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approval Workflows -->
+                    <div id="approval-workflows" class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">Approval Workflows</h3>
+                        <p class="text-gray-600 mb-4">For high-value or sensitive agent actions, route decisions through human approval chains before execution.</p>
+                        <div class="space-y-3">
+                            <div class="flex gap-3 items-start">
+                                <span class="px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs font-medium flex-shrink-0 mt-0.5">Approval Chains</span>
+                                <p class="text-sm text-gray-600">Multi-level approval routing based on transaction value, agent type, or destination. Configurable escalation paths.</p>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <span class="px-2 py-1 bg-violet-100 text-violet-700 rounded text-xs font-medium flex-shrink-0 mt-0.5">Power Automate</span>
+                                <p class="text-sm text-gray-600">Trigger approval flows in Power Automate when agents exceed policy thresholds. Integrates with existing enterprise workflows.</p>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <span class="px-2 py-1 bg-teal-100 text-teal-700 rounded text-xs font-medium flex-shrink-0 mt-0.5">Teams Notifications</span>
+                                <p class="text-sm text-gray-600">Approval requests delivered as adaptive cards in Microsoft Teams. Approve or deny with a single click.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audit Trails -->
+                    <div id="audit-trails" class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+                        <h3 class="font-semibold mb-4">Audit Trails</h3>
+                        <p class="text-gray-600 mb-4">Every agent action is logged with full context for compliance, debugging, and operational visibility.</p>
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div class="p-4 bg-violet-50 rounded-lg border border-violet-100">
+                                <h4 class="font-semibold text-violet-900 mb-2">Action Logging</h4>
+                                <p class="text-sm text-violet-800">Every agent decision, API call, and payment is recorded with timestamps, user context, and decision rationale.</p>
+                            </div>
+                            <div class="p-4 bg-violet-50 rounded-lg border border-violet-100">
+                                <h4 class="font-semibold text-violet-900 mb-2">On-Chain Verification</h4>
+                                <p class="text-sm text-violet-800">x402 payments include cryptographic transaction hashes for independent on-chain verification of every payment.</p>
+                            </div>
+                            <div class="p-4 bg-violet-50 rounded-lg border border-violet-100">
+                                <h4 class="font-semibold text-violet-900 mb-2">Power BI Integration</h4>
+                                <p class="text-sm text-violet-800">Audit data syncs to Dataverse for Power BI dashboards. Visualize agent activity, spending trends, and policy violations.</p>
+                            </div>
+                            <div class="p-4 bg-violet-50 rounded-lg border border-violet-100">
+                                <h4 class="font-semibold text-violet-900 mb-2">Dataverse Storage</h4>
+                                <p class="text-sm text-violet-800">All audit records stored in Dataverse tables with enterprise security roles. Column-level security for sensitive fields.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-primary-50 rounded-xl border border-primary-100">
+                        <h4 class="font-semibold text-primary-900 mb-2">Enterprise-Ready</h4>
+                        <p class="text-primary-800 text-sm">
+                            AgentRails governance integrates directly with your M365 security model. Dataverse security roles, Azure AD groups, and conditional access policies work together to ensure AI agents operate within your existing compliance framework. See the <a href="/enterprise.html" class="underline hover:no-underline font-medium">Enterprise page</a> for architecture details.
                         </p>
                     </div>
                 </section>
