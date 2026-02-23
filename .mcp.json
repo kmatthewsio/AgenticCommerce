@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "agentrails": {
+      "type": "stdio",
+      "command": "dotnet",
+      "args": ["run", "--project", "mcp-server"],
+      "env": {
+        "AGENTRAILS_BASE_URL": "https://sandbox.agentrails.io",
+        "AGENTRAILS_API_KEY": ""
+      }
+    }
+  }
+}
