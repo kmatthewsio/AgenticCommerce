@@ -7,7 +7,11 @@
     <Project Path="src/AgenticCommerce.Core/AgenticCommerce.Core.csproj" />
     <Project Path="src/AgenticCommerce.Infrastructure/AgenticCommerce.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/mcp-server/">
+    <Project Path="mcp-server/AgentRails.McpServer.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/AgenticCommerce.Tests/AgenticCommerce.Tests.csproj" />
+    <Project Path="tests/AgentRails.McpServer.Tests/AgentRails.McpServer.Tests.csproj" />
   </Folder>
 </Solution>
