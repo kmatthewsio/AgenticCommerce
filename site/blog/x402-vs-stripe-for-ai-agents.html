@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>x402 vs Stripe for AI Agents: Why HTTP 402 Beats API Keys - AgentRails</title>
+    <meta name="description" content="A detailed comparison of x402 protocol vs Stripe for AI agent payments. When to use each, and why HTTP 402 is purpose-built for autonomous agents.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="x402 vs Stripe for AI Agents: Why HTTP 402 Beats API Keys">
+    <meta property="og:description" content="A detailed comparison of x402 protocol vs Stripe for AI agent payments. When to use each, and why HTTP 402 is purpose-built for autonomous agents.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://www.agentrails.io/blog/x402-vs-stripe-for-ai-agents.html">
+    <meta property="og:image" content="https://www.agentrails.io/og-image.svg">
+    <meta property="og:site_name" content="AgentRails">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="x402 vs Stripe for AI Agents: Why HTTP 402 Beats API Keys">
+    <meta name="twitter:description" content="A detailed comparison of x402 protocol vs Stripe for AI agent payments. When to use each, and why HTTP 402 is purpose-built for autonomous agents.">
+    <meta name="twitter:image" content="https://www.agentrails.io/og-image.svg">
+
+    <link rel="canonical" href="https://www.agentrails.io/blog/x402-vs-stripe-for-ai-agents.html">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "x402 vs Stripe for AI Agents: Why HTTP 402 Beats API Keys",
+          "datePublished": "2026-02-23",
+          "author": { "@type": "Organization", "name": "AgentRails" },
+          "publisher": { "@type": "Organization", "name": "AgentRails", "url": "https://www.agentrails.io" },
+          "mainEntityOfPage": "https://www.agentrails.io/blog/x402-vs-stripe-for-ai-agents.html"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.agentrails.io/" },
+            { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.agentrails.io/blog/" },
+            { "@type": "ListItem", "position": 3, "name": "x402 vs Stripe for AI Agents: Why HTTP 402 Beats API Keys", "item": "https://www.agentrails.io/blog/x402-vs-stripe-for-ai-agents.html" }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    typography: {
+                        DEFAULT: {
+                            css: {
+                                maxWidth: 'none',
+                                color: '#374151',
+                                h2: {
+                                    fontWeight: '600',
+                                    marginTop: '2em',
+                                    marginBottom: '1em',
+                                },
+                                h3: {
+                                    fontWeight: '600',
+                                    marginTop: '1.5em',
+                                    marginBottom: '0.5em',
+                                },
+                                blockquote: {
+                                    borderLeftColor: '#6366f1',
+                                    backgroundColor: '#eef2ff',
+                                    padding: '1rem',
+                                    borderRadius: '0.5rem',
+                                    fontStyle: 'normal',
+                                },
+                                'blockquote p:first-of-type::before': {
+                                    content: 'none',
+                                },
+                                'blockquote p:last-of-type::after': {
+                                    content: 'none',
+                                },
+                                pre: {
+                                    backgroundColor: '#1f2937',
+                                    color: '#e5e7eb',
+                                    borderRadius: '0.75rem',
+                                    padding: '1.25rem',
+                                    overflowX: 'auto',
+                                },
+                                code: {
+                                    backgroundColor: '#f3f4f6',
+                                    padding: '0.2em 0.4em',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.875em',
+                                    fontWeight: '500',
+                                },
+                                'pre code': {
+                                    backgroundColor: 'transparent',
+                                    padding: '0',
+                                    fontSize: '0.875em',
+                                },
+                                table: {
+                                    fontSize: '0.9em',
+                                },
+                                'thead th': {
+                                    fontWeight: '600',
+                                    borderBottomWidth: '2px',
+                                },
+                            },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Tailwind Typography -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                </a>
+
+                <div class="flex items-center gap-6">
+                    <a href="/blog/" class="text-primary-600 font-medium">Blog</a>
+                    <a href="/docs.html" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="https://sandbox.agentrails.io" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Try Sandbox
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="pt-24 pb-16">
+        <header class="bg-white border-b border-gray-100 py-12">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6">
+                <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                    <time datetime="2026-02-23">February 23, 2026</time>
+                    <span>&middot;</span>
+                    <span>9 min read</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
+                    x402 vs Stripe for AI Agents: Why HTTP 402 Beats API Keys
+                </h1>
+                <p class="text-xl text-gray-600">
+                    Two approaches to agent payments exist&mdash;Stripe and x402. Neither is wrong for every case. But one was designed for machines from day one.
+                </p>
+            </div>
+        </header>
+
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+            <div class="prose prose-lg">
+
+                <h2>Two Worlds of Agent Payments</h2>
+
+                <p>
+                    Every AI agent that consumes paid APIs faces the same question: how does it pay? Today there are two real answers. Stripe&mdash;the platform that powers most of the internet's commerce&mdash;and x402, an HTTP-native payment protocol built specifically for machine-to-machine transactions.
+                </p>
+
+                <p>
+                    Stripe is battle-tested. It processes hundreds of billions of dollars a year. It has fraud detection, subscription management, invoicing, tax calculation, and a developer experience that set the standard for fintech APIs. If you're building a SaaS product for humans, Stripe is the obvious choice.
+                </p>
+
+                <p>
+                    But AI agents are not humans. They don't have credit cards. They don't click checkout buttons. They don't read invoices. They make HTTP requests&mdash;millions of them, across hundreds of APIs, often with no human in the loop. And when you try to bolt Stripe onto that workflow, the friction becomes the bottleneck.
+                </p>
+
+                <p>
+                    x402 takes a different approach. It embeds payment directly into HTTP itself, using the <code>402 Payment Required</code> status code that has been reserved in the HTTP specification since 1997 but never standardized&mdash;until now. An agent hits an API, gets a 402 response with a price, signs a USDC payment, and retries. No dashboard. No API keys. No webhooks.
+                </p>
+
+                <p>
+                    This post is a detailed, honest comparison. We'll cover how each system works, where each one wins, and why most production systems will end up using both.
+                </p>
+
+                <h2>How Stripe Works for Agents</h2>
+
+                <p>
+                    Stripe's model is account-based. Before an agent can consume a paid API, someone&mdash;typically a human developer&mdash;needs to:
+                </p>
+
+                <ol>
+                    <li><strong>Create a Stripe account</strong> and complete identity verification for the API provider.</li>
+                    <li><strong>Set up a product and pricing model</strong> in the Stripe dashboard&mdash;flat rate, per-seat, metered, tiered, or usage-based.</li>
+                    <li><strong>Integrate the Stripe SDK</strong> into the API server, implementing checkout sessions or the metering API.</li>
+                    <li><strong>Generate API keys</strong> and distribute them to the agent (or the developer deploying the agent).</li>
+                    <li><strong>Configure webhooks</strong> to handle subscription lifecycle events&mdash;payment succeeded, payment failed, subscription canceled, invoice finalized.</li>
+                </ol>
+
+                <p>
+                    Once all of that is in place, the agent can make requests. It includes its API key in every call. The API server validates the key, checks the subscription status (often via a cached Stripe lookup), and serves the response. Usage is tracked either through Stripe's metering API or a custom implementation. At the end of the billing cycle, Stripe charges the customer's payment method and settles funds to the provider&mdash;typically in 2 to 7 business days.
+                </p>
+
+                <p>
+                    This works. It works extremely well for human-facing SaaS. But notice the assumptions baked in: there's a human who creates the account, a billing cycle that batches payments, API keys that must be securely stored and rotated, and a webhook infrastructure that must be maintained. Every new API vendor requires a new integration&mdash;new keys, new subscription, new billing relationship.
+                </p>
+
+                <p>
+                    For an agent that needs to call 50 different APIs from 50 different providers, that's 50 onboarding flows, 50 sets of credentials, and 50 billing relationships to manage.
+                </p>
+
+                <h2>How x402 Works</h2>
+
+                <p>
+                    x402 collapses the entire payment flow into the HTTP request-response cycle. Here is the complete sequence:
+                </p>
+
+                <ol>
+                    <li>The agent sends a normal HTTP request to a protected endpoint.</li>
+                    <li>The server returns <code>HTTP 402 Payment Required</code> with a <code>PAYMENT-REQUIRED</code> header containing the price, accepted currency (USDC), recipient wallet address, and network.</li>
+                    <li>The agent reads the price, checks its budget, signs an <a href="https://eips.ethereum.org/EIPS/eip-3009" target="_blank">EIP-3009</a> <code>TransferWithAuthorization</code> for the exact amount.</li>
+                    <li>The agent retries the same request with a <code>PAYMENT-SIGNATURE</code> header containing the signed payment.</li>
+                    <li>The server verifies the signature, settles the USDC transfer on-chain, and returns the response with a <code>PAYMENT-RESPONSE</code> header containing the transaction hash.</li>
+                </ol>
+
+                <p>
+                    From the developer's perspective, setup means two things: give the agent a wallet (a private key) and add the x402 client library. There are no API keys to manage, no accounts to create with each vendor, no webhooks to implement. The payment negotiation happens in-band, as part of the HTTP exchange itself.
+                </p>
+
+                <p>
+                    Here's what the agent-side code looks like in Python with LangChain:
+                </p>
+
+<pre><code>from langchain_x402 import X402PaymentTool
+
+tool = X402PaymentTool(
+    private_key=os.environ["WALLET_PRIVATE_KEY"],
+    network="eip155:84532",  # Base Sepolia
+    budget_usd=10.00
+)
+
+# Agent calls any x402-protected API — no keys, no signup
+result = tool.invoke({
+    "url": "https://api.example.com/premium/analysis",
+    "method": "GET"
+})</code></pre>
+
+                <p>
+                    The agent discovers the price at request time. It pays exactly what the API asks. The provider receives funds in milliseconds. Both parties have a cryptographic receipt on-chain. And the agent can do this with any x402-enabled API it encounters, without prior registration.
+                </p>
+
+                <h2>Head-to-Head Comparison</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Stripe</th>
+                            <th>x402</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Setup time</strong></td>
+                            <td>Hours (dashboard, webhooks, API keys)</td>
+                            <td>Minutes (wallet + SDK)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Credential management</strong></td>
+                            <td>API keys per vendor</td>
+                            <td>None (wallet address)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Per-request pricing</strong></td>
+                            <td>Complex metering API</td>
+                            <td>Native (price in 402 header)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Settlement speed</strong></td>
+                            <td>2&ndash;7 business days</td>
+                            <td>Milliseconds (on-chain)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Agent autonomy</strong></td>
+                            <td>Needs human for new vendors</td>
+                            <td>Fully autonomous</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Audit trail</strong></td>
+                            <td>Stripe dashboard</td>
+                            <td>On-chain (cryptographic proof)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Multi-vendor</strong></td>
+                            <td>New integration per vendor</td>
+                            <td>Universal protocol</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Currency</strong></td>
+                            <td>Fiat (USD, EUR, etc.)</td>
+                            <td>USDC (stablecoin, 1:1 USD)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dispute resolution</strong></td>
+                            <td>Built-in chargebacks</td>
+                            <td>Application-level (no chargebacks)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Regulatory compliance</strong></td>
+                            <td>PCI DSS handled by Stripe</td>
+                            <td>No card data involved</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Offline/batch billing</strong></td>
+                            <td>Native (invoices, subscriptions)</td>
+                            <td>Not applicable (real-time only)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Price discovery</strong></td>
+                            <td>Out-of-band (docs, pricing page)</td>
+                            <td>In-band (402 response header)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    The table tells a clear story. Stripe excels at everything that involves human billing workflows, established financial infrastructure, and fiat currency. x402 excels at everything that involves machine autonomy, real-time settlement, and zero-configuration access.
+                </p>
+
+                <h2>When Stripe Wins</h2>
+
+                <p>
+                    Stripe is the right choice when the payment relationship involves humans, recurring billing, or traditional financial workflows. Specifically:
+                </p>
+
+                <ul>
+                    <li><strong>Human-facing SaaS subscriptions.</strong> Your customers are people who expect monthly invoices, credit card billing, and a self-service portal to manage their plan. Stripe's Billing product handles this end-to-end, including trials, proration, dunning, and tax calculation.</li>
+                    <li><strong>Recurring revenue.</strong> If your business model is $49/month for Pro and $199/month for Enterprise, Stripe is purpose-built for this. Subscription lifecycle management&mdash;upgrades, downgrades, cancellations, renewals&mdash;is a solved problem in Stripe.</li>
+                    <li><strong>Card payments and global payment methods.</strong> Stripe supports credit cards, debit cards, ACH, SEPA, iDEAL, and dozens of local payment methods. If your customers need to pay with a Visa, x402 cannot help you.</li>
+                    <li><strong>Marketplace payouts.</strong> Stripe Connect handles multi-party payments, splits, and payouts to third parties. If you're building a platform where providers need to receive payouts to their bank accounts, Stripe Connect is the infrastructure.</li>
+                    <li><strong>PCI compliance.</strong> Stripe handles PCI DSS compliance so you don't have to. If you're processing card data, this is non-negotiable.</li>
+                    <li><strong>Chargeback and dispute handling.</strong> Stripe provides built-in dispute resolution workflows. For consumer-facing transactions where chargebacks are a reality, this matters.</li>
+                </ul>
+
+                <p>
+                    None of these scenarios involve an autonomous agent making real-time decisions about which APIs to call. They involve humans, billing cycles, and fiat currency&mdash;Stripe's home turf.
+                </p>
+
+                <h2>When x402 Wins</h2>
+
+                <p>
+                    x402 is the right choice when the "customer" is a machine and the transaction happens at API speed. Specifically:
+                </p>
+
+                <ul>
+                    <li><strong>Agent-to-agent payments.</strong> When one AI agent calls another AI agent's API, there is no human to create an account, no credit card to charge, and no reason to wait days for settlement. x402 handles the entire transaction in the HTTP exchange itself.</li>
+                    <li><strong>Per-request API monetization.</strong> If you want to charge $0.001 per API call rather than $99/month for unlimited access, x402 makes this trivial. The price is in the 402 header. The agent pays exactly that amount. No metering infrastructure, no billing reconciliation.</li>
+                    <li><strong>Multi-vendor discovery.</strong> An agent researching a topic might need to call APIs from 20 different providers it has never interacted with before. With x402, it can pay each one on the spot without prior registration. With Stripe, someone would need to create 20 accounts and manage 20 sets of API keys.</li>
+                    <li><strong>Zero-credential access.</strong> x402 eliminates API keys entirely for the payment layer. The agent's wallet address is its identity. There is nothing to store, rotate, or revoke. This is a fundamental simplification for systems managing hundreds of agent-vendor relationships.</li>
+                    <li><strong>Real-time settlement.</strong> The API provider receives USDC the moment the request is served. No 2-day hold. No reserve. No waiting for Stripe's payout schedule. For API providers operating on thin margins or high volume, this changes cash flow dynamics.</li>
+                    <li><strong>Fully autonomous operation.</strong> An agent with a funded wallet and a budget can operate indefinitely without human intervention. It can discover new APIs, negotiate prices (by reading 402 headers), make payments, and track spending&mdash;all on its own. This is the foundation of the autonomous agent economy.</li>
+                </ul>
+
+                <h2>The Hybrid Approach</h2>
+
+                <p>
+                    Here's the part most comparisons miss: you don't have to choose. In practice, the most robust architecture uses both.
+                </p>
+
+                <blockquote>
+                    <p>Use Stripe for your human billing. Use x402 for your agent-facing APIs. They complement each other.</p>
+                </blockquote>
+
+                <p>
+                    Consider a concrete example. You run a data analytics platform. Human customers sign up through your website, pick a plan, and pay with a credit card via Stripe. That handles the B2B SaaS side&mdash;invoices, annual contracts, seat-based pricing, the works.
+                </p>
+
+                <p>
+                    But you also want AI agents to be able to query your analytics API directly. Maybe a financial research agent needs one specific chart, or a competitor analysis agent needs a single data point. They don't want a $199/month subscription. They want to pay $0.01 for one request.
+                </p>
+
+                <p>
+                    With x402, you add a payment attribute to your API endpoints:
+                </p>
+
+<pre><code>[X402Payment(0.01, Description = "Single analytics query")]
+[HttpGet("query")]
+public IActionResult Query([FromQuery] string q)
+{
+    var results = _analyticsService.Run(q);
+    return Ok(results);
+}</code></pre>
+
+                <p>
+                    Now your API serves both audiences. Stripe customers authenticate with their API key and get unlimited access as part of their subscription. Agents without a subscription hit the same endpoints, get a 402 response, pay per request, and get the data. Two payment rails, one API surface.
+                </p>
+
+                <p>
+                    AgentRails itself uses this pattern. Human customers manage their accounts and subscriptions through Stripe. The agent-facing sandbox and production APIs use x402 for per-request payments. The systems don't conflict&mdash;they serve different consumption patterns on the same infrastructure.
+                </p>
+
+                <p>
+                    The implementation is straightforward. Your middleware checks for an API key first. If present and valid, the request proceeds under the subscription. If no API key is present, the x402 payment filter kicks in and returns a 402. The agent pays, and the request proceeds. One codebase, two payment models, zero conflict.
+                </p>
+
+                <h2>What This Means for the Agent Economy</h2>
+
+                <p>
+                    The trend line is clear. The number of API calls made by AI agents is growing faster than the number made by human-driven applications. LLM-powered agents are being deployed for research, analysis, code generation, customer support, data processing, and dozens of other workflows that involve calling external APIs.
+                </p>
+
+                <p>
+                    Every one of those agents needs a way to pay. And the payment system that imposes the least friction on the agent will win the most adoption.
+                </p>
+
+                <p>
+                    Stripe was built for the web&mdash;for browsers, checkout pages, and humans with credit cards. It transformed online payments by making them simple for developers. That contribution is enormous and ongoing.
+                </p>
+
+                <p>
+                    x402 was built for the agent economy&mdash;for HTTP clients, autonomous decision-making, and machines with wallets. It transforms agent payments by making them invisible. No signup, no keys, no billing cycle. Just an HTTP request, a cryptographic signature, and a response.
+                </p>
+
+                <p>
+                    As agents become the primary consumers of APIs&mdash;not humans clicking through documentation pages&mdash;the protocol designed for them will become the default. Not because Stripe is bad. Because the problem changed.
+                </p>
+
+                <p>
+                    The web needed Stripe. The agent economy needs x402.
+                </p>
+
+                <h2>Get Started</h2>
+
+                <p>
+                    x402 client libraries are available for every major agent framework:
+                </p>
+
+                <ul>
+                    <li><a href="https://pypi.org/project/langchain-x402/" target="_blank">langchain-x402</a> &mdash; LangChain (Python)</li>
+                    <li><a href="https://pypi.org/project/crewai-x402/" target="_blank">crewai-x402</a> &mdash; CrewAI (Python)</li>
+                    <li><a href="https://www.nuget.org/packages/AgentRails.SemanticKernel.X402" target="_blank">AgentRails.SemanticKernel.X402</a> &mdash; Semantic Kernel (.NET)</li>
+                    <li><a href="https://www.nuget.org/packages/AgentRails.AgentFramework.X402" target="_blank">AgentRails.AgentFramework.X402</a> &mdash; Microsoft Agent Framework (.NET)</li>
+                </ul>
+
+                <p>
+                    Server-side, add x402 to any ASP.NET Core API with the <code>[X402Payment]</code> attribute. See the <a href="/docs.html" target="_blank">documentation</a> for the full server integration guide.
+                </p>
+
+                <p>
+                    <em>Building an API that agents should pay for, or an agent that needs to pay for APIs? We'd like to hear about it: <a href="mailto:sales@agentrails.io">sales@agentrails.io</a></em>
+                </p>
+
+                <div class="mt-12 p-6 bg-gradient-to-br from-primary-50 to-cyan-50 rounded-2xl border border-primary-100">
+                    <h3 class="text-lg font-semibold mb-2 mt-0">Try it now</h3>
+                    <p class="mb-4 text-gray-600">Test against a live x402 API. The sandbox returns a 402 response with real payment requirements&mdash;see the full request-response cycle in action. No signup, no API key.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="inline-block px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition">
+                            Open Sandbox
+                        </a>
+                        <a href="/docs.html" class="inline-block px-6 py-3 bg-white text-gray-700 rounded-xl font-medium border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                            Read the Docs
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </article>
+
+    <!-- More Articles -->
+    <section class="py-12 bg-white border-t border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <h2 class="text-2xl font-bold mb-8">More Articles</h2>
+            <div class="space-y-6">
+                <a href="/blog/agent-framework-x402.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 23, 2026</div>
+                    <div class="font-semibold text-gray-900">Semantic Kernel Is Legacy. Agent Framework Gets x402 on Day One.</div>
+                </a>
+                <a href="/blog/implementing-http-402.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 17, 2026</div>
+                    <div class="font-semibold text-gray-900">We Implemented HTTP 402 For Real: How AI Agents Pay for APIs</div>
+                </a>
+                <a href="/blog/why-api-keys-are-dead.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">January 31, 2026</div>
+                    <div class="font-semibold text-gray-900">Why API Keys Are Dead for the Agent Economy</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-200 bg-white">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+            <p>&copy; 2026 AgentRails. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

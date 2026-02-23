@@ -6,6 +6,35 @@
     <title>Blog - AgentRails</title>
     <meta name="description" content="Insights on AI agent payments, x402 protocol, and the future of API monetization.">
 
+    <!-- Canonical -->
+    <link rel="canonical" href="https://www.agentrails.io/blog/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Blog - AgentRails">
+    <meta property="og:description" content="Insights on AI agent payments, x402 protocol, and the future of API monetization.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.agentrails.io/blog/">
+    <meta property="og:image" content="https://www.agentrails.io/og-image.svg">
+    <meta property="og:site_name" content="AgentRails">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Blog - AgentRails">
+    <meta name="twitter:description" content="Insights on AI agent payments, x402 protocol, and the future of API monetization.">
+    <meta name="twitter:image" content="https://www.agentrails.io/og-image.svg">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.agentrails.io/" },
+        { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.agentrails.io/blog/" }
+      ]
+    }
+    </script>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,13 +107,49 @@
         <div class="max-w-4xl mx-auto px-4 sm:px-6">
             <div class="space-y-8">
 
-                <!-- Featured: New Article -->
+                <!-- Featured: Tutorial -->
                 <article class="bg-white rounded-2xl border-2 border-primary-200 p-6 hover:shadow-lg transition relative overflow-hidden">
                     <div class="absolute top-4 right-4 bg-primary-100 text-primary-700 text-xs font-semibold px-2 py-1 rounded-full">NEW</div>
+                    <a href="/blog/build-x402-api-python-tutorial.html" class="block">
+                        <div class="flex items-center gap-2 text-sm text-gray-500 mb-3">
+                            <time datetime="2026-02-23">February 23, 2026</time>
+                            <span>&middot;</span>
+                            <span>12 min read</span>
+                        </div>
+                        <h2 class="text-2xl font-semibold mb-3 text-gray-900 hover:text-primary-600 transition">
+                            Build Your First x402-Enabled API in 15 Minutes
+                        </h2>
+                        <p class="text-gray-600 mb-4">
+                            Step-by-step tutorial: build a FastAPI server that charges USDC, then build a LangChain agent that pays for it. Python, x402, and 15 minutes.
+                        </p>
+                        <span class="text-primary-600 font-medium">Read more →</span>
+                    </a>
+                </article>
+
+                <!-- Article: x402 vs Stripe -->
+                <article class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-primary-200 transition">
+                    <a href="/blog/x402-vs-stripe-for-ai-agents.html" class="block">
+                        <div class="flex items-center gap-2 text-sm text-gray-500 mb-3">
+                            <time datetime="2026-02-23">February 23, 2026</time>
+                            <span>&middot;</span>
+                            <span>9 min read</span>
+                        </div>
+                        <h2 class="text-2xl font-semibold mb-3 text-gray-900 hover:text-primary-600 transition">
+                            x402 vs Stripe for AI Agents: Why HTTP 402 Beats API Keys
+                        </h2>
+                        <p class="text-gray-600 mb-4">
+                            A detailed comparison of x402 protocol vs Stripe for AI agent payments. When to use each, and why HTTP 402 is purpose-built for autonomous agents.
+                        </p>
+                        <span class="text-primary-600 font-medium">Read more →</span>
+                    </a>
+                </article>
+
+                <!-- Article: Agent Framework -->
+                <article class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-primary-200 transition">
                     <a href="/blog/agent-framework-x402.html" class="block">
                         <div class="flex items-center gap-2 text-sm text-gray-500 mb-3">
                             <time datetime="2026-02-23">February 23, 2026</time>
-                            <span>·</span>
+                            <span>&middot;</span>
                             <span>7 min read</span>
                         </div>
                         <h2 class="text-2xl font-semibold mb-3 text-gray-900 hover:text-primary-600 transition">

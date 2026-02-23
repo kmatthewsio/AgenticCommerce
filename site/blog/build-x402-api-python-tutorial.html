@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Your First x402-Enabled API in 15 Minutes - AgentRails</title>
+    <meta name="description" content="Step-by-step tutorial: build a FastAPI server that returns 402, then build a LangChain agent that pays for it. Python, USDC, and 15 minutes.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Build Your First x402-Enabled API in 15 Minutes">
+    <meta property="og:description" content="Step-by-step tutorial: build a FastAPI server that returns 402, then build a LangChain agent that pays for it. Python, USDC, and 15 minutes.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://www.agentrails.io/blog/build-x402-api-python-tutorial.html">
+    <meta property="og:image" content="https://www.agentrails.io/og-image.svg">
+    <meta property="og:site_name" content="AgentRails">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Build Your First x402-Enabled API in 15 Minutes">
+    <meta name="twitter:description" content="Step-by-step tutorial: build a FastAPI server that returns 402, then build a LangChain agent that pays for it. Python, USDC, and 15 minutes.">
+    <meta name="twitter:image" content="https://www.agentrails.io/og-image.svg">
+
+    <link rel="canonical" href="https://www.agentrails.io/blog/build-x402-api-python-tutorial.html">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "Build Your First x402-Enabled API in 15 Minutes",
+          "datePublished": "2026-02-23",
+          "author": { "@type": "Organization", "name": "AgentRails" },
+          "publisher": { "@type": "Organization", "name": "AgentRails", "url": "https://www.agentrails.io" },
+          "mainEntityOfPage": "https://www.agentrails.io/blog/build-x402-api-python-tutorial.html"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.agentrails.io/" },
+            { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.agentrails.io/blog/" },
+            { "@type": "ListItem", "position": 3, "name": "Build Your First x402-Enabled API in 15 Minutes", "item": "https://www.agentrails.io/blog/build-x402-api-python-tutorial.html" }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    typography: {
+                        DEFAULT: {
+                            css: {
+                                maxWidth: 'none',
+                                color: '#374151',
+                                h2: {
+                                    fontWeight: '600',
+                                    marginTop: '2em',
+                                    marginBottom: '1em',
+                                },
+                                h3: {
+                                    fontWeight: '600',
+                                    marginTop: '1.5em',
+                                    marginBottom: '0.5em',
+                                },
+                                blockquote: {
+                                    borderLeftColor: '#6366f1',
+                                    backgroundColor: '#eef2ff',
+                                    padding: '1rem',
+                                    borderRadius: '0.5rem',
+                                    fontStyle: 'normal',
+                                },
+                                'blockquote p:first-of-type::before': {
+                                    content: 'none',
+                                },
+                                'blockquote p:last-of-type::after': {
+                                    content: 'none',
+                                },
+                                pre: {
+                                    backgroundColor: '#1f2937',
+                                    color: '#e5e7eb',
+                                    borderRadius: '0.75rem',
+                                    padding: '1.25rem',
+                                    overflowX: 'auto',
+                                },
+                                code: {
+                                    backgroundColor: '#f3f4f6',
+                                    padding: '0.2em 0.4em',
+                                    borderRadius: '0.25rem',
+                                    fontSize: '0.875em',
+                                    fontWeight: '500',
+                                },
+                                'pre code': {
+                                    backgroundColor: 'transparent',
+                                    padding: '0',
+                                    fontSize: '0.875em',
+                                },
+                                table: {
+                                    fontSize: '0.9em',
+                                },
+                                'thead th': {
+                                    fontWeight: '600',
+                                    borderBottomWidth: '2px',
+                                },
+                            },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Tailwind Typography -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                </a>
+
+                <div class="flex items-center gap-6">
+                    <a href="/blog/" class="text-primary-600 font-medium">Blog</a>
+                    <a href="/docs.html" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="https://sandbox.agentrails.io" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Try Sandbox
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="pt-24 pb-16">
+        <header class="bg-white border-b border-gray-100 py-12">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6">
+                <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                    <time datetime="2026-02-23">February 23, 2026</time>
+                    <span>&middot;</span>
+                    <span>12 min read</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-bold mb-6 leading-tight">
+                    Build Your First x402-Enabled API in 15 Minutes
+                </h1>
+                <p class="text-xl text-gray-600">
+                    A step-by-step tutorial: build a FastAPI server that charges USDC per request, then build a LangChain agent that pays for it automatically. Python, two files, 15 minutes.
+                </p>
+            </div>
+        </header>
+
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+            <div class="prose prose-lg">
+
+                <h2>What You'll Build</h2>
+
+                <p>
+                    By the end of this tutorial, you'll have two things running on your machine:
+                </p>
+
+                <ol>
+                    <li><strong>A FastAPI server</strong> that protects an endpoint behind an x402 paywall&mdash;$0.01 USDC per request.</li>
+                    <li><strong>A LangChain agent</strong> that hits that endpoint, automatically detects the 402 response, pays with USDC, and gets the data.</li>
+                </ol>
+
+                <p>
+                    No dashboard. No API keys. No subscription management. The agent pays per-request with a cryptographic signature, and the server verifies it. That's the entire billing system.
+                </p>
+
+                <p>
+                    Total time: about 15 minutes. Let's go.
+                </p>
+
+                <h2>Prerequisites</h2>
+
+                <ul>
+                    <li><strong>Python 3.10+</strong></li>
+                    <li><strong>A Base Sepolia testnet wallet</strong> with some test ETH (for gas). You can get test ETH from the <a href="https://www.alchemy.com/faucets/base-sepolia" target="_blank">Base Sepolia faucet</a>.</li>
+                    <li><strong>An OpenAI API key</strong> for the agent's LLM.</li>
+                    <li><strong>Basic familiarity with FastAPI and LangChain.</strong> You don't need to be an expert&mdash;the code is short and commented.</li>
+                </ul>
+
+                <p>
+                    Everything runs on Base Sepolia testnet, so you won't spend real money. The USDC is testnet USDC. The ETH is testnet ETH.
+                </p>
+
+                <h2>Part 1: Build the x402 Server</h2>
+
+                <p>
+                    First, install FastAPI and Uvicorn:
+                </p>
+
+<pre><code>pip install fastapi uvicorn</code></pre>
+
+                <p>
+                    Create a file called <code>server.py</code>:
+                </p>
+
+<pre><code>from fastapi import FastAPI, Request, Response
+import json, base64
+
+app = FastAPI()
+
+# x402 pricing: $0.01 per request
+PRICE_USD = 0.01
+USDC_DECIMALS = 6
+PRICE_ATOMIC = int(PRICE_USD * 10**USDC_DECIMALS)  # 10000
+
+PAYMENT_REQUIREMENTS = {
+    "x402Version": 2,
+    "accepts": [{
+        "scheme": "exact",
+        "network": "eip155:84532",           # Base Sepolia
+        "maxAmountRequired": str(PRICE_ATOMIC),
+        "resource": "https://localhost:8000/api/data",
+        "description": "Premium market data",
+        "mimeType": "application/json",
+        "payTo": "0xYOUR_WALLET_ADDRESS",     # Replace with your address
+        "maxTimeoutSeconds": 300,
+        "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e"  # USDC on Base Sepolia
+    }]
+}
+
+@app.get("/api/data")
+async def get_data(request: Request):
+    # Check for payment header
+    payment = request.headers.get("X-PAYMENT") or \
+              request.headers.get("PAYMENT-SIGNATURE")
+
+    if not payment:
+        # Return 402 with payment requirements
+        encoded = base64.b64encode(
+            json.dumps(PAYMENT_REQUIREMENTS).encode()
+        ).decode()
+        return Response(
+            status_code=402,
+            headers={"PAYMENT-REQUIRED": encoded},
+            content=json.dumps({
+                "error": "Payment required",
+                "price": f"${PRICE_USD} USDC"
+            }),
+            media_type="application/json"
+        )
+
+    # In production, verify the payment signature here.
+    # For this tutorial, we accept any payment header.
+    return {
+        "data": "Premium market analysis: BTC trending bullish",
+        "price_paid": f"${PRICE_USD}"
+    }</code></pre>
+
+                <p>
+                    That's the entire server. Let's break down what it does:
+                </p>
+
+                <ul>
+                    <li><strong>Line 7&ndash;8:</strong> Price is $0.01 USDC. USDC has 6 decimals, so 10000 is the atomic (smallest-unit) representation of one cent.</li>
+                    <li><strong>Line 10&ndash;22:</strong> The <code>PAYMENT_REQUIREMENTS</code> object follows the x402 V2 spec. It tells the client exactly what to pay, on which network, to which address, and for which asset.</li>
+                    <li><strong>Line 26&ndash;28:</strong> We check for the payment header. The x402 spec uses <code>PAYMENT-SIGNATURE</code>; some clients also send <code>X-PAYMENT</code>.</li>
+                    <li><strong>Line 30&ndash;39:</strong> No payment? Return a <code>402 Payment Required</code> with the requirements base64-encoded in the <code>PAYMENT-REQUIRED</code> header. This is the core of x402: a machine-readable price tag.</li>
+                    <li><strong>Line 43&ndash;46:</strong> Payment present? Return the data. In production, you'd verify the EIP-3009 signature and settle on-chain before responding.</li>
+                </ul>
+
+                <p>
+                    Start the server:
+                </p>
+
+<pre><code>uvicorn server:app --reload</code></pre>
+
+                <p>
+                    Test it:
+                </p>
+
+<pre><code>curl -i http://localhost:8000/api/data</code></pre>
+
+                <p>
+                    You should see:
+                </p>
+
+<pre><code>HTTP/1.1 402 Payment Required
+payment-required: eyJ4NDAyVmVyc2lvbiI6IDIsIC...
+content-type: application/json
+
+{"error": "Payment required", "price": "$0.01 USDC"}</code></pre>
+
+                <p>
+                    That 402 is the signal. Any x402-aware client&mdash;or any LangChain agent with <code>langchain-x402</code>&mdash;knows exactly what to do with it.
+                </p>
+
+                <h2>Part 2: Build the LangChain Agent</h2>
+
+                <p>
+                    Now we build the client: a LangChain agent that can pay for API access autonomously. Install the dependencies:
+                </p>
+
+<pre><code>pip install langchain-x402 langchain-openai langchain</code></pre>
+
+                <p>
+                    Create a file called <code>agent.py</code>:
+                </p>
+
+<pre><code>import os
+from langchain_x402 import X402Wallet, X402PaymentTool
+from langchain_openai import ChatOpenAI
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain_core.prompts import ChatPromptTemplate
+
+# 1. Create a wallet with a $5.00 budget
+wallet = X402Wallet(
+    private_key=os.environ["WALLET_PRIVATE_KEY"],
+    network="eip155:84532",   # Base Sepolia
+    budget_usd=5.00
+)
+
+# 2. Create the x402 payment tool
+payment_tool = X402PaymentTool(wallet=wallet)
+
+# 3. Create the agent
+llm = ChatOpenAI(model="gpt-4o", temperature=0)
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a research agent. Use tools to fetch paid data."),
+    ("human", "{input}"),
+    ("placeholder", "{agent_scratchpad}")
+])
+
+agent = create_react_agent(llm, [payment_tool], prompt)
+executor = AgentExecutor(agent=agent, tools=[payment_tool], verbose=True)
+
+# 4. Run it
+result = executor.invoke({
+    "input": "Get the market data from http://localhost:8000/api/data"
+})
+
+print(result["output"])</code></pre>
+
+                <p>
+                    Set your environment variables and run:
+                </p>
+
+<pre><code>export WALLET_PRIVATE_KEY="0xYOUR_PRIVATE_KEY_HERE"
+export OPENAI_API_KEY="sk-YOUR_OPENAI_KEY_HERE"
+python agent.py</code></pre>
+
+                <p>
+                    You'll see the agent's chain-of-thought in the terminal (thanks to <code>verbose=True</code>). It will:
+                </p>
+
+                <ol>
+                    <li>Call the API.</li>
+                    <li>Get the 402 back.</li>
+                    <li>Decide to pay.</li>
+                    <li>Sign the USDC transfer.</li>
+                    <li>Retry with the payment signature.</li>
+                    <li>Get the data.</li>
+                    <li>Return the result.</li>
+                </ol>
+
+                <p>
+                    All of that happened in a few seconds, with zero human intervention.
+                </p>
+
+                <h2>Part 3: What Just Happened?</h2>
+
+                <p>
+                    Let's walk through the full flow, step by step:
+                </p>
+
+                <ol>
+                    <li>The agent called <code>GET /api/data</code>.</li>
+                    <li>The server returned <code>402 Payment Required</code> with a price: $0.01 USDC on Base Sepolia.</li>
+                    <li><code>langchain-x402</code> detected the 402 and parsed the payment requirements from the <code>PAYMENT-REQUIRED</code> header.</li>
+                    <li>The SDK checked the budget: $5.00 available, $0.01 requested&mdash;approved.</li>
+                    <li>The SDK signed an <a href="https://eips.ethereum.org/EIPS/eip-3009" target="_blank">EIP-3009</a> <code>TransferWithAuthorization</code>&mdash;a gasless USDC transfer that authorizes the server to pull exactly $0.01 from the agent's wallet.</li>
+                    <li>The SDK retried the original request, this time with the signed payment in the <code>PAYMENT-SIGNATURE</code> header.</li>
+                    <li>The server verified the signature and returned the data.</li>
+                    <li>The agent received the data and continued its task.</li>
+                </ol>
+
+                <p>
+                    Here's what it looks like as a sequence:
+                </p>
+
+<pre><code>Agent                        Server
+  |                             |
+  |--- GET /api/data ---------->|
+  |                             |
+  |<-- 402 + PAYMENT-REQUIRED --|
+  |                             |
+  |  (sign EIP-3009 transfer)   |
+  |                             |
+  |--- GET /api/data ---------->|
+  |    + PAYMENT-SIGNATURE      |
+  |                             |
+  |<-- 200 + data --------------|
+  |                             |</code></pre>
+
+                <p>
+                    Two HTTP requests. One payment. No accounts, no OAuth, no invoices. The price is in the 402 response. The payment is in the retry header. That's the entire protocol.
+                </p>
+
+                <h3>Why EIP-3009?</h3>
+
+                <p>
+                    EIP-3009 is the key primitive that makes this work at low latency. It's a <code>TransferWithAuthorization</code>&mdash;the agent signs a message off-chain that says "I authorize address X to pull Y USDC from my wallet." No on-chain transaction is needed at request time. The server can verify the signature cryptographically in microseconds, then settle on-chain asynchronously.
+                </p>
+
+                <p>
+                    This means API responses are fast. The agent doesn't wait for a blockchain confirmation. The server knows the payment is valid because the math checks out, and it settles later.
+                </p>
+
+                <h3>Budget Controls</h3>
+
+                <p>
+                    Notice we set <code>budget_usd=5.00</code> on the wallet. That's a hard cap. If the agent tries to spend more than $5.00 total, the SDK will refuse the payment before signing anything. You can also set per-request caps. This is how you deploy an agent that can spend money without worrying about runaway costs.
+                </p>
+
+                <h2>What to Try Next</h2>
+
+                <h3>Hit the Live Sandbox</h3>
+
+                <p>
+                    You don't need to run your own server to test. Point your agent at the AgentRails sandbox&mdash;it's a live x402 API that returns real 402 responses:
+                </p>
+
+<pre><code>result = executor.invoke({
+    "input": "Get the analysis from https://sandbox.agentrails.io/api/x402/protected/analysis"
+})</code></pre>
+
+                <p>
+                    No signup. No API key. It just works.
+                </p>
+
+                <h3>Add Budget Controls and Payment History</h3>
+
+                <p>
+                    The <code>X402PaymentTool</code> exposes methods for checking budget and reviewing past payments:
+                </p>
+
+<pre><code># Check remaining budget
+print(wallet.remaining_budget)
+
+# Get payment history
+for payment in wallet.payment_history:
+    print(f"{payment.url} - ${payment.amount_usd} - {payment.timestamp}")</code></pre>
+
+                <h3>Try CrewAI Instead</h3>
+
+                <p>
+                    If you prefer CrewAI over LangChain, swap the package:
+                </p>
+
+<pre><code>pip install crewai-x402</code></pre>
+
+                <p>
+                    The wallet and payment logic are identical. Only the agent framework integration differs.
+                </p>
+
+                <h3>Build a Multi-Endpoint Server</h3>
+
+                <p>
+                    Different data, different prices. Add more endpoints to your <code>server.py</code> with different price tiers:
+                </p>
+
+<pre><code>@app.get("/api/basic")
+async def basic(request: Request):
+    # $0.001 per request
+    ...
+
+@app.get("/api/premium")
+async def premium(request: Request):
+    # $0.01 per request
+    ...
+
+@app.get("/api/enterprise")
+async def enterprise(request: Request):
+    # $0.10 per request
+    ...</code></pre>
+
+                <p>
+                    The agent's SDK reads the price from each 402 response independently. It doesn't care if different endpoints cost different amounts&mdash;it checks each one against the budget and pays accordingly.
+                </p>
+
+                <h2>Links</h2>
+
+                <ul>
+                    <li><a href="https://sandbox.agentrails.io/swagger" target="_blank">AgentRails Sandbox</a> &mdash; test against a live x402 API, no signup needed</li>
+                    <li><a href="https://pypi.org/project/langchain-x402/" target="_blank">langchain-x402 on PyPI</a></li>
+                    <li><a href="https://agentrails.io/docs.html" target="_blank">Full documentation</a></li>
+                    <li><a href="https://www.x402.org/" target="_blank">x402 protocol specification</a></li>
+                </ul>
+
+                <p>
+                    Also available for other frameworks: <a href="https://pypi.org/project/crewai-x402/" target="_blank">CrewAI (Python)</a>, <a href="https://www.nuget.org/packages/AgentRails.SemanticKernel.X402" target="_blank">Semantic Kernel (.NET)</a>, <a href="https://www.nuget.org/packages/AgentRails.AgentFramework.X402" target="_blank">Agent Framework (.NET)</a>.
+                </p>
+
+                <div class="mt-12 p-6 bg-gradient-to-br from-primary-50 to-cyan-50 rounded-2xl border border-primary-100">
+                    <h3 class="text-lg font-semibold mb-2 mt-0">Try it now</h3>
+                    <p class="mb-4 text-gray-600">Test against a live x402 API. The sandbox returns a 402 response with real payment requirements. No signup, no API key.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="inline-block px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition">
+                            Open Sandbox
+                        </a>
+                        <a href="https://github.com/kmatthewsio/langchain-x402" target="_blank" class="inline-block px-6 py-3 bg-white text-gray-700 rounded-xl font-medium border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                            View Source
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </article>
+
+    <!-- More Articles -->
+    <section class="py-12 bg-white border-t border-gray-100">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <h2 class="text-2xl font-bold mb-8">More Articles</h2>
+            <div class="space-y-6">
+                <a href="/blog/x402-vs-stripe-for-ai-agents.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 23, 2026</div>
+                    <div class="font-semibold text-gray-900">x402 vs Stripe for AI Agents: Why HTTP 402 Beats Traditional Billing</div>
+                </a>
+                <a href="/blog/implementing-http-402.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 17, 2026</div>
+                    <div class="font-semibold text-gray-900">We Implemented HTTP 402 For Real: How AI Agents Pay for APIs</div>
+                </a>
+                <a href="/blog/dotnet-agents-can-pay-now.html" class="block p-4 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <div class="text-sm text-gray-500 mb-1">February 19, 2026</div>
+                    <div class="font-semibold text-gray-900">.NET Agents Can Pay Now: x402 Comes to Semantic Kernel</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-200 bg-white">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+            <p>&copy; 2026 AgentRails. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
