@@ -141,14 +141,21 @@
             position: relative;
             overflow: hidden;
         }
+        .ar-inner {
+            display: flex;
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
         .ar-left-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 60px 80px;
-            position: relative;
-            z-index: 1;
+            padding: 60px 48px 60px 40px;
             animation: slideInLeft 0.8s ease-out both;
         }
         .ar-right-panel {
@@ -157,8 +164,6 @@
             align-items: center;
             justify-content: center;
             padding: 40px;
-            position: relative;
-            z-index: 1;
         }
         .ar-card {
             width: 100%;
@@ -229,33 +234,29 @@
         @media (max-width: 900px) {
             .ar-left-panel { display: none; }
             .ar-right-panel { width: 100%; }
-            .ar-layout { justify-content: center; }
+            .ar-inner { justify-content: center; }
         }
     </style>
     <script>
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const CONFIG = {
-            API_BASE_URL: window.location.hostname === 'app.agentrails.io'
-                ? 'https://api.agentrails.io'
-                : '',
-            DASHBOARD_URL: window.location.hostname === 'app.agentrails.io'
-                ? '/index.html'
-                : '/admin/index.html',
-            LOGIN_URL: window.location.hostname === 'app.agentrails.io'
-                ? '/login.html'
-                : '/admin/login.html'
+            API_BASE_URL: isLocalhost ? '' : 'https://api.agentrails.io',
+            DASHBOARD_URL: isLocalhost ? '/admin/index.html' : '/index.html',
+            LOGIN_URL: isLocalhost ? '/admin/login.html' : '/login.html'
         };
     </script>
 </head>
 <body>
     <div x-data="loginApp()" x-init="init()" x-cloak class="ar-layout">
         <!-- Particle canvas background -->
-        <canvas id="particleCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;"></canvas>
+        <canvas id="particleCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
 
         <!-- Floating orbs -->
         <div class="ar-orb" style="width:400px;height:400px;background:radial-gradient(circle,#63E1D1 0%,transparent 70%);top:-10%;left:-5%;animation:orbFloat 8s ease-in-out 0s infinite alternate;"></div>
         <div class="ar-orb" style="width:350px;height:350px;background:radial-gradient(circle,#5B7FFF 0%,transparent 70%);top:60%;left:70%;animation:orbFloat 8s ease-in-out 2s infinite alternate;"></div>
         <div class="ar-orb" style="width:300px;height:300px;background:radial-gradient(circle,#A855F7 0%,transparent 70%);top:30%;left:45%;animation:orbFloat 8s ease-in-out 4s infinite alternate;"></div>
 
+        <div class="ar-inner">
         <!-- Left panel — branding -->
         <div class="ar-left-panel">
             <!-- Logo -->
@@ -468,6 +469,7 @@
                 </p>
             </div>
         </div>
+        </div><!-- .ar-inner -->
     </div>
 
     <script>
