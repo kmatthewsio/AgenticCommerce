@@ -19,6 +19,18 @@
     <lastmod>2026-02-14</lastmod>
   </url>
   <url>
+    <loc>https://www.agentrails.io/privacy.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <lastmod>2026-02-24</lastmod>
+  </url>
+  <url>
+    <loc>https://www.agentrails.io/terms.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <lastmod>2026-02-24</lastmod>
+  </url>
+  <url>
     <loc>https://www.agentrails.io/blog/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
