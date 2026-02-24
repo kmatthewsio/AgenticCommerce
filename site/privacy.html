@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - AgentRails | AI Agent Payment Infrastructure</title>
+    <meta name="description" content="AgentRails privacy policy. Learn how we collect, use, and protect your data across our AI agent payment infrastructure platform.">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://www.agentrails.io/privacy.html">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Privacy Policy - AgentRails">
+    <meta property="og:description" content="AgentRails privacy policy. Learn how we collect, use, and protect your data across our AI agent payment infrastructure platform.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.agentrails.io/privacy.html">
+    <meta property="og:image" content="https://www.agentrails.io/og-image.svg">
+    <meta property="og:site_name" content="AgentRails">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Privacy Policy - AgentRails">
+    <meta name="twitter:description" content="AgentRails privacy policy. Learn how we collect, use, and protect your data across our AI agent payment infrastructure platform.">
+    <meta name="twitter:image" content="https://www.agentrails.io/og-image.svg">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.agentrails.io/" },
+        { "@type": "ListItem", "position": 2, "name": "Privacy Policy", "item": "https://www.agentrails.io/privacy.html" }
+      ]
+    }
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        },
+                        surface: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Custom animations */
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-fade-up {
+            animation: fade-up 0.6s ease-out forwards;
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Gradient border */
+        .gradient-border {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            border-radius: 14px;
+            z-index: -1;
+        }
+
+        /* Code block styling */
+        .code-block {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
+
+        /* Blob background */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="bg-surface-50 font-sans text-gray-900 antialiased" x-data="{ mobileMenu: false }">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg">AgentRails</span>
+                </a>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="/#features" class="text-gray-600 hover:text-gray-900 transition">Features</a>
+                    <a href="/#use-cases" class="text-gray-600 hover:text-gray-900 transition">Use Cases</a>
+                    <a href="/#pricing" class="text-gray-600 hover:text-gray-900 transition">Pricing</a>
+                    <a href="/docs.html" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
+                    <a href="/blog/" class="text-gray-600 hover:text-gray-900 transition">Blog</a>
+                    <a href="/enterprise.html" class="text-gray-600 hover:text-gray-900 transition">Enterprise</a>
+                    <a href="https://app.agentrails.io" target="_blank" class="text-gray-600 hover:text-gray-900 transition">Dashboard</a>
+                    <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="text-gray-600 hover:text-gray-900 transition">GitHub</a>
+                    <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">Try Sandbox</a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Nav -->
+            <div x-show="mobileMenu" x-transition class="md:hidden py-4 border-t border-gray-100">
+                <a href="/#features" class="block py-2 text-gray-600">Features</a>
+                <a href="/#use-cases" class="block py-2 text-gray-600">Use Cases</a>
+                <a href="/#pricing" class="block py-2 text-gray-600">Pricing</a>
+                <a href="/docs.html" class="block py-2 text-gray-600">Docs</a>
+                <a href="/blog/" class="block py-2 text-gray-600">Blog</a>
+                <a href="/enterprise.html" class="block py-2 text-gray-600">Enterprise</a>
+                <a href="https://app.agentrails.io" target="_blank" class="block py-2 text-gray-600">Dashboard</a>
+                <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="block py-2 text-gray-600">GitHub</a>
+                <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="block py-2 mt-2 text-center bg-primary-600 text-white rounded-lg font-medium">
+                    Try Sandbox
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Privacy Policy Content -->
+    <section class="pt-32 pb-20 lg:pt-40 lg:pb-32">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+
+            <div class="mb-12">
+                <h1 class="text-4xl sm:text-5xl font-bold mb-4">Privacy Policy</h1>
+                <p class="text-gray-500 text-sm">Last updated: February 24, 2026</p>
+            </div>
+
+            <div class="prose prose-gray max-w-none space-y-10">
+
+                <!-- Introduction -->
+                <div>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        AgentRails ("we," "us," or "our") operates the website <a href="https://www.agentrails.io" class="text-primary-600 hover:text-primary-700 underline">www.agentrails.io</a> and the AgentRails platform. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI agent payment infrastructure services, including our APIs, dashboard, and sandbox environment.
+                    </p>
+                    <p class="text-gray-600 leading-relaxed mt-4">
+                        By accessing or using AgentRails, you agree to the terms of this Privacy Policy. If you do not agree, please discontinue use of our services.
+                    </p>
+                </div>
+
+                <!-- 1. Information We Collect -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">1. Information We Collect</h2>
+
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 mt-6">1.1 Account Information</h3>
+                    <p class="text-gray-600 leading-relaxed mb-3">
+                        When you create an AgentRails account, we collect:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 ml-2">
+                        <li>Email address</li>
+                        <li>Name</li>
+                        <li>Organization name (if applicable)</li>
+                        <li>Password (stored in hashed form)</li>
+                    </ul>
+
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 mt-6">1.2 Payment and Transaction Data</h3>
+                    <p class="text-gray-600 leading-relaxed mb-3">
+                        As an AI agent payment infrastructure platform, we process and store:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 ml-2">
+                        <li>USDC wallet addresses associated with your agents</li>
+                        <li>On-chain transaction hashes</li>
+                        <li>Payment amounts and timestamps</li>
+                        <li>x402 payment protocol metadata (payer addresses, facilitator responses)</li>
+                        <li>Agent spending policy configurations</li>
+                    </ul>
+
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 mt-6">1.3 Usage and Analytics Data</h3>
+                    <p class="text-gray-600 leading-relaxed mb-3">
+                        We collect non-personally-identifiable usage data to improve our services:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 ml-2">
+                        <li>Page views and navigation patterns via Vercel Analytics (privacy-focused, no cookies)</li>
+                        <li>API request logs (endpoints called, response codes, timestamps)</li>
+                        <li>Agent execution logs (actions performed, resources accessed)</li>
+                        <li>Error and performance metrics</li>
+                    </ul>
+
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 mt-6">1.4 Information We Do Not Collect</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        We do not use cookies for tracking purposes. Our website analytics are powered by Vercel Analytics, which is privacy-focused and operates without cookies or personally identifiable tracking.
+                    </p>
+                </div>
+
+                <!-- 2. How We Use Your Information -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">2. How We Use Your Information</h2>
+                    <p class="text-gray-600 leading-relaxed mb-3">
+                        We use the information we collect for the following purposes:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-600 space-y-2 ml-2">
+                        <li><span class="font-medium text-gray-700">Providing our services:</span> To operate the AgentRails platform, process x402 payments, manage AI agent wallets, and enforce spending policies.</li>
+                        <li><span class="font-medium text-gray-700">Account management:</span> To authenticate your identity, manage your account settings, and communicate with you about your account.</li>
+                        <li><span class="font-medium text-gray-700">Transaction processing:</span> To facilitate, verify, and settle USDC payments on supported blockchain networks (Base, Ethereum, Arc).</li>
+                        <li><span class="font-medium text-gray-700">Compliance and audit:</span> To maintain transaction records for regulatory compliance, fraud prevention, and audit purposes.</li>
+                        <li><span class="font-medium text-gray-700">Platform improvement:</span> To analyze usage patterns, diagnose technical issues, and improve platform reliability and performance.</li>
+                        <li><span class="font-medium text-gray-700">Security:</span> To detect, prevent, and respond to fraud, unauthorized access, or other security incidents.</li>
+                    </ul>
+                </div>
+
+                <!-- 3. Blockchain Data and Public Transactions -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">3. Blockchain Data and Public Transactions</h2>
+                    <p class="text-gray-600 leading-relaxed mb-4">
+                        AgentRails operates on public blockchain networks, including Base (Coinbase), Ethereum, and Arc. It is important to understand the following:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-600 space-y-2 ml-2">
+                        <li>Blockchain transactions are public and immutable by nature. Wallet addresses and transaction hashes recorded on-chain are permanently visible to anyone.</li>
+                        <li>We cannot delete, modify, or redact data that has been written to a public blockchain.</li>
+                        <li>While wallet addresses are pseudonymous, they may become associated with your identity if you share them publicly or through other services.</li>
+                    </ul>
+                    <p class="text-gray-600 leading-relaxed mt-4">
+                        By using AgentRails to execute on-chain transactions, you acknowledge and accept the inherently public nature of blockchain data.
+                    </p>
+                </div>
+
+                <!-- 4. Third-Party Services -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">4. Third-Party Services</h2>
+                    <p class="text-gray-600 leading-relaxed mb-3">
+                        We integrate with the following third-party service providers to deliver our platform:
+                    </p>
+
+                    <div class="space-y-4 mt-4">
+                        <div class="bg-white rounded-xl p-5 border border-gray-100">
+                            <h3 class="font-semibold text-gray-900 mb-1">Circle</h3>
+                            <p class="text-gray-600 text-sm">Provides Developer Controlled Wallets for agent USDC custody. Circle processes wallet creation, key management, and transaction signing. <a href="https://www.circle.com/en/legal/privacy-policy" target="_blank" class="text-primary-600 hover:text-primary-700 underline">Circle Privacy Policy</a></p>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-5 border border-gray-100">
+                            <h3 class="font-semibold text-gray-900 mb-1">Coinbase</h3>
+                            <p class="text-gray-600 text-sm">Operates the Base blockchain network used for USDC settlement. On-chain transaction data is publicly accessible. <a href="https://www.coinbase.com/legal/privacy" target="_blank" class="text-primary-600 hover:text-primary-700 underline">Coinbase Privacy Policy</a></p>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-5 border border-gray-100">
+                            <h3 class="font-semibold text-gray-900 mb-1">Stripe</h3>
+                            <p class="text-gray-600 text-sm">Handles subscription billing and payment processing for AgentRails platform plans. <a href="https://stripe.com/privacy" target="_blank" class="text-primary-600 hover:text-primary-700 underline">Stripe Privacy Policy</a></p>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-5 border border-gray-100">
+                            <h3 class="font-semibold text-gray-900 mb-1">Vercel</h3>
+                            <p class="text-gray-600 text-sm">Hosts our website and provides privacy-focused analytics (no cookies, no personally identifiable tracking). <a href="https://vercel.com/legal/privacy-policy" target="_blank" class="text-primary-600 hover:text-primary-700 underline">Vercel Privacy Policy</a></p>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-5 border border-gray-100">
+                            <h3 class="font-semibold text-gray-900 mb-1">Microsoft</h3>
+                            <p class="text-gray-600 text-sm">Enterprise integrations via Copilot Studio and Microsoft 365. Data shared with Microsoft is governed by your organization's Microsoft agreement. <a href="https://privacy.microsoft.com/en-us/privacystatement" target="_blank" class="text-primary-600 hover:text-primary-700 underline">Microsoft Privacy Statement</a></p>
+                        </div>
+                    </div>
+
+                    <p class="text-gray-600 leading-relaxed mt-4">
+                        Each third-party provider has its own privacy policy governing how they handle your data. We encourage you to review their policies directly.
+                    </p>
+                </div>
+
+                <!-- 5. Data Retention -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">5. Data Retention</h2>
+                    <ul class="list-disc list-inside text-gray-600 space-y-2 ml-2">
+                        <li><span class="font-medium text-gray-700">Account data:</span> Retained for as long as your account is active. Upon account deletion, we will remove your personal account information within 30 days, subject to any legal retention obligations.</li>
+                        <li><span class="font-medium text-gray-700">Transaction records:</span> Kept indefinitely for audit, compliance, and regulatory purposes. On-chain transaction data cannot be deleted as it resides on public blockchains.</li>
+                        <li><span class="font-medium text-gray-700">API usage logs:</span> Retained for 90 days for operational purposes, then aggregated and anonymized.</li>
+                        <li><span class="font-medium text-gray-700">Analytics data:</span> Vercel Analytics data is aggregated and does not contain personally identifiable information.</li>
+                    </ul>
+                </div>
+
+                <!-- 6. Data Security -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">6. Data Security</h2>
+                    <p class="text-gray-600 leading-relaxed mb-3">
+                        We implement industry-standard security measures to protect your information:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 ml-2">
+                        <li>All data transmitted to and from our platform is encrypted via TLS (HTTPS).</li>
+                        <li>Passwords are hashed using modern cryptographic algorithms and are never stored in plaintext.</li>
+                        <li>API keys and secrets are encrypted at rest.</li>
+                        <li>Agent wallet private keys are managed by Circle's Developer Controlled Wallets infrastructure and are never exposed to AgentRails.</li>
+                        <li>Access to production systems is restricted and audited.</li>
+                    </ul>
+                    <p class="text-gray-600 leading-relaxed mt-4">
+                        While we strive to protect your data, no method of electronic transmission or storage is 100% secure. We cannot guarantee absolute security.
+                    </p>
+                </div>
+
+                <!-- 7. Your Rights and Choices -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">7. Your Rights and Choices</h2>
+
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 mt-6">7.1 Access and Export</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        You may request a copy of the personal data we hold about you by emailing <a href="mailto:support@agentrails.io" class="text-primary-600 hover:text-primary-700 underline">support@agentrails.io</a>. We will provide your data in a portable format within 30 days of your request.
+                    </p>
+
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 mt-6">7.2 Deletion</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        You may request deletion of your account and personal data by emailing <a href="mailto:support@agentrails.io" class="text-primary-600 hover:text-primary-700 underline">support@agentrails.io</a>. Please note that we may retain certain data as required by law or for legitimate business purposes (such as transaction records for audit compliance). On-chain data cannot be deleted.
+                    </p>
+
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 mt-6">7.3 Correction</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        You may update your account information through the AgentRails dashboard or by contacting us at <a href="mailto:support@agentrails.io" class="text-primary-600 hover:text-primary-700 underline">support@agentrails.io</a>.
+                    </p>
+
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 mt-6">7.4 GDPR (European Users)</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        If you are located in the European Economic Area (EEA), you have additional rights under the General Data Protection Regulation (GDPR), including the right to access, rectification, erasure, restriction of processing, data portability, and objection. To exercise any of these rights, please contact us at <a href="mailto:support@agentrails.io" class="text-primary-600 hover:text-primary-700 underline">support@agentrails.io</a>.
+                    </p>
+                </div>
+
+                <!-- 8. Data Sharing -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">8. Data Sharing</h2>
+                    <p class="text-gray-600 leading-relaxed mb-3">
+                        We do not sell your personal information. We share data only in the following circumstances:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-600 space-y-2 ml-2">
+                        <li><span class="font-medium text-gray-700">Service providers:</span> With the third-party services listed in Section 4, solely to operate our platform.</li>
+                        <li><span class="font-medium text-gray-700">Blockchain networks:</span> Transaction data is broadcast to public blockchain networks as a necessary part of processing payments.</li>
+                        <li><span class="font-medium text-gray-700">Legal requirements:</span> When required by law, regulation, legal process, or governmental request.</li>
+                        <li><span class="font-medium text-gray-700">Safety and security:</span> When we believe disclosure is necessary to protect the rights, safety, or property of AgentRails, our users, or the public.</li>
+                        <li><span class="font-medium text-gray-700">Business transfers:</span> In connection with a merger, acquisition, or sale of assets, in which case your data would remain subject to this Privacy Policy.</li>
+                    </ul>
+                </div>
+
+                <!-- 9. Cookies and Tracking -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">9. Cookies and Tracking</h2>
+                    <p class="text-gray-600 leading-relaxed">
+                        AgentRails does not use cookies for advertising or user tracking. Our website analytics are provided by Vercel Analytics, which is a privacy-focused solution that does not use cookies, does not collect personally identifiable information, and is compliant with GDPR, CCPA, and PECR without requiring a cookie consent banner.
+                    </p>
+                    <p class="text-gray-600 leading-relaxed mt-4">
+                        We may use essential cookies strictly for authentication and session management in the AgentRails dashboard. These are necessary for the service to function and do not track your behavior across other websites.
+                    </p>
+                </div>
+
+                <!-- 10. Children's Privacy -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">10. Children's Privacy</h2>
+                    <p class="text-gray-600 leading-relaxed">
+                        AgentRails is not directed at individuals under the age of 18. We do not knowingly collect personal information from children. If you believe a child has provided us with personal data, please contact us at <a href="mailto:support@agentrails.io" class="text-primary-600 hover:text-primary-700 underline">support@agentrails.io</a> and we will promptly delete such information.
+                    </p>
+                </div>
+
+                <!-- 11. Changes to This Policy -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">11. Changes to This Policy</h2>
+                    <p class="text-gray-600 leading-relaxed">
+                        We may update this Privacy Policy from time to time to reflect changes in our practices, technology, or legal requirements. When we make material changes, we will update the "Last updated" date at the top of this page and, where appropriate, notify you via email or through the AgentRails dashboard.
+                    </p>
+                    <p class="text-gray-600 leading-relaxed mt-4">
+                        We encourage you to review this Privacy Policy periodically to stay informed about how we protect your data.
+                    </p>
+                </div>
+
+                <!-- 12. Contact Us -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">12. Contact Us</h2>
+                    <p class="text-gray-600 leading-relaxed mb-4">
+                        If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
+                    </p>
+                    <div class="bg-white rounded-xl p-6 border border-gray-100">
+                        <p class="text-gray-700 font-medium">AgentRails</p>
+                        <p class="text-gray-600 mt-1">Email: <a href="mailto:support@agentrails.io" class="text-primary-600 hover:text-primary-700 underline">support@agentrails.io</a></p>
+                        <p class="text-gray-600 mt-1">Website: <a href="https://www.agentrails.io" class="text-primary-600 hover:text-primary-700 underline">www.agentrails.io</a></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 bg-gray-900 text-gray-400">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <!-- Brand -->
+                <div class="md:col-span-2">
+                    <a href="/" class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <span class="font-semibold text-lg text-white">AgentRails</span>
+                    </a>
+                    <p class="text-sm max-w-xs">
+                        Enterprise AI agent architecture. Build, govern, and scale AI agents on Microsoft 365 — with x402 autonomous payments built in.
+                    </p>
+                </div>
+
+                <!-- Links -->
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Product</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/#features" class="hover:text-white transition">Features</a></li>
+                        <li><a href="/#how-it-works" class="hover:text-white transition">How It Works</a></li>
+                        <li><a href="/#pricing" class="hover:text-white transition">Pricing</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Developers</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="https://app.agentrails.io" target="_blank" class="hover:text-white transition">Dashboard</a></li>
+                        <li><a href="https://sandbox.agentrails.io/swagger" target="_blank" class="hover:text-white transition">Sandbox</a></li>
+                        <li><a href="https://api.agentrails.io/swagger" target="_blank" class="hover:text-white transition">API Reference</a></li>
+                        <li><a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="hover:text-white transition">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm">
+                <p>&copy; 2026 AgentRails. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="/privacy.html" class="hover:text-white transition">Privacy</a>
+                    <a href="#" class="hover:text-white transition">Terms</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
