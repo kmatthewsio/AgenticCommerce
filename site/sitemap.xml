@@ -34,7 +34,13 @@
     <loc>https://www.agentrails.io/blog/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <lastmod>2026-02-23</lastmod>
+    <lastmod>2026-02-24</lastmod>
+  </url>
+  <url>
+    <loc>https://www.agentrails.io/blog/zero-trust-for-ai-agents.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-02-24</lastmod>
   </url>
   <url>
     <loc>https://www.agentrails.io/blog/build-x402-api-python-tutorial.html</loc>
