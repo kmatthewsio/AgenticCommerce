@@ -43,21 +43,19 @@ Build, govern, and pay AI agents on Microsoft 365 with x402 autonomous payments.
 
 ### Description (HTML)
 ```html
-<h3>The missing commerce layer for AI agents</h3>
+<h3>Zero Trust payment infrastructure for AI agents</h3>
 
-<p>AgentRails is enterprise AI agent infrastructure that gives your agents autonomous payment capabilities via the x402 protocol. Build with Copilot Studio, govern with policies and audit trails, pay with USDC — from development to production, guardrails included.</p>
+<p>Microsoft's Cyber Pulse report (Feb 2026) found that 80% of Fortune 500 deploy AI agents — but only 47% have security controls for them. AgentRails closes that governance gap with x402 payment infrastructure that enforces Zero Trust principles at the protocol level: least privilege via per-request payments, explicit verification via cryptographic proof, and full observability via on-chain audit trails.</p>
 
-<p>The x402 protocol replaces API keys with HTTP-native payments. When an agent calls a protected API, the server returns <strong>402 Payment Required</strong> with the price. The agent pays instantly in USDC and gets access — no signup, no credentials, no subscription tiers.</p>
-
-<h3>Why AgentRails?</h3>
+<h3>Security &amp; governance first</h3>
 
 <ul>
-<li><strong>5 SDK integrations</strong> — LangChain, CrewAI, Semantic Kernel, Microsoft Agent Framework, and Copilot Studio</li>
-<li><strong>Enterprise governance</strong> — Per-agent spending limits, approval workflows, kill switches, and full audit trails</li>
-<li><strong>Microsoft 365 native</strong> — Copilot Studio plugins let finance teams query x402 revenue and manage agents in Microsoft Teams</li>
-<li><strong>Instant USDC settlement</strong> — Payments settle in milliseconds on-chain with cryptographic proof</li>
-<li><strong>Zero credential management</strong> — No API keys to provision, rotate, or leak. Agents pay per-request.</li>
-<li><strong>Open source foundation</strong> — Core protocol implementation on GitHub. Enterprise features layered on top.</li>
+<li><strong>Per-agent spending limits and budget caps</strong> — each agent gets individual budgets with hard and soft limits</li>
+<li><strong>Kill switches for compromised agents</strong> — immediately revoke an agent's ability to spend</li>
+<li><strong>Approval workflows</strong> — human-in-the-loop for high-value transactions</li>
+<li><strong>Role-based access control</strong> — Admin, Finance Manager, Agent Operator, Auditor, Read-Only</li>
+<li><strong>Observability</strong> — every agent action, payment, and policy change logged with timestamps and on-chain transaction hashes</li>
+<li><strong>No standing credentials</strong> — agents pay per-request via signed USDC authorizations, eliminating API key sprawl and rotation</li>
 </ul>
 
 <h3>How it works</h3>
@@ -67,6 +65,16 @@ Build, govern, and pay AI agents on Microsoft 365 with x402 autonomous payments.
 <li><strong>Agent pays instantly</strong> — SDK checks budget limits, signs a USDC payment authorization, and retries in one round trip.</li>
 <li><strong>Data returned, settled on-chain</strong> — API delivers the response. Payment settles with cryptographic proof. Agent moves on.</li>
 </ol>
+
+<h3>5 SDK integrations</h3>
+
+<ul>
+<li><strong>LangChain</strong> (Python) — pip install langchain-x402</li>
+<li><strong>CrewAI</strong> (Python) — pip install crewai-x402</li>
+<li><strong>Semantic Kernel</strong> (.NET) — dotnet add package AgentRails.SemanticKernel.X402</li>
+<li><strong>Microsoft Agent Framework</strong> (.NET) — dotnet add package AgentRails.AgentFramework.X402</li>
+<li><strong>Copilot Studio</strong> — Import OpenAPI spec for Microsoft Teams integration</li>
+</ul>
 
 <h3>Built on trusted infrastructure</h3>
 
@@ -81,7 +89,7 @@ Build, govern, and pay AI agents on Microsoft 365 with x402 autonomous payments.
 <li><strong>Enterprise</strong> — $2,500 one-time. Full source code, policy engine, admin dashboard, Copilot Studio plugins.</li>
 </ul>
 ```
-(~2,300 characters — limit: 5,000)
+(~2,800 characters — limit: 5,000)
 
 ### Getting Started Instructions
 ```
@@ -106,9 +114,9 @@ For enterprise deployments with Copilot Studio, Power Automate, and governance p
 
 ### Search Keywords
 ```
-x402, AI agent payments, autonomous payments
+x402, AI agent payments, autonomous payments, AI agent governance, AI agent security, zero trust AI agents, AI agent observability
 ```
-(3 keywords)
+(7 keywords)
 
 ### Privacy Policy Link
 ```
@@ -156,6 +164,7 @@ https://www.agentrails.io/terms
 | GitHub — Core Platform | https://github.com/kmatthewsio/AgenticCommerce |
 | GitHub — LangChain x402 SDK | https://github.com/kmatthewsio/langchain-x402 |
 | Blog | https://www.agentrails.io/blog |
+| Blog: Zero Trust for AI Agents | https://www.agentrails.io/blog/zero-trust-for-ai-agents.html |
 
 ### Supporting Documents (PDFs to create)
 
