@@ -9,9 +9,11 @@
   </Folder>
   <Folder Name="/mcp-server/">
     <Project Path="mcp-server/AgentRails.McpServer.csproj" />
+    <Project Path="mcp-server-foundry/AgentRails.McpServer.Foundry.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/AgenticCommerce.Tests/AgenticCommerce.Tests.csproj" />
     <Project Path="tests/AgentRails.McpServer.Tests/AgentRails.McpServer.Tests.csproj" />
+    <Project Path="tests/AgentRails.McpServer.Foundry.Tests/AgentRails.McpServer.Foundry.Tests.csproj" />
   </Folder>
 </Solution>
