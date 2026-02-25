@@ -1,0 +1,18 @@
+{
+  "version": "2.0",
+  "extensions": {
+    "mcp": {
+      "instructions": "AgentRails x402 payment tools for AI agents. Manage agents, execute x402 payments, check pricing, view billing, and enforce spending policies.",
+      "serverName": "AgentRails",
+      "serverVersion": "1.0.0"
+    }
+  },
+  "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "excludedTypes": "Request"
+      }
+    }
+  }
+}

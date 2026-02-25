@@ -36,8 +36,7 @@ static void ConfigureServices(IServiceCollection services)
         client.BaseAddress = new Uri(config.BaseUrl);
         if (!string.IsNullOrEmpty(config.ApiKey))
         {
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", config.ApiKey);
+            client.DefaultRequestHeaders.Add("X-API-Key", config.ApiKey);
         }
     });
 }

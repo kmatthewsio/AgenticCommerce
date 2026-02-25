@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "AGENTRAILS_BASE_URL": "https://sandbox.agentrails.io",
+    "AGENTRAILS_API_KEY": ""
+  }
+}
