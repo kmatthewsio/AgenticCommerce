@@ -2,6 +2,8 @@
 
 > The orchestration layer between AI agents and the financial system
 
+**[www.agentrails.io](https://www.agentrails.io)** | [Documentation](https://www.agentrails.io/docs) | [Blog](https://www.agentrails.io/blog) | [Microsoft Marketplace](https://marketplace.microsoft.com/en-us/product/saas/agentrails.agentrails-preview)
+
 **Agent-agnostic. Model-agnostic. Enterprise-ready.**
 
 AgentRails connects any AI agent to payment infrastructure with the budget controls, transaction logging, and compliance that businesses demand.
