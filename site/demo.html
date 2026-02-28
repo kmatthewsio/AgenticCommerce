@@ -312,37 +312,48 @@
         const stepLabels = ['Fetch Pricing', 'Call Without Payment', 'Decode 402 Response', 'Generate Signed Payload', 'Execute Payment', 'View Results'];
 
         function completeStep(stepNum) {
-            const stepEl = document.querySelector(`[data-step="${stepNum}"]`);
-            const circle = stepEl.querySelector('.step-circle');
-            circle.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
-            circle.classList.remove('bg-primary-600', 'bg-gray-700');
-            circle.classList.add('bg-green-600');
-            stepEl.classList.remove('step-active');
+            try {
+                const stepEl = document.querySelector('[data-step="' + stepNum + '"]');
 
-            // Reset button to completed state
-            const btn = stepEl.querySelector('.step-btn');
-            btn.disabled = true;
-            btn.innerHTML = stepLabels[stepNum - 1];
-            btn.classList.remove('bg-primary-600', 'hover:bg-primary-700');
-            btn.classList.add('bg-gray-700', 'opacity-60', 'cursor-not-allowed');
+                // Show result panel first (most important)
+                const result = stepEl.querySelector('.step-result');
+                result.classList.remove('hidden');
+                result.style.display = 'block';
 
-            const result = stepEl.querySelector('.step-result');
-            result.classList.remove('hidden');
+                // Green checkmark on circle
+                const circle = stepEl.querySelector('.step-circle');
+                circle.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
+                circle.className = 'step-circle w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-sm font-bold shrink-0';
 
-            // Activate next step
-            const nextStep = document.querySelector(`[data-step="${stepNum + 1}"]`);
-            if (nextStep) {
-                nextStep.classList.remove('opacity-40', 'pointer-events-none');
-                nextStep.classList.add('step-active');
-                nextStep.querySelector('.step-circle').classList.remove('bg-gray-700');
-                nextStep.querySelector('.step-circle').classList.add('bg-primary-600');
-            }
+                stepEl.classList.remove('step-active');
 
-            currentStep = stepNum + 1;
+                // Gray out completed button
+                const btn = stepEl.querySelector('.step-btn');
+                btn.disabled = true;
+                btn.textContent = stepLabels[stepNum - 1];
+                btn.className = 'step-btn px-5 py-2 bg-gray-700 rounded-lg font-medium text-sm opacity-60 cursor-not-allowed';
 
-            if (stepNum === 6) {
-                stopTimer();
-                document.getElementById('completion').classList.remove('hidden');
+                // Activate next step
+                var nextStep = document.querySelector('[data-step="' + (stepNum + 1) + '"]');
+                if (nextStep) {
+                    nextStep.classList.remove('opacity-40', 'pointer-events-none');
+                    nextStep.classList.add('step-active');
+                    var nextCircle = nextStep.querySelector('.step-circle');
+                    nextCircle.className = 'step-circle w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-sm font-bold shrink-0';
+                    nextStep.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                currentStep = stepNum + 1;
+
+                if (stepNum === 6) {
+                    stopTimer();
+                    var comp = document.getElementById('completion');
+                    comp.classList.remove('hidden');
+                    comp.style.display = 'block';
+                    comp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } catch (e) {
+                console.error('completeStep error:', e);
             }
         }
 
@@ -481,33 +492,34 @@
             timerStart = null;
             stopTimer();
             document.getElementById('timer').textContent = '0.0s';
-            document.getElementById('completion').classList.add('hidden');
             stepData = {};
 
-            document.querySelectorAll('.step').forEach((el, i) => {
-                const circle = el.querySelector('.step-circle');
-                const result = el.querySelector('.step-result');
-                const btn = el.querySelector('.step-btn');
-                const stepNum = i + 1;
+            document.querySelectorAll('.step').forEach(function(el, i) {
+                var circle = el.querySelector('.step-circle');
+                var result = el.querySelector('.step-result');
+                var btn = el.querySelector('.step-btn');
+                var stepNum = i + 1;
 
                 circle.innerHTML = stepNum;
-                circle.classList.remove('bg-green-600', 'bg-primary-600');
                 result.classList.add('hidden');
+                result.style.display = '';
                 btn.disabled = false;
-                btn.innerHTML = stepLabels[i];
-                btn.classList.remove('bg-gray-700', 'opacity-60', 'cursor-not-allowed');
-                btn.classList.add('bg-primary-600', 'hover:bg-primary-700');
+                btn.textContent = stepLabels[i];
+                btn.className = 'step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm';
                 el.classList.remove('step-active');
 
                 if (stepNum === 1) {
                     el.classList.remove('opacity-40', 'pointer-events-none');
                     el.classList.add('step-active');
-                    circle.classList.add('bg-primary-600');
+                    circle.className = 'step-circle w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-sm font-bold shrink-0';
                 } else {
                     el.classList.add('opacity-40', 'pointer-events-none');
-                    circle.classList.add('bg-gray-700');
+                    circle.className = 'step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0';
                 }
             });
+            var comp = document.getElementById('completion');
+            comp.classList.add('hidden');
+            comp.style.display = '';
         }
     </script>
 
