@@ -7,6 +7,18 @@
     <lastmod>2026-02-23</lastmod>
   </url>
   <url>
+    <loc>https://www.agentrails.io/demo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2026-02-28</lastmod>
+  </url>
+  <url>
+    <loc>https://www.agentrails.io/blog/govern-agent-spending</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-02-28</lastmod>
+  </url>
+  <url>
     <loc>https://www.agentrails.io/docs</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>

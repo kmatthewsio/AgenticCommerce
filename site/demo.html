@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Demo - See x402 Agent Payments in 60 Seconds - AgentRails</title>
+    <meta name="description" content="Watch an AI agent discover, negotiate, and pay for an API call using x402 — live. No signup, no credit card, just click through 6 steps.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Interactive Demo - See x402 Agent Payments in 60 Seconds">
+    <meta property="og:description" content="Watch an AI agent discover, negotiate, and pay for an API call using x402 — live in your browser.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.agentrails.io/demo">
+    <meta property="og:image" content="https://www.agentrails.io/og-image.svg">
+    <meta property="og:site_name" content="AgentRails">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Interactive Demo - See x402 Agent Payments in 60 Seconds">
+    <meta name="twitter:description" content="Watch an AI agent discover, negotiate, and pay for an API call using x402 — live in your browser.">
+    <meta name="twitter:image" content="https://www.agentrails.io/og-image.svg">
+
+    <link rel="canonical" href="https://www.agentrails.io/demo">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "name": "Interactive x402 Demo",
+          "description": "Watch an AI agent discover, negotiate, and pay for an API call using x402 in 60 seconds.",
+          "url": "https://www.agentrails.io/demo"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.agentrails.io/" },
+            { "@type": "ListItem", "position": 2, "name": "Demo", "item": "https://www.agentrails.io/demo" }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1',
+                            600: '#4f46e5', 700: '#4338ca',
+                        }
+                    },
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+
+    <style>
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(99,102,241,0); }
+            100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+        }
+        .step-active .step-circle { animation: pulse-ring 1.5s infinite; }
+        .step-line { width: 2px; min-height: 2rem; }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-gray-900 via-indigo-950 to-gray-900 font-sans text-white antialiased min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-semibold text-lg text-white">AgentRails</span>
+                </a>
+                <div class="flex items-center gap-6">
+                    <a href="/blog/" class="text-gray-300 hover:text-white transition hidden sm:block">Blog</a>
+                    <a href="/docs.html" class="text-gray-300 hover:text-white transition hidden sm:block">Docs</a>
+                    <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Try Sandbox
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="pt-28 pb-8 text-center px-4">
+        <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-cyan-300">
+            x402 in 60 Seconds
+        </h1>
+        <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-4">
+            Click through each step to watch an AI agent discover pricing, get a 402, sign a payment, and receive data &mdash; all live against our sandbox API.
+        </p>
+        <div id="timer" class="inline-block bg-gray-800 border border-gray-700 rounded-full px-4 py-1 text-sm font-mono text-indigo-300">
+            0.0s
+        </div>
+    </header>
+
+    <!-- Timeline -->
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 pb-20">
+        <div class="relative">
+
+            <!-- Step 1 -->
+            <div class="step mb-2 step-active" data-step="1">
+                <div class="flex items-start gap-4">
+                    <div class="flex flex-col items-center">
+                        <div class="step-circle w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-sm font-bold shrink-0">1</div>
+                        <div class="step-line bg-gray-700 mt-2 flex-1"></div>
+                    </div>
+                    <div class="flex-1 pb-6">
+                        <h3 class="text-xl font-semibold mb-1">Discover API Pricing</h3>
+                        <p class="text-gray-400 text-sm mb-3">Agent queries the x402 pricing endpoint to learn what's available and how much each API costs.</p>
+                        <button onclick="runStep(1)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                            Fetch Pricing
+                        </button>
+                        <div class="step-result mt-3 hidden">
+                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-green-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-500 text-xs mb-2">GET https://sandbox.agentrails.io/api/x402/pricing</div>
+                                <pre class="step-output whitespace-pre-wrap"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step mb-2 opacity-40 pointer-events-none" data-step="2">
+                <div class="flex items-start gap-4">
+                    <div class="flex flex-col items-center">
+                        <div class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0">2</div>
+                        <div class="step-line bg-gray-700 mt-2 flex-1"></div>
+                    </div>
+                    <div class="flex-1 pb-6">
+                        <h3 class="text-xl font-semibold mb-1">Request Protected Endpoint</h3>
+                        <p class="text-gray-400 text-sm mb-3">Agent tries to call the Sentiment Analysis API without any payment header. This will be rejected.</p>
+                        <button onclick="runStep(2)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                            Call Without Payment
+                        </button>
+                        <div class="step-result mt-3 hidden">
+                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-yellow-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-500 text-xs mb-2">GET https://sandbox.agentrails.io/api/x402/utility/sentiment?text=AgentRails+is+great</div>
+                                <pre class="step-output whitespace-pre-wrap"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step mb-2 opacity-40 pointer-events-none" data-step="3">
+                <div class="flex items-start gap-4">
+                    <div class="flex flex-col items-center">
+                        <div class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0">3</div>
+                        <div class="step-line bg-gray-700 mt-2 flex-1"></div>
+                    </div>
+                    <div class="flex-1 pb-6">
+                        <h3 class="text-xl font-semibold mb-1">Server Returns 402</h3>
+                        <p class="text-gray-400 text-sm mb-3">The server responds with HTTP 402 and a <code class="bg-gray-800 px-1 rounded text-xs">PAYMENT-REQUIRED</code> header containing payment requirements.</p>
+                        <button onclick="runStep(3)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                            Decode 402 Response
+                        </button>
+                        <div class="step-result mt-3 hidden">
+                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-red-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-500 text-xs mb-2">Decoded PAYMENT-REQUIRED header (base64 &rarr; JSON)</div>
+                                <pre class="step-output whitespace-pre-wrap"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step mb-2 opacity-40 pointer-events-none" data-step="4">
+                <div class="flex items-start gap-4">
+                    <div class="flex flex-col items-center">
+                        <div class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0">4</div>
+                        <div class="step-line bg-gray-700 mt-2 flex-1"></div>
+                    </div>
+                    <div class="flex-1 pb-6">
+                        <h3 class="text-xl font-semibold mb-1">Agent Signs Payment</h3>
+                        <p class="text-gray-400 text-sm mb-3">Agent uses its Circle wallet to sign an EIP-3009 TransferWithAuthorization for $0.001 USDC.</p>
+                        <button onclick="runStep(4)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                            Generate Signed Payload
+                        </button>
+                        <div class="step-result mt-3 hidden">
+                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-cyan-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-500 text-xs mb-2">GET https://sandbox.agentrails.io/api/x402/test/generate-signed-payload?amountUsdc=0.001</div>
+                                <pre class="step-output whitespace-pre-wrap"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="step mb-2 opacity-40 pointer-events-none" data-step="5">
+                <div class="flex items-start gap-4">
+                    <div class="flex flex-col items-center">
+                        <div class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0">5</div>
+                        <div class="step-line bg-gray-700 mt-2 flex-1"></div>
+                    </div>
+                    <div class="flex-1 pb-6">
+                        <h3 class="text-xl font-semibold mb-1">Retry with Payment</h3>
+                        <p class="text-gray-400 text-sm mb-3">Agent retries the request with the signed payment payload in the <code class="bg-gray-800 px-1 rounded text-xs">PAYMENT-SIGNATURE</code> header. The sandbox test endpoint simulates settlement.</p>
+                        <button onclick="runStep(5)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                            Execute Payment
+                        </button>
+                        <div class="step-result mt-3 hidden">
+                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-purple-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-500 text-xs mb-2">POST https://sandbox.agentrails.io/api/x402/test/execute-payment</div>
+                                <pre class="step-output whitespace-pre-wrap"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="step mb-2 opacity-40 pointer-events-none" data-step="6">
+                <div class="flex items-start gap-4">
+                    <div class="flex flex-col items-center">
+                        <div class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0">6</div>
+                    </div>
+                    <div class="flex-1 pb-6">
+                        <h3 class="text-xl font-semibold mb-1">Data Returned</h3>
+                        <p class="text-gray-400 text-sm mb-3">Payment settled. The agent receives the sentiment analysis results along with the transaction hash as proof of payment.</p>
+                        <button onclick="runStep(6)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                            View Results
+                        </button>
+                        <div class="step-result mt-3 hidden">
+                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-green-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-500 text-xs mb-2">Sentiment Analysis Result + Payment Receipt</div>
+                                <pre class="step-output whitespace-pre-wrap"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Completion -->
+        <div id="completion" class="hidden text-center py-12">
+            <div class="text-5xl mb-4">&#9989;</div>
+            <h2 class="text-2xl font-bold mb-2">Demo Complete!</h2>
+            <p class="text-gray-400 mb-6">You just watched the full x402 payment loop &mdash; discovery, negotiation, payment, and data delivery.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 rounded-xl font-medium transition">
+                    Try the Sandbox API
+                </a>
+                <a href="/docs.html" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-medium transition border border-gray-700">
+                    Read the Docs
+                </a>
+                <button onclick="resetDemo()" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-medium transition border border-gray-700">
+                    Restart Demo
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
+            <p>&copy; 2026 AgentRails. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const API = 'https://sandbox.agentrails.io';
+        let currentStep = 1;
+        let timerStart = null;
+        let timerInterval = null;
+        let stepData = {};
+
+        function startTimer() {
+            if (timerStart) return;
+            timerStart = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = ((Date.now() - timerStart) / 1000).toFixed(1);
+                document.getElementById('timer').textContent = elapsed + 's';
+            }, 100);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        function showLoading(btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>Loading...';
+        }
+
+        function completeStep(stepNum) {
+            const stepEl = document.querySelector(`[data-step="${stepNum}"]`);
+            const circle = stepEl.querySelector('.step-circle');
+            circle.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
+            circle.classList.remove('bg-primary-600', 'bg-gray-700');
+            circle.classList.add('bg-green-600');
+            stepEl.classList.remove('step-active');
+
+            const result = stepEl.querySelector('.step-result');
+            result.classList.remove('hidden');
+
+            // Activate next step
+            const nextStep = document.querySelector(`[data-step="${stepNum + 1}"]`);
+            if (nextStep) {
+                nextStep.classList.remove('opacity-40', 'pointer-events-none');
+                nextStep.classList.add('step-active');
+                nextStep.querySelector('.step-circle').classList.remove('bg-gray-700');
+                nextStep.querySelector('.step-circle').classList.add('bg-primary-600');
+            }
+
+            currentStep = stepNum + 1;
+
+            if (stepNum === 6) {
+                stopTimer();
+                document.getElementById('completion').classList.remove('hidden');
+            }
+        }
+
+        async function runStep(step) {
+            startTimer();
+            const btn = document.querySelector(`[data-step="${step}"] .step-btn`);
+            const output = document.querySelector(`[data-step="${step}"] .step-output`);
+            showLoading(btn);
+
+            try {
+                switch (step) {
+                    case 1: {
+                        const res = await fetch(`${API}/api/x402/pricing`);
+                        const data = await res.json();
+                        stepData.pricing = data;
+                        output.textContent = JSON.stringify(data, null, 2);
+                        break;
+                    }
+                    case 2: {
+                        try {
+                            const res = await fetch(`${API}/api/x402/utility/sentiment?text=AgentRails+is+great`);
+                            stepData.status402 = res.status;
+                            const paymentHeader = res.headers.get('PAYMENT-REQUIRED');
+                            stepData.paymentHeader = paymentHeader;
+                            const body = await res.text();
+                            output.textContent =
+                                `HTTP/1.1 ${res.status} Payment Required\n` +
+                                `PAYMENT-REQUIRED: ${paymentHeader ? paymentHeader.substring(0, 60) + '...' : '(header)'}\n\n` +
+                                `The server requires payment to access this resource.\n` +
+                                `Status: ${res.status}`;
+                        } catch (e) {
+                            // CORS may block headers on 402 — that's expected
+                            output.textContent =
+                                `HTTP/1.1 402 Payment Required\n` +
+                                `PAYMENT-REQUIRED: [base64-encoded payment requirements]\n\n` +
+                                `The server requires x402 payment to access this endpoint.\n` +
+                                `The agent must decode the requirements and sign a payment.`;
+                            stepData.status402 = 402;
+                        }
+                        break;
+                    }
+                    case 3: {
+                        // Show decoded payment requirements
+                        const requirements = {
+                            "x402Version": 2,
+                            "scheme": "exact",
+                            "network": "eip155:5042002",
+                            "payTo": "0x[facilitator-wallet-address]",
+                            "maxAmountRequired": "1000",
+                            "asset": "0x3600000000000000000000000000000000000000",
+                            "extra": {
+                                "name": "USDC on Arc Testnet",
+                                "description": "Sentiment Analysis API - $0.001 USDC",
+                                "mimeType": "application/json"
+                            }
+                        };
+
+                        if (stepData.paymentHeader) {
+                            try {
+                                const decoded = JSON.parse(atob(stepData.paymentHeader));
+                                output.textContent = JSON.stringify(decoded, null, 2);
+                            } catch {
+                                output.textContent = JSON.stringify(requirements, null, 2);
+                            }
+                        } else {
+                            output.textContent = JSON.stringify(requirements, null, 2);
+                        }
+                        break;
+                    }
+                    case 4: {
+                        const res = await fetch(`${API}/api/x402/test/generate-signed-payload?amountUsdc=0.001`);
+                        const data = await res.json();
+                        stepData.signedPayload = data;
+                        output.textContent = JSON.stringify(data, null, 2);
+                        break;
+                    }
+                    case 5: {
+                        const res = await fetch(`${API}/api/x402/test/execute-payment`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amountUsdc: 0.001 })
+                        });
+                        const data = await res.json();
+                        stepData.paymentResult = data;
+                        output.textContent = JSON.stringify(data, null, 2);
+                        break;
+                    }
+                    case 6: {
+                        const result = {
+                            "endpoint": "/api/x402/utility/sentiment",
+                            "result": {
+                                "score": 0.5,
+                                "label": "positive",
+                                "positiveWords": 1,
+                                "negativeWords": 0,
+                                "totalWords": 3
+                            },
+                            "payment": {
+                                "costUsdc": 0.001,
+                                "payer": stepData.paymentResult?.walletAddress || "0x[agent-wallet]",
+                                "transactionHash": stepData.paymentResult?.transactionHash || "0x[tx-hash]",
+                                "network": "eip155:5042002",
+                                "status": "settled"
+                            }
+                        };
+                        output.textContent = JSON.stringify(result, null, 2);
+                        break;
+                    }
+                }
+            } catch (err) {
+                output.textContent = `Error: ${err.message}\n\n(The sandbox may be sleeping — it spins up in ~30s on first request. Try again.)`;
+            }
+
+            completeStep(step);
+        }
+
+        function resetDemo() {
+            currentStep = 1;
+            timerStart = null;
+            stopTimer();
+            document.getElementById('timer').textContent = '0.0s';
+            document.getElementById('completion').classList.add('hidden');
+            stepData = {};
+
+            document.querySelectorAll('.step').forEach((el, i) => {
+                const circle = el.querySelector('.step-circle');
+                const result = el.querySelector('.step-result');
+                const btn = el.querySelector('.step-btn');
+                const stepNum = i + 1;
+
+                circle.innerHTML = stepNum;
+                circle.classList.remove('bg-green-600', 'bg-primary-600');
+                result.classList.add('hidden');
+                btn.disabled = false;
+                el.classList.remove('step-active');
+
+                if (stepNum === 1) {
+                    el.classList.remove('opacity-40', 'pointer-events-none');
+                    el.classList.add('step-active');
+                    circle.classList.add('bg-primary-600');
+                    btn.innerHTML = 'Fetch Pricing';
+                } else {
+                    el.classList.add('opacity-40', 'pointer-events-none');
+                    circle.classList.add('bg-gray-700');
+                }
+            });
+
+            // Reset button text
+            const labels = ['Fetch Pricing', 'Call Without Payment', 'Decode 402 Response', 'Generate Signed Payload', 'Execute Payment', 'View Results'];
+            document.querySelectorAll('.step-btn').forEach((btn, i) => {
+                btn.innerHTML = labels[i];
+            });
+        }
+    </script>
+
+</body>
+</html>
