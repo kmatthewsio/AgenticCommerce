@@ -57,6 +57,75 @@ public class X402Functions(IHttpClientFactory httpClientFactory)
         return body;
     }
 
+    [Function(nameof(AnalyzeSentiment))]
+    public async Task<string> AnalyzeSentiment(
+        [McpToolTrigger("analyze_sentiment", "Analyze sentiment of text. Returns a score from -1.0 (negative) to 1.0 (positive). Costs $0.001 USDC via x402.")]
+        ToolInvocationContext context,
+        [McpToolProperty("text", "The text to analyze for sentiment.")]
+        string text)
+    {
+        var response = await Client.GetAsync($"/api/x402/utility/sentiment?text={Uri.EscapeDataString(text)}");
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [Function(nameof(SummarizeText))]
+    public async Task<string> SummarizeText(
+        [McpToolTrigger("summarize_text", "Summarize text by extracting the most important sentences. Costs $0.005 USDC via x402.")]
+        ToolInvocationContext context,
+        [McpToolProperty("text", "The text to summarize.")]
+        string text,
+        [McpToolProperty("sentences", "Number of sentences to return (default 3).")]
+        string? sentences)
+    {
+        var query = $"text={Uri.EscapeDataString(text)}";
+        if (!string.IsNullOrEmpty(sentences)) query += $"&sentences={Uri.EscapeDataString(sentences)}";
+        var response = await Client.GetAsync($"/api/x402/utility/summarize?{query}");
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [Function(nameof(TransformJson))]
+    public async Task<string> TransformJson(
+        [McpToolTrigger("transform_json", "Transform JSON data with operations: flatten, sort_keys, remove_nulls, count_keys. Costs $0.002 USDC via x402.")]
+        ToolInvocationContext context,
+        [McpToolProperty("data", "JSON object to transform.")]
+        string data,
+        [McpToolProperty("operations", "Comma-separated operations: flatten, sort_keys, remove_nulls, count_keys.")]
+        string operations)
+    {
+        var opsArray = operations.Split(',').Select(o => o.Trim()).ToArray();
+        var payload = $"{{\"data\":{data},\"operations\":{JsonSerializer.Serialize(opsArray)}}}";
+        var content = new StringContent(payload, Encoding.UTF8, "application/json");
+        var response = await Client.PostAsync("/api/x402/utility/json-transform", content);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [Function(nameof(HashText))]
+    public async Task<string> HashText(
+        [McpToolTrigger("hash_text", "Compute a cryptographic hash of text. Supports md5, sha1, sha256, sha384, sha512. Costs $0.001 USDC via x402.")]
+        ToolInvocationContext context,
+        [McpToolProperty("text", "The text to hash.")]
+        string text,
+        [McpToolProperty("algorithm", "Hash algorithm: md5, sha1, sha256, sha384, sha512 (default sha256).")]
+        string? algorithm)
+    {
+        var query = $"text={Uri.EscapeDataString(text)}";
+        if (!string.IsNullOrEmpty(algorithm)) query += $"&algorithm={Uri.EscapeDataString(algorithm)}";
+        var response = await Client.GetAsync($"/api/x402/utility/hash?{query}");
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
     [Function(nameof(ExecuteTestPayment))]
     public async Task<string> ExecuteTestPayment(
         [McpToolTrigger("execute_test_payment", "Execute a test x402 payment on the sandbox environment.")]

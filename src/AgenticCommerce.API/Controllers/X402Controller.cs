@@ -248,6 +248,30 @@ public class X402Controller : ControllerBase
                     Resource = "/api/x402/protected/data",
                     AmountUsdc = 0.001m,
                     Description = "Data API"
+                },
+                new X402EndpointPrice
+                {
+                    Resource = "/api/x402/utility/sentiment",
+                    AmountUsdc = 0.001m,
+                    Description = "Sentiment Analysis API"
+                },
+                new X402EndpointPrice
+                {
+                    Resource = "/api/x402/utility/summarize",
+                    AmountUsdc = 0.005m,
+                    Description = "Text Summarization API"
+                },
+                new X402EndpointPrice
+                {
+                    Resource = "/api/x402/utility/json-transform",
+                    AmountUsdc = 0.002m,
+                    Description = "JSON Transformation API"
+                },
+                new X402EndpointPrice
+                {
+                    Resource = "/api/x402/utility/hash",
+                    AmountUsdc = 0.001m,
+                    Description = "Cryptographic Hash API"
                 }
             },
             SupportedNetworks = new[] { X402Networks.ArcTestnet, X402Networks.BaseSepolia, X402Networks.BaseMainnet },
