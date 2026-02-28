@@ -55,8 +55,12 @@
                 extend: {
                     colors: {
                         primary: {
-                            50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1',
-                            600: '#4f46e5', 700: '#4338ca',
+                            50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc',
+                            400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
+                            800: '#3730a3', 900: '#312e81',
+                        },
+                        surface: {
+                            50: '#fafafa', 100: '#f4f4f5', 200: '#e4e4e7',
                         }
                     },
                     fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
@@ -69,18 +73,27 @@
 
     <style>
         @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.5); }
+            0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); }
             70% { box-shadow: 0 0 0 10px rgba(99,102,241,0); }
             100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
         }
         .step-active .step-circle { animation: pulse-ring 1.5s infinite; }
         .step-line { width: 2px; min-height: 2rem; }
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .code-block {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        }
     </style>
 </head>
-<body class="bg-gradient-to-b from-gray-900 via-indigo-950 to-gray-900 font-sans text-white antialiased min-h-screen">
+<body class="bg-surface-50 font-sans text-gray-900 antialiased min-h-screen">
 
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-800">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between h-16">
                 <a href="/" class="flex items-center gap-2">
@@ -89,11 +102,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                     </div>
-                    <span class="font-semibold text-lg text-white">AgentRails</span>
+                    <span class="font-semibold text-lg text-gray-900">AgentRails</span>
                 </a>
                 <div class="flex items-center gap-6">
-                    <a href="/blog/" class="text-gray-300 hover:text-white transition hidden sm:block">Blog</a>
-                    <a href="/docs.html" class="text-gray-300 hover:text-white transition hidden sm:block">Docs</a>
+                    <a href="/" class="text-gray-600 hover:text-gray-900 transition hidden sm:block">Home</a>
+                    <a href="/blog/" class="text-gray-600 hover:text-gray-900 transition hidden sm:block">Blog</a>
+                    <a href="/docs.html" class="text-gray-600 hover:text-gray-900 transition hidden sm:block">Docs</a>
                     <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
                         Try Sandbox
                     </a>
@@ -104,13 +118,17 @@
 
     <!-- Hero -->
     <header class="pt-28 pb-8 text-center px-4">
-        <h1 class="text-4xl sm:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-cyan-300">
-            x402 in 60 Seconds
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 text-primary-700 text-sm font-medium mb-6">
+            <span class="w-2 h-2 rounded-full bg-primary-500"></span>
+            Interactive Demo
+        </div>
+        <h1 class="text-4xl sm:text-5xl font-extrabold mb-4">
+            <span class="gradient-text">x402</span> in 60 Seconds
         </h1>
-        <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-4">
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
             Click through each step to watch an AI agent discover pricing, get a 402, sign a payment, and receive data &mdash; all live against our sandbox API.
         </p>
-        <div id="timer" class="inline-block bg-gray-800 border border-gray-700 rounded-full px-4 py-1 text-sm font-mono text-indigo-300">
+        <div id="timer" class="inline-block bg-white border border-gray-200 rounded-full px-4 py-1 text-sm font-mono text-primary-600 shadow-sm">
             0.0s
         </div>
     </header>
@@ -123,18 +141,18 @@
             <div class="step mb-2 step-active" data-step="1">
                 <div class="flex items-start gap-4">
                     <div class="flex flex-col items-center">
-                        <div class="step-circle w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-sm font-bold shrink-0">1</div>
-                        <div class="step-line bg-gray-700 mt-2 flex-1"></div>
+                        <div class="step-circle w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-sm font-bold text-white shrink-0">1</div>
+                        <div class="step-line bg-gray-200 mt-2 flex-1"></div>
                     </div>
                     <div class="flex-1 pb-6">
-                        <h3 class="text-xl font-semibold mb-1">Discover API Pricing</h3>
-                        <p class="text-gray-400 text-sm mb-3">Agent queries the x402 pricing endpoint to learn what's available and how much each API costs.</p>
-                        <button onclick="runStep(1)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                        <h3 class="text-xl font-semibold mb-1 text-gray-900">Discover API Pricing</h3>
+                        <p class="text-gray-500 text-sm mb-3">Agent queries the x402 pricing endpoint to learn what's available and how much each API costs.</p>
+                        <button onclick="runStep(1)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition text-sm">
                             Fetch Pricing
                         </button>
                         <div class="step-result mt-3 hidden">
-                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-green-400 overflow-x-auto max-h-64 overflow-y-auto">
-                                <div class="text-gray-500 text-xs mb-2">GET https://sandbox.agentrails.io/api/x402/pricing</div>
+                            <div class="code-block rounded-xl p-4 font-mono text-sm text-green-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-400 text-xs mb-2">GET https://sandbox.agentrails.io/api/x402/pricing</div>
                                 <pre class="step-output whitespace-pre-wrap"></pre>
                             </div>
                         </div>
@@ -146,18 +164,18 @@
             <div class="step mb-2 opacity-40 pointer-events-none" data-step="2">
                 <div class="flex items-start gap-4">
                     <div class="flex flex-col items-center">
-                        <div class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0">2</div>
-                        <div class="step-line bg-gray-700 mt-2 flex-1"></div>
+                        <div class="step-circle w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500 shrink-0">2</div>
+                        <div class="step-line bg-gray-200 mt-2 flex-1"></div>
                     </div>
                     <div class="flex-1 pb-6">
-                        <h3 class="text-xl font-semibold mb-1">Request Protected Endpoint</h3>
-                        <p class="text-gray-400 text-sm mb-3">Agent tries to call the Sentiment Analysis API without any payment header. This will be rejected.</p>
-                        <button onclick="runStep(2)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                        <h3 class="text-xl font-semibold mb-1 text-gray-900">Request Protected Endpoint</h3>
+                        <p class="text-gray-500 text-sm mb-3">Agent tries to call the Sentiment Analysis API without any payment header. This will be rejected.</p>
+                        <button onclick="runStep(2)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition text-sm">
                             Call Without Payment
                         </button>
                         <div class="step-result mt-3 hidden">
-                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-yellow-400 overflow-x-auto max-h-64 overflow-y-auto">
-                                <div class="text-gray-500 text-xs mb-2">GET https://sandbox.agentrails.io/api/x402/utility/sentiment?text=AgentRails+is+great</div>
+                            <div class="code-block rounded-xl p-4 font-mono text-sm text-yellow-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-400 text-xs mb-2">GET https://sandbox.agentrails.io/api/x402/utility/sentiment?text=AgentRails+is+great</div>
                                 <pre class="step-output whitespace-pre-wrap"></pre>
                             </div>
                         </div>
@@ -169,18 +187,18 @@
             <div class="step mb-2 opacity-40 pointer-events-none" data-step="3">
                 <div class="flex items-start gap-4">
                     <div class="flex flex-col items-center">
-                        <div class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0">3</div>
-                        <div class="step-line bg-gray-700 mt-2 flex-1"></div>
+                        <div class="step-circle w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500 shrink-0">3</div>
+                        <div class="step-line bg-gray-200 mt-2 flex-1"></div>
                     </div>
                     <div class="flex-1 pb-6">
-                        <h3 class="text-xl font-semibold mb-1">Server Returns 402</h3>
-                        <p class="text-gray-400 text-sm mb-3">The server responds with HTTP 402 and a <code class="bg-gray-800 px-1 rounded text-xs">PAYMENT-REQUIRED</code> header containing payment requirements.</p>
-                        <button onclick="runStep(3)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                        <h3 class="text-xl font-semibold mb-1 text-gray-900">Server Returns 402</h3>
+                        <p class="text-gray-500 text-sm mb-3">The server responds with HTTP 402 and a <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs text-gray-700">PAYMENT-REQUIRED</code> header containing payment requirements.</p>
+                        <button onclick="runStep(3)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition text-sm">
                             Decode 402 Response
                         </button>
                         <div class="step-result mt-3 hidden">
-                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-red-400 overflow-x-auto max-h-64 overflow-y-auto">
-                                <div class="text-gray-500 text-xs mb-2">Decoded PAYMENT-REQUIRED header (base64 &rarr; JSON)</div>
+                            <div class="code-block rounded-xl p-4 font-mono text-sm text-red-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-400 text-xs mb-2">Decoded PAYMENT-REQUIRED header (base64 &rarr; JSON)</div>
                                 <pre class="step-output whitespace-pre-wrap"></pre>
                             </div>
                         </div>
@@ -192,18 +210,18 @@
             <div class="step mb-2 opacity-40 pointer-events-none" data-step="4">
                 <div class="flex items-start gap-4">
                     <div class="flex flex-col items-center">
-                        <div class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0">4</div>
-                        <div class="step-line bg-gray-700 mt-2 flex-1"></div>
+                        <div class="step-circle w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500 shrink-0">4</div>
+                        <div class="step-line bg-gray-200 mt-2 flex-1"></div>
                     </div>
                     <div class="flex-1 pb-6">
-                        <h3 class="text-xl font-semibold mb-1">Agent Signs Payment</h3>
-                        <p class="text-gray-400 text-sm mb-3">Agent uses its Circle wallet to sign an EIP-3009 TransferWithAuthorization for $0.001 USDC.</p>
-                        <button onclick="runStep(4)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                        <h3 class="text-xl font-semibold mb-1 text-gray-900">Agent Signs Payment</h3>
+                        <p class="text-gray-500 text-sm mb-3">Agent uses its Circle wallet to sign an EIP-3009 TransferWithAuthorization for $0.001 USDC.</p>
+                        <button onclick="runStep(4)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition text-sm">
                             Generate Signed Payload
                         </button>
                         <div class="step-result mt-3 hidden">
-                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-cyan-400 overflow-x-auto max-h-64 overflow-y-auto">
-                                <div class="text-gray-500 text-xs mb-2">GET https://sandbox.agentrails.io/api/x402/test/generate-signed-payload?amountUsdc=0.001</div>
+                            <div class="code-block rounded-xl p-4 font-mono text-sm text-cyan-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-400 text-xs mb-2">GET https://sandbox.agentrails.io/api/x402/test/generate-signed-payload?amountUsdc=0.001</div>
                                 <pre class="step-output whitespace-pre-wrap"></pre>
                             </div>
                         </div>
@@ -215,18 +233,18 @@
             <div class="step mb-2 opacity-40 pointer-events-none" data-step="5">
                 <div class="flex items-start gap-4">
                     <div class="flex flex-col items-center">
-                        <div class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0">5</div>
-                        <div class="step-line bg-gray-700 mt-2 flex-1"></div>
+                        <div class="step-circle w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500 shrink-0">5</div>
+                        <div class="step-line bg-gray-200 mt-2 flex-1"></div>
                     </div>
                     <div class="flex-1 pb-6">
-                        <h3 class="text-xl font-semibold mb-1">Retry with Payment</h3>
-                        <p class="text-gray-400 text-sm mb-3">Agent retries the request with the signed payment payload in the <code class="bg-gray-800 px-1 rounded text-xs">PAYMENT-SIGNATURE</code> header. The sandbox test endpoint simulates settlement.</p>
-                        <button onclick="runStep(5)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                        <h3 class="text-xl font-semibold mb-1 text-gray-900">Retry with Payment</h3>
+                        <p class="text-gray-500 text-sm mb-3">Agent retries the request with the signed payment payload in the <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs text-gray-700">PAYMENT-SIGNATURE</code> header. The sandbox test endpoint simulates settlement.</p>
+                        <button onclick="runStep(5)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition text-sm">
                             Execute Payment
                         </button>
                         <div class="step-result mt-3 hidden">
-                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-purple-400 overflow-x-auto max-h-64 overflow-y-auto">
-                                <div class="text-gray-500 text-xs mb-2">POST https://sandbox.agentrails.io/api/x402/test/execute-payment</div>
+                            <div class="code-block rounded-xl p-4 font-mono text-sm text-purple-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-400 text-xs mb-2">POST https://sandbox.agentrails.io/api/x402/test/execute-payment</div>
                                 <pre class="step-output whitespace-pre-wrap"></pre>
                             </div>
                         </div>
@@ -238,17 +256,17 @@
             <div class="step mb-2 opacity-40 pointer-events-none" data-step="6">
                 <div class="flex items-start gap-4">
                     <div class="flex flex-col items-center">
-                        <div class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0">6</div>
+                        <div class="step-circle w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500 shrink-0">6</div>
                     </div>
                     <div class="flex-1 pb-6">
-                        <h3 class="text-xl font-semibold mb-1">Data Returned</h3>
-                        <p class="text-gray-400 text-sm mb-3">Payment settled. The agent receives the sentiment analysis results along with the transaction hash as proof of payment.</p>
-                        <button onclick="runStep(6)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm">
+                        <h3 class="text-xl font-semibold mb-1 text-gray-900">Data Returned</h3>
+                        <p class="text-gray-500 text-sm mb-3">Payment settled. The agent receives the sentiment analysis results along with the transaction hash as proof of payment.</p>
+                        <button onclick="runStep(6)" class="step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition text-sm">
                             View Results
                         </button>
                         <div class="step-result mt-3 hidden">
-                            <div class="bg-gray-800 rounded-xl p-4 font-mono text-sm text-green-400 overflow-x-auto max-h-64 overflow-y-auto">
-                                <div class="text-gray-500 text-xs mb-2">Sentiment Analysis Result + Payment Receipt</div>
+                            <div class="code-block rounded-xl p-4 font-mono text-sm text-green-400 overflow-x-auto max-h-64 overflow-y-auto">
+                                <div class="text-gray-400 text-xs mb-2">Sentiment Analysis Result + Payment Receipt</div>
                                 <pre class="step-output whitespace-pre-wrap"></pre>
                             </div>
                         </div>
@@ -261,16 +279,16 @@
         <!-- Completion -->
         <div id="completion" class="hidden text-center py-12">
             <div class="text-5xl mb-4">&#9989;</div>
-            <h2 class="text-2xl font-bold mb-2">Demo Complete!</h2>
-            <p class="text-gray-400 mb-6">You just watched the full x402 payment loop &mdash; discovery, negotiation, payment, and data delivery.</p>
+            <h2 class="text-2xl font-bold mb-2 text-gray-900">Demo Complete!</h2>
+            <p class="text-gray-600 mb-6">You just watched the full x402 payment loop &mdash; discovery, negotiation, payment, and data delivery.</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 rounded-xl font-medium transition">
+                <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition">
                     Try the Sandbox API
                 </a>
-                <a href="/docs.html" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-medium transition border border-gray-700">
+                <a href="/docs.html" class="px-6 py-3 bg-white hover:bg-gray-50 rounded-xl font-medium transition border border-gray-200 text-gray-700">
                     Read the Docs
                 </a>
-                <button onclick="resetDemo()" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl font-medium transition border border-gray-700">
+                <button onclick="resetDemo()" class="px-6 py-3 bg-white hover:bg-gray-50 rounded-xl font-medium transition border border-gray-200 text-gray-700">
                     Restart Demo
                 </button>
             </div>
@@ -278,9 +296,24 @@
     </main>
 
     <!-- Footer -->
-    <footer class="py-8 border-t border-gray-800">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
-            <p>&copy; 2026 AgentRails. All rights reserved.</p>
+    <footer class="py-12 bg-gray-900 text-gray-400">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-md bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <p>&copy; 2026 AgentRails. All rights reserved.</p>
+                </div>
+                <div class="flex gap-6">
+                    <a href="/" class="hover:text-white transition">Home</a>
+                    <a href="/blog/" class="hover:text-white transition">Blog</a>
+                    <a href="/privacy.html" class="hover:text-white transition">Privacy</a>
+                    <a href="/terms.html" class="hover:text-white transition">Terms</a>
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -323,7 +356,7 @@
                 // Green checkmark on circle
                 const circle = stepEl.querySelector('.step-circle');
                 circle.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
-                circle.className = 'step-circle w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-sm font-bold shrink-0';
+                circle.className = 'step-circle w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-sm font-bold text-white shrink-0';
 
                 stepEl.classList.remove('step-active');
 
@@ -331,7 +364,7 @@
                 const btn = stepEl.querySelector('.step-btn');
                 btn.disabled = true;
                 btn.textContent = stepLabels[stepNum - 1];
-                btn.className = 'step-btn px-5 py-2 bg-gray-700 rounded-lg font-medium text-sm opacity-60 cursor-not-allowed';
+                btn.className = 'step-btn px-5 py-2 bg-gray-200 rounded-lg font-medium text-sm text-gray-400 cursor-not-allowed';
 
                 // Activate next step
                 var nextStep = document.querySelector('[data-step="' + (stepNum + 1) + '"]');
@@ -339,7 +372,7 @@
                     nextStep.classList.remove('opacity-40', 'pointer-events-none');
                     nextStep.classList.add('step-active');
                     var nextCircle = nextStep.querySelector('.step-circle');
-                    nextCircle.className = 'step-circle w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-sm font-bold shrink-0';
+                    nextCircle.className = 'step-circle w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-sm font-bold text-white shrink-0';
                     nextStep.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
 
@@ -505,16 +538,16 @@
                 result.style.display = '';
                 btn.disabled = false;
                 btn.textContent = stepLabels[i];
-                btn.className = 'step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition text-sm';
+                btn.className = 'step-btn px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition text-sm';
                 el.classList.remove('step-active');
 
                 if (stepNum === 1) {
                     el.classList.remove('opacity-40', 'pointer-events-none');
                     el.classList.add('step-active');
-                    circle.className = 'step-circle w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-sm font-bold shrink-0';
+                    circle.className = 'step-circle w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-sm font-bold text-white shrink-0';
                 } else {
                     el.classList.add('opacity-40', 'pointer-events-none');
-                    circle.className = 'step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0';
+                    circle.className = 'step-circle w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-500 shrink-0';
                 }
             });
             var comp = document.getElementById('completion');
