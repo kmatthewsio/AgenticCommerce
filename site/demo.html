@@ -309,6 +309,8 @@
             btn.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>Loading...';
         }
 
+        const stepLabels = ['Fetch Pricing', 'Call Without Payment', 'Decode 402 Response', 'Generate Signed Payload', 'Execute Payment', 'View Results'];
+
         function completeStep(stepNum) {
             const stepEl = document.querySelector(`[data-step="${stepNum}"]`);
             const circle = stepEl.querySelector('.step-circle');
@@ -316,6 +318,13 @@
             circle.classList.remove('bg-primary-600', 'bg-gray-700');
             circle.classList.add('bg-green-600');
             stepEl.classList.remove('step-active');
+
+            // Reset button to completed state
+            const btn = stepEl.querySelector('.step-btn');
+            btn.disabled = true;
+            btn.innerHTML = stepLabels[stepNum - 1];
+            btn.classList.remove('bg-primary-600', 'hover:bg-primary-700');
+            btn.classList.add('bg-gray-700', 'opacity-60', 'cursor-not-allowed');
 
             const result = stepEl.querySelector('.step-result');
             result.classList.remove('hidden');
@@ -485,23 +494,19 @@
                 circle.classList.remove('bg-green-600', 'bg-primary-600');
                 result.classList.add('hidden');
                 btn.disabled = false;
+                btn.innerHTML = stepLabels[i];
+                btn.classList.remove('bg-gray-700', 'opacity-60', 'cursor-not-allowed');
+                btn.classList.add('bg-primary-600', 'hover:bg-primary-700');
                 el.classList.remove('step-active');
 
                 if (stepNum === 1) {
                     el.classList.remove('opacity-40', 'pointer-events-none');
                     el.classList.add('step-active');
                     circle.classList.add('bg-primary-600');
-                    btn.innerHTML = 'Fetch Pricing';
                 } else {
                     el.classList.add('opacity-40', 'pointer-events-none');
                     circle.classList.add('bg-gray-700');
                 }
-            });
-
-            // Reset button text
-            const labels = ['Fetch Pricing', 'Call Without Payment', 'Decode 402 Response', 'Generate Signed Payload', 'Execute Payment', 'View Results'];
-            document.querySelectorAll('.step-btn').forEach((btn, i) => {
-                btn.innerHTML = labels[i];
             });
         }
     </script>
