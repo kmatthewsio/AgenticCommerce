@@ -204,6 +204,7 @@
 
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex items-center gap-8">
+                    <a href="/demo" class="text-primary-600 font-medium hover:text-primary-700 transition">Demo</a>
                     <a href="#features" class="text-gray-600 hover:text-gray-900 transition">Features</a>
                     <a href="#use-cases" class="text-gray-600 hover:text-gray-900 transition">Use Cases</a>
                     <a href="#pricing" class="text-gray-600 hover:text-gray-900 transition">Pricing</a>
@@ -228,6 +229,7 @@
 
             <!-- Mobile Nav -->
             <div x-show="mobileMenu" x-transition class="md:hidden py-4 border-t border-gray-100">
+                <a href="/demo" class="block py-2 text-primary-600 font-medium">Demo</a>
                 <a href="#features" class="block py-2 text-gray-600">Features</a>
                 <a href="#use-cases" class="block py-2 text-gray-600">Use Cases</a>
                 <a href="#pricing" class="block py-2 text-gray-600">Pricing</a>
@@ -450,6 +452,16 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
                         The API delivers the response. Payment settles in milliseconds with cryptographic proof. Agent moves to the next task.
                     </p>
                 </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="/demo" class="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition shadow-lg shadow-primary-500/25">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    See It in Action &mdash; 60 Second Demo
+                </a>
             </div>
         </div>
     </section>
@@ -1033,6 +1045,12 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
+                    href="/demo"
+                    class="inline-block px-8 py-4 bg-white text-primary-700 rounded-xl font-semibold hover:bg-primary-50 transition text-lg"
+                >
+                    Watch the Demo
+                </a>
+                <a
                     href="https://sandbox.agentrails.io/swagger"
                     target="_blank"
                     class="inline-block px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white/10 transition text-lg"
@@ -1041,7 +1059,7 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
                 </a>
                 <a
                     href="mailto:sales@agentrails.io?subject=AgentRails%20Production%20Access"
-                    class="inline-block px-8 py-4 bg-white text-primary-700 rounded-xl font-semibold hover:bg-primary-50 transition text-lg"
+                    class="inline-block px-8 py-4 bg-transparent border-2 border-white/50 text-white rounded-xl font-semibold hover:bg-white/10 transition text-lg"
                 >
                     Go to Production
                 </a>
@@ -1074,6 +1092,7 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
                 <div>
                     <h4 class="font-semibold text-white mb-4">Product</h4>
                     <ul class="space-y-2 text-sm">
+                        <li><a href="/demo" class="hover:text-white transition">Demo</a></li>
                         <li><a href="#features" class="hover:text-white transition">Features</a></li>
                         <li><a href="#how-it-works" class="hover:text-white transition">How It Works</a></li>
                         <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
