@@ -44,4 +44,109 @@ public class PolicyTools(IHttpClientFactory httpClientFactory)
             return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
         return body;
     }
+
+    // ========================================
+    // ENTERPRISE BUDGET CAP TOOLS
+    // ========================================
+
+    [McpServerTool, Description("Create a budget policy with per-agent spending limits (daily, weekly, monthly, lifetime). Uses the enterprise policy engine with fine-grained rule types.")]
+    public async Task<string> create_budget_policy(
+        [Description("Name of the budget policy (e.g. 'Production Agent $100/day cap').")] string name,
+        [Description("Optional description of the policy.")] string? description = null,
+        [Description("Maximum USDC an agent can spend per day.")] decimal? dailyLimitUsdc = null,
+        [Description("Maximum USDC an agent can spend per week.")] decimal? weeklyLimitUsdc = null,
+        [Description("Maximum USDC an agent can spend per month.")] decimal? monthlyLimitUsdc = null,
+        [Description("Maximum USDC an agent can spend in total (lifetime).")] decimal? lifetimeLimitUsdc = null,
+        [Description("Maximum USDC per single transaction.")] decimal? maxPerTransactionUsdc = null)
+    {
+        var rules = new List<object>();
+        if (dailyLimitUsdc is not null)
+            rules.Add(new { ruleType = "DailyLimit", parameter = dailyLimitUsdc, isEnabled = true });
+        if (weeklyLimitUsdc is not null)
+            rules.Add(new { ruleType = "WeeklyLimit", parameter = weeklyLimitUsdc, isEnabled = true });
+        if (monthlyLimitUsdc is not null)
+            rules.Add(new { ruleType = "MonthlyLimit", parameter = monthlyLimitUsdc, isEnabled = true });
+        if (lifetimeLimitUsdc is not null)
+            rules.Add(new { ruleType = "TotalLifetimeLimit", parameter = lifetimeLimitUsdc, isEnabled = true });
+        if (maxPerTransactionUsdc is not null)
+            rules.Add(new { ruleType = "MaxPerTransaction", parameter = maxPerTransactionUsdc, isEnabled = true });
+
+        var payload = new Dictionary<string, object?> { ["name"] = name, ["rules"] = rules };
+        if (description is not null) payload["description"] = description;
+
+        var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+        var response = await Client.PostAsync("/api/policies", content);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [McpServerTool, Description("Assign a budget policy to an agent. The agent's payments will be evaluated against this policy's rules.")]
+    public async Task<string> assign_policy_to_agent(
+        [Description("The unique identifier of the agent.")] string agentId,
+        [Description("The unique identifier of the policy to assign.")] string policyId)
+    {
+        var payload = new { policyId };
+        var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+        var response = await Client.PostAsync($"/api/agents/{agentId}/policy", content);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [McpServerTool, Description("Get an agent's current spending summary showing amounts spent today, this week, this month, lifetime, and remaining budgets vs policy limits.")]
+    public async Task<string> get_agent_spending(
+        [Description("The unique identifier of the agent.")] string agentId)
+    {
+        var response = await Client.GetAsync($"/api/agents/{agentId}/spending");
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [McpServerTool, Description("Get the budget policy currently assigned to an agent, including all rules and limits.")]
+    public async Task<string> get_agent_policy(
+        [Description("The unique identifier of the agent.")] string agentId)
+    {
+        var response = await Client.GetAsync($"/api/agents/{agentId}/policy");
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [McpServerTool, Description("Dry-run evaluate whether a payment would be allowed by an agent's policy. Does not execute any payment.")]
+    public async Task<string> evaluate_payment(
+        [Description("The unique identifier of the agent making the payment.")] string agentId,
+        [Description("The payment amount in USDC.")] decimal amountUsdc,
+        [Description("Optional destination wallet address.")] string? destination = null,
+        [Description("Optional blockchain network (e.g. 'eip155:84532').")] string? network = null,
+        [Description("Optional API resource being accessed.")] string? resource = null)
+    {
+        var payload = new Dictionary<string, object?> { ["agentId"] = agentId, ["amountUsdc"] = amountUsdc };
+        if (destination is not null) payload["destination"] = destination;
+        if (network is not null) payload["network"] = network;
+        if (resource is not null) payload["resource"] = resource;
+
+        var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+        var response = await Client.PostAsync("/api/policies/evaluate", content);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [McpServerTool, Description("Remove the budget policy from an agent. The agent will no longer have spending limits enforced.")]
+    public async Task<string> remove_agent_policy(
+        [Description("The unique identifier of the agent.")] string agentId)
+    {
+        var response = await Client.DeleteAsync($"/api/agents/{agentId}/policy");
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return string.IsNullOrWhiteSpace(body) ? JsonSerializer.Serialize(new { success = true }) : body;
+    }
 }
