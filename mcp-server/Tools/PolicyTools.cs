@@ -61,15 +61,15 @@ public class PolicyTools(IHttpClientFactory httpClientFactory)
     {
         var rules = new List<object>();
         if (dailyLimitUsdc is not null)
-            rules.Add(new { ruleType = "DailyLimit", parameter = dailyLimitUsdc, isEnabled = true });
+            rules.Add(new { ruleType = "DailyLimit", parameter = new { amountUsdc = dailyLimitUsdc }, isEnabled = true });
         if (weeklyLimitUsdc is not null)
-            rules.Add(new { ruleType = "WeeklyLimit", parameter = weeklyLimitUsdc, isEnabled = true });
+            rules.Add(new { ruleType = "WeeklyLimit", parameter = new { amountUsdc = weeklyLimitUsdc }, isEnabled = true });
         if (monthlyLimitUsdc is not null)
-            rules.Add(new { ruleType = "MonthlyLimit", parameter = monthlyLimitUsdc, isEnabled = true });
+            rules.Add(new { ruleType = "MonthlyLimit", parameter = new { amountUsdc = monthlyLimitUsdc }, isEnabled = true });
         if (lifetimeLimitUsdc is not null)
-            rules.Add(new { ruleType = "TotalLifetimeLimit", parameter = lifetimeLimitUsdc, isEnabled = true });
+            rules.Add(new { ruleType = "TotalLifetimeLimit", parameter = new { amountUsdc = lifetimeLimitUsdc }, isEnabled = true });
         if (maxPerTransactionUsdc is not null)
-            rules.Add(new { ruleType = "MaxPerTransaction", parameter = maxPerTransactionUsdc, isEnabled = true });
+            rules.Add(new { ruleType = "MaxPerTransaction", parameter = new { amountUsdc = maxPerTransactionUsdc }, isEnabled = true });
 
         var payload = new Dictionary<string, object?> { ["name"] = name, ["rules"] = rules };
         if (description is not null) payload["description"] = description;

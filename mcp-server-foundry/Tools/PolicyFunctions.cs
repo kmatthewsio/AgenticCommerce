@@ -80,15 +80,15 @@ public class PolicyFunctions(IHttpClientFactory httpClientFactory)
     {
         var rules = new List<object>();
         if (!string.IsNullOrEmpty(dailyLimitUsdc) && decimal.TryParse(dailyLimitUsdc, out var daily))
-            rules.Add(new { ruleType = "DailyLimit", parameter = daily, isEnabled = true });
+            rules.Add(new { ruleType = "DailyLimit", parameter = new { amountUsdc = daily }, isEnabled = true });
         if (!string.IsNullOrEmpty(weeklyLimitUsdc) && decimal.TryParse(weeklyLimitUsdc, out var weekly))
-            rules.Add(new { ruleType = "WeeklyLimit", parameter = weekly, isEnabled = true });
+            rules.Add(new { ruleType = "WeeklyLimit", parameter = new { amountUsdc = weekly }, isEnabled = true });
         if (!string.IsNullOrEmpty(monthlyLimitUsdc) && decimal.TryParse(monthlyLimitUsdc, out var monthly))
-            rules.Add(new { ruleType = "MonthlyLimit", parameter = monthly, isEnabled = true });
+            rules.Add(new { ruleType = "MonthlyLimit", parameter = new { amountUsdc = monthly }, isEnabled = true });
         if (!string.IsNullOrEmpty(lifetimeLimitUsdc) && decimal.TryParse(lifetimeLimitUsdc, out var lifetime))
-            rules.Add(new { ruleType = "TotalLifetimeLimit", parameter = lifetime, isEnabled = true });
+            rules.Add(new { ruleType = "TotalLifetimeLimit", parameter = new { amountUsdc = lifetime }, isEnabled = true });
         if (!string.IsNullOrEmpty(maxPerTransactionUsdc) && decimal.TryParse(maxPerTransactionUsdc, out var maxTx))
-            rules.Add(new { ruleType = "MaxPerTransaction", parameter = maxTx, isEnabled = true });
+            rules.Add(new { ruleType = "MaxPerTransaction", parameter = new { amountUsdc = maxTx }, isEnabled = true });
 
         var payload = new Dictionary<string, object?> { ["name"] = name, ["rules"] = rules };
         if (!string.IsNullOrEmpty(description)) payload["description"] = description;
