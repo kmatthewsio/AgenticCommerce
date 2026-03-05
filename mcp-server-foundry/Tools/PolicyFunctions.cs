@@ -191,4 +191,72 @@ public class PolicyFunctions(IHttpClientFactory httpClientFactory)
             return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
         return string.IsNullOrWhiteSpace(body) ? JsonSerializer.Serialize(new { success = true }) : body;
     }
+
+    // ========================================
+    // APPROVAL WORKFLOW TOOLS
+    // ========================================
+
+    [Function(nameof(ListPendingApprovals))]
+    public async Task<string> ListPendingApprovals(
+        [McpToolTrigger("list_pending_approvals", "List pending approval requests waiting for human review. Returns payments that exceeded the RequireApprovalAbove threshold.")]
+        ToolInvocationContext context,
+        [McpToolProperty("agent_id", "Optional agent ID to filter approvals for a specific agent.")]
+        string? agentId)
+    {
+        var url = "/api/approvals";
+        if (!string.IsNullOrEmpty(agentId))
+            url += $"?agentId={Uri.EscapeDataString(agentId)}";
+
+        var response = await Client.GetAsync(url);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [Function(nameof(ApprovePayment))]
+    public async Task<string> ApprovePayment(
+        [McpToolTrigger("approve_payment", "Approve a pending payment request. After approval, the agent can retry the payment and it will succeed.")]
+        ToolInvocationContext context,
+        [McpToolProperty("approval_id", "The approval request ID (starts with 'approval_').", isRequired: true)]
+        string approvalId,
+        [McpToolProperty("reviewed_by", "Optional name or identifier of the person approving.")]
+        string? reviewedBy)
+    {
+        var payload = new Dictionary<string, object?>();
+        if (!string.IsNullOrEmpty(reviewedBy))
+            payload["reviewedBy"] = reviewedBy;
+
+        var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+        var response = await Client.PostAsync($"/api/approvals/{Uri.EscapeDataString(approvalId)}/approve", content);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [Function(nameof(RejectPayment))]
+    public async Task<string> RejectPayment(
+        [McpToolTrigger("reject_payment", "Reject a pending payment request. The agent will need a new approval if it retries.")]
+        ToolInvocationContext context,
+        [McpToolProperty("approval_id", "The approval request ID (starts with 'approval_').", isRequired: true)]
+        string approvalId,
+        [McpToolProperty("reviewed_by", "Optional name or identifier of the person rejecting.")]
+        string? reviewedBy,
+        [McpToolProperty("reason", "Optional reason for rejection.")]
+        string? reason)
+    {
+        var payload = new Dictionary<string, object?>();
+        if (!string.IsNullOrEmpty(reviewedBy))
+            payload["reviewedBy"] = reviewedBy;
+        if (!string.IsNullOrEmpty(reason))
+            payload["reason"] = reason;
+
+        var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+        var response = await Client.PostAsync($"/api/approvals/{Uri.EscapeDataString(approvalId)}/reject", content);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
 }
