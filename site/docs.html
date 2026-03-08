@@ -143,6 +143,7 @@
                 <a href="#copilot-studio" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Copilot Studio</a>
                 <a href="#power-platform" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Power Platform</a>
                 <a href="#mcp-servers" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">MCP Servers</a>
+                <a href="#mcp-tools" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">MCP Tools Reference</a>
 
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-6 px-3">Agent Governance</p>
                 <a href="#governance" class="sidebar-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg border-l-2 border-transparent transition">Overview</a>
@@ -836,6 +837,156 @@ builder.Plugins.AddFromType&lt;X402Plugin&gt;();
                             Pre-built MCP server templates for common enterprise data sources: SharePoint document libraries, Dataverse tables, SQL Server databases, and Azure Blob Storage. Contact us for early access to the template library.
                         </p>
                     </div>
+                </section>
+
+                <!-- MCP Tools Reference -->
+                <section id="mcp-tools" class="mb-16">
+                    <h2 class="text-2xl font-bold mb-4">MCP Tools Reference</h2>
+                    <p class="text-gray-600 mb-6">
+                        The AgentRails MCP server exposes 25 tools that any AI agent can call via the Model Context Protocol. Available on Azure Functions for Microsoft Foundry integration or as a local server for Claude Code and Claude Desktop.
+                    </p>
+
+                    <div class="bg-primary-50 rounded-xl p-6 border border-primary-100 mb-6">
+                        <h4 class="font-semibold text-primary-900 mb-2">Foundry Integration</h4>
+                        <p class="text-primary-800 text-sm">
+                            AgentRails is listed in the official <strong>Microsoft Foundry MCP Tool Catalog</strong>. Add it to your Foundry agent via Agent Designer &rarr; Add Tool &rarr; MCP Server Tool &rarr; Custom.
+                        </p>
+                    </div>
+
+                    <!-- X402 Payments -->
+                    <h3 class="font-semibold mb-3 mt-8">X402 Payments</h3>
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Tool</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">execute_x402_payment</td><td class="px-4 py-3 text-gray-600">Execute an x402 payment to a protected endpoint</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">get_x402_pricing</td><td class="px-4 py-3 text-gray-600">Get x402 pricing information for API endpoints</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">get_x402_payments</td><td class="px-4 py-3 text-gray-600">Get x402 payment history with optional filters</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">get_x402_stats</td><td class="px-4 py-3 text-gray-600">Get aggregate payment statistics including totals and volumes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- X402 Utility APIs -->
+                    <h3 class="font-semibold mb-3">X402 Utility APIs</h3>
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Tool</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Description</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Cost</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">analyze_sentiment</td><td class="px-4 py-3 text-gray-600">Analyze sentiment of text (-1.0 to 1.0)</td><td class="px-4 py-3 text-gray-500">$0.001</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">summarize_text</td><td class="px-4 py-3 text-gray-600">Extract the most important sentences from text</td><td class="px-4 py-3 text-gray-500">$0.005</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">transform_json</td><td class="px-4 py-3 text-gray-600">Transform JSON data (flatten, sort, remove nulls)</td><td class="px-4 py-3 text-gray-500">$0.002</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">hash_text</td><td class="px-4 py-3 text-gray-600">Compute cryptographic hash (MD5, SHA-256, SHA-512)</td><td class="px-4 py-3 text-gray-500">$0.001</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Agent Management -->
+                    <h3 class="font-semibold mb-3">Agent Management</h3>
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Tool</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">create_agent</td><td class="px-4 py-3 text-gray-600">Register a new agent with name and optional configuration</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">get_agent</td><td class="px-4 py-3 text-gray-600">Get details of a specific agent by ID</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">list_agents</td><td class="px-4 py-3 text-gray-600">List all registered agents in the organization</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">run_agent</td><td class="px-4 py-3 text-gray-600">Run an agent with a specific task</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">delete_agent</td><td class="px-4 py-3 text-gray-600">Delete an agent by ID</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Policies & Budget Caps -->
+                    <h3 class="font-semibold mb-3">Policies & Budget Caps</h3>
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Tool</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">create_policy</td><td class="px-4 py-3 text-gray-600">Create a policy to control agent spending and approval workflows</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">create_budget_policy</td><td class="px-4 py-3 text-gray-600">Create a budget policy with daily, weekly, monthly, and lifetime limits</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">list_policies</td><td class="px-4 py-3 text-gray-600">List all organization policies</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">assign_policy_to_agent</td><td class="px-4 py-3 text-gray-600">Assign a budget policy to an agent</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">remove_agent_policy</td><td class="px-4 py-3 text-gray-600">Remove the budget policy from an agent</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">get_agent_policy</td><td class="px-4 py-3 text-gray-600">Get the budget policy assigned to an agent</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">get_agent_spending</td><td class="px-4 py-3 text-gray-600">Get spending summary (today, week, month, lifetime vs limits)</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">evaluate_payment</td><td class="px-4 py-3 text-gray-600">Dry-run evaluate whether a payment would be allowed by policy</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Approval Workflows -->
+                    <h3 class="font-semibold mb-3">Approval Workflows</h3>
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Tool</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">list_pending_approvals</td><td class="px-4 py-3 text-gray-600">List pending approval requests waiting for human review</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">approve_payment</td><td class="px-4 py-3 text-gray-600">Approve a pending payment request</td></tr>
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">reject_payment</td><td class="px-4 py-3 text-gray-600">Reject a pending payment request</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Billing -->
+                    <h3 class="font-semibold mb-3">Billing</h3>
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Tool</th>
+                                    <th class="text-left px-4 py-3 font-semibold text-gray-700">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr><td class="px-4 py-3 font-mono text-primary-600">get_billing_usage</td><td class="px-4 py-3 text-gray-600">Get billing usage summary over a number of days</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Connection Example -->
+                    <h3 class="font-semibold mb-4">Connect to the MCP Server</h3>
+                    <div class="code-block rounded-xl p-6 mb-4">
+                        <p class="text-gray-400 text-xs mb-3 font-mono">claude_desktop_config.json</p>
+                        <pre class="text-green-300 text-sm font-mono overflow-x-auto"><code>{
+  "mcpServers": {
+    "agentrails": {
+      "url": "https://agentrails-mcp.azurewebsites.net/runtime/webhooks/mcp/sse",
+      "headers": {
+        "x-functions-key": "YOUR_FUNCTION_KEY"
+      }
+    }
+  }
+}</code></pre>
+                    </div>
+                    <p class="text-gray-500 text-sm">
+                        For Microsoft Foundry: Agent Designer &rarr; Add Tool &rarr; MCP Server Tool &rarr; Custom &rarr; enter the endpoint URL above.
+                    </p>
                 </section>
 
                 <!-- Agent Governance -->
