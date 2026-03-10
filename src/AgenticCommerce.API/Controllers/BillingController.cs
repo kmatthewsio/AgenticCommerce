@@ -148,7 +148,6 @@ public class BillingController : ControllerBase
     /// Get usage summary by email.
     /// </summary>
     [HttpGet("usage/{email}")]
-    [Authorize(Policy = "ApiOrJwt")]
     public async Task<IActionResult> GetUsageByEmail(string email, [FromQuery] int days = 30)
     {
         var user = await _db.Users
@@ -187,9 +186,12 @@ public class BillingController : ControllerBase
     /// Admin endpoint for manual billing triggers.
     /// </summary>
     [HttpPost("report-usage/{organizationId}")]
-    [Authorize(Policy = "ApiOrJwt")]
-    public async Task<IActionResult> ReportUsage(Guid organizationId)
+    public async Task<IActionResult> ReportUsage(Guid organizationId, [FromQuery] string? token)
     {
+        var cronSecret = _configuration["Billing:CronSecret"];
+        if (string.IsNullOrEmpty(cronSecret) || string.IsNullOrEmpty(token) || token != cronSecret)
+            return Unauthorized(new { error = "Invalid or missing token" });
+
         try
         {
             var count = await _stripeBillingService.ReportUsageAsync(organizationId);
@@ -207,9 +209,12 @@ public class BillingController : ControllerBase
     /// Admin endpoint for monthly billing run.
     /// </summary>
     [HttpPost("report-all-usage")]
-    [Authorize(Policy = "ApiOrJwt")]
-    public async Task<IActionResult> ReportAllUsage()
+    public async Task<IActionResult> ReportAllUsage([FromQuery] string? token)
     {
+        var cronSecret = _configuration["Billing:CronSecret"];
+        if (string.IsNullOrEmpty(cronSecret) || string.IsNullOrEmpty(token) || token != cronSecret)
+            return Unauthorized(new { error = "Invalid or missing token" });
+
         try
         {
             var count = await _stripeBillingService.ReportAllUsageAsync();
@@ -226,9 +231,12 @@ public class BillingController : ControllerBase
     /// Get unbilled fees for an organization.
     /// </summary>
     [HttpGet("unbilled/{organizationId}")]
-    [Authorize(Policy = "ApiOrJwt")]
-    public async Task<IActionResult> GetUnbilledFees(Guid organizationId)
+    public async Task<IActionResult> GetUnbilledFees(Guid organizationId, [FromQuery] string? token)
     {
+        var cronSecret = _configuration["Billing:CronSecret"];
+        if (string.IsNullOrEmpty(cronSecret) || string.IsNullOrEmpty(token) || token != cronSecret)
+            return Unauthorized(new { error = "Invalid or missing token" });
+
         var org = await _db.Organizations.FindAsync(organizationId);
         if (org == null)
         {

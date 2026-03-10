@@ -289,7 +289,6 @@ public class X402Controller : ControllerBase
     /// <param name="limit">Maximum number of records to return (default: 50, max: 500)</param>
     /// <response code="200">Returns list of payment records</response>
     [HttpGet("payments")]
-    [Authorize(Policy = "ApiOrJwt")]
     [ProducesResponseType(typeof(X402PaymentHistoryResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<X402PaymentHistoryResponse>> GetPaymentHistory(
         [FromQuery] string? network = null,

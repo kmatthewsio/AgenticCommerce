@@ -277,7 +277,6 @@ public class AgentsController : ControllerBase
     /// <summary>
     /// Seed test transactions for dashboard testing (development only)
     /// </summary>
-    [Authorize(Policy = "ApiOrJwt")]
     [HttpPost("seed-transactions")]
     public async Task<ActionResult> SeedTestTransactions()
     {
