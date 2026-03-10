@@ -145,9 +145,10 @@ public class BillingController : ControllerBase
     }
 
     /// <summary>
-    /// Get usage summary by email (public endpoint for account holders).
+    /// Get usage summary by email.
     /// </summary>
     [HttpGet("usage/{email}")]
+    [Authorize(Policy = "ApiOrJwt")]
     public async Task<IActionResult> GetUsageByEmail(string email, [FromQuery] int days = 30)
     {
         var user = await _db.Users
@@ -186,6 +187,7 @@ public class BillingController : ControllerBase
     /// Admin endpoint for manual billing triggers.
     /// </summary>
     [HttpPost("report-usage/{organizationId}")]
+    [Authorize(Policy = "ApiOrJwt")]
     public async Task<IActionResult> ReportUsage(Guid organizationId)
     {
         try
@@ -205,6 +207,7 @@ public class BillingController : ControllerBase
     /// Admin endpoint for monthly billing run.
     /// </summary>
     [HttpPost("report-all-usage")]
+    [Authorize(Policy = "ApiOrJwt")]
     public async Task<IActionResult> ReportAllUsage()
     {
         try
@@ -223,6 +226,7 @@ public class BillingController : ControllerBase
     /// Get unbilled fees for an organization.
     /// </summary>
     [HttpGet("unbilled/{organizationId}")]
+    [Authorize(Policy = "ApiOrJwt")]
     public async Task<IActionResult> GetUnbilledFees(Guid organizationId)
     {
         var org = await _db.Organizations.FindAsync(organizationId);

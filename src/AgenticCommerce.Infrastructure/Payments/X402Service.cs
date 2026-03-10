@@ -255,8 +255,18 @@ public class X402Service : IX402Service
         var amountUsdc = amountSmallestUnit / 1_000_000m;
         var paymentId = $"x402_{auth.Nonce}_{DateTime.UtcNow.Ticks}";
 
+        // Nonce is required for EIP-3009 replay protection
+        if (string.IsNullOrEmpty(auth.Nonce))
+        {
+            _logger.LogWarning("Payment rejected: missing nonce on {Network}", payload.Network);
+            return new X402SettleResponse
+            {
+                Success = false,
+                ErrorMessage = "Nonce is required for payment verification"
+            };
+        }
+
         // Nonce replay prevention: reject if this nonce+network was already settled
-        if (!string.IsNullOrEmpty(auth.Nonce))
         {
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AgenticCommerceDbContext>();

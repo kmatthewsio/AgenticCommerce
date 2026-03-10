@@ -161,18 +161,15 @@ public class StripeController : ControllerBase
         {
             if (string.IsNullOrEmpty(webhookSecret))
             {
-                // For testing without webhook signature verification
-                _logger.LogWarning("Stripe webhook secret not configured - skipping signature verification");
-                stripeEvent = EventUtility.ParseEvent(json);
+                _logger.LogError("Stripe webhook secret not configured — rejecting unverified webhook");
+                return StatusCode(503, new { error = "Webhook signature verification not configured" });
             }
-            else
-            {
-                stripeEvent = EventUtility.ConstructEvent(
-                    json,
-                    Request.Headers["Stripe-Signature"],
-                    webhookSecret
-                );
-            }
+
+            stripeEvent = EventUtility.ConstructEvent(
+                json,
+                Request.Headers["Stripe-Signature"],
+                webhookSecret
+            );
         }
         catch (StripeException ex)
         {

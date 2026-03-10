@@ -2,6 +2,7 @@ using AgenticCommerce.API.Middleware;
 using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -276,6 +277,7 @@ public class AgentsController : ControllerBase
     /// <summary>
     /// Seed test transactions for dashboard testing (development only)
     /// </summary>
+    [Authorize(Policy = "ApiOrJwt")]
     [HttpPost("seed-transactions")]
     public async Task<ActionResult> SeedTestTransactions()
     {

@@ -28,6 +28,7 @@ public class AgentEntity
     public decimal Budget { get; set; }
 
     [Required]
+    [ConcurrencyCheck]
     [Column("current_balance", TypeName = "decimal(18,8)")]
     public decimal CurrentBalance { get; set; }
 

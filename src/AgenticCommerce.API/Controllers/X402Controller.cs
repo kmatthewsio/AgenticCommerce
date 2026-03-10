@@ -2,6 +2,7 @@ using System.Numerics;
 using AgenticCommerce.Core.Interfaces;
 using AgenticCommerce.Core.Models;
 using AgenticCommerce.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nethereum.Signer;
@@ -288,6 +289,7 @@ public class X402Controller : ControllerBase
     /// <param name="limit">Maximum number of records to return (default: 50, max: 500)</param>
     /// <response code="200">Returns list of payment records</response>
     [HttpGet("payments")]
+    [Authorize(Policy = "ApiOrJwt")]
     [ProducesResponseType(typeof(X402PaymentHistoryResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<X402PaymentHistoryResponse>> GetPaymentHistory(
         [FromQuery] string? network = null,

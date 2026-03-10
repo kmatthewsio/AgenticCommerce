@@ -55,9 +55,16 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(
+                "https://agentrails.io",
+                "https://www.agentrails.io",
+                "https://app.agentrails.io",
+                "https://sandbox.agentrails.io",
+                "http://localhost:3000",
+                "http://localhost:5173")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
