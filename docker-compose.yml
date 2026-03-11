@@ -6,7 +6,7 @@ services:
     container_name: agentrails-postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: REPLACE_WITH_ENV_VAR
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
       POSTGRES_DB: agentrails_sandbox
     ports:
       - "5432:5432"
