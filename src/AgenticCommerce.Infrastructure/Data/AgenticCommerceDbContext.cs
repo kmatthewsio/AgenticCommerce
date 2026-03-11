@@ -61,6 +61,7 @@ public class AgenticCommerceDbContext : DbContext
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.CreatedAt);
             entity.HasIndex(e => e.Network);
+            entity.HasIndex(e => e.AgentId);
             entity.HasIndex(e => new { e.Nonce, e.Network })
                 .IsUnique()
                 .HasFilter("nonce IS NOT NULL");

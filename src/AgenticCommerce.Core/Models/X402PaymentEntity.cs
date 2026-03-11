@@ -136,6 +136,13 @@ public class X402PaymentEntity
 
     [Column("settled_at")]
     public DateTime? SettledAt { get; set; }
+
+    /// <summary>
+    /// Agent that initiated this payment (linked to policy engine)
+    /// </summary>
+    [Column("agent_id")]
+    [MaxLength(50)]
+    public string? AgentId { get; set; }
 }
 
 /// <summary>
