@@ -164,7 +164,7 @@ https://www.agentrails.io/terms
 | GitHub — Core Platform | https://github.com/kmatthewsio/AgenticCommerce |
 | GitHub — LangChain x402 SDK | https://github.com/kmatthewsio/langchain-x402 |
 | Blog | https://www.agentrails.io/blog |
-| Blog: Zero Trust for AI Agents | https://www.agentrails.io/blog/zero-trust-for-ai-agents.html |
+| Blog: Zero Trust for AI Agents | https://www.agentrails.io/blog/zero-trust-for-ai-agents |
 
 ### Supporting Documents (PDFs to create)
 
