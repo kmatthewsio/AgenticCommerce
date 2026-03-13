@@ -259,4 +259,52 @@ public class PolicyFunctions(IHttpClientFactory httpClientFactory)
             return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
         return body;
     }
+
+    // ========================================
+    // PREDICTIVE FREEZE TOOLS
+    // ========================================
+
+    [Function(nameof(FreezeAgent))]
+    public async Task<string> FreezeAgent(
+        [McpToolTrigger("freeze_agent", "Freeze an agent to block all payments. Use when an agent is overspending or behaving anomalously.")]
+        ToolInvocationContext context,
+        [McpToolProperty("agent_id", "The unique identifier of the agent to freeze.", isRequired: true)]
+        string agentId,
+        [McpToolProperty("reason", "Reason for freezing the agent.", isRequired: true)]
+        string reason)
+    {
+        var payload = new { reason };
+        var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+        var response = await Client.PostAsync($"/api/fleet/agents/{Uri.EscapeDataString(agentId)}/freeze", content);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [Function(nameof(UnfreezeAgent))]
+    public async Task<string> UnfreezeAgent(
+        [McpToolTrigger("unfreeze_agent", "Unfreeze a previously frozen agent to resume normal payment evaluation.")]
+        ToolInvocationContext context,
+        [McpToolProperty("agent_id", "The unique identifier of the agent to unfreeze.", isRequired: true)]
+        string agentId)
+    {
+        var response = await Client.PostAsync($"/api/fleet/agents/{Uri.EscapeDataString(agentId)}/unfreeze", null);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [Function(nameof(ListFrozenAgents))]
+    public async Task<string> ListFrozenAgents(
+        [McpToolTrigger("list_frozen_agents", "List all currently frozen agents that have been manually or automatically frozen.")]
+        ToolInvocationContext context)
+    {
+        var response = await Client.GetAsync("/api/fleet/frozen");
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
 }

@@ -205,4 +205,43 @@ public class PolicyTools(IHttpClientFactory httpClientFactory)
             return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
         return body;
     }
+
+    // ========================================
+    // PREDICTIVE FREEZE TOOLS
+    // ========================================
+
+    [McpServerTool, Description("Freeze an agent to block all payments. Use when an agent is overspending or behaving anomalously. Payments will be denied until the agent is unfrozen.")]
+    public async Task<string> freeze_agent(
+        [Description("The unique identifier of the agent to freeze.")] string agentId,
+        [Description("Reason for freezing the agent (e.g. 'Budget exhaustion imminent' or 'Anomalous spending detected').")] string reason)
+    {
+        var payload = new { reason };
+        var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+        var response = await Client.PostAsync($"/api/fleet/agents/{agentId}/freeze", content);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [McpServerTool, Description("Unfreeze a previously frozen agent to resume normal payment evaluation. Payments will be evaluated against the agent's policy again.")]
+    public async Task<string> unfreeze_agent(
+        [Description("The unique identifier of the agent to unfreeze.")] string agentId)
+    {
+        var response = await Client.PostAsync($"/api/fleet/agents/{agentId}/unfreeze", null);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
+
+    [McpServerTool, Description("List all currently frozen agents. Returns agents that have been manually or automatically frozen due to predictive freeze or manual intervention.")]
+    public async Task<string> list_frozen_agents()
+    {
+        var response = await Client.GetAsync("/api/fleet/frozen");
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            return JsonSerializer.Serialize(new { error = true, statusCode = (int)response.StatusCode, message = body });
+        return body;
+    }
 }
