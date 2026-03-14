@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgentRails - AI Agent Infrastructure | Build, Govern, Pay</title>
-    <meta name="description" content="Enterprise AI agent infrastructure for Microsoft 365. Build with Copilot Studio, govern with MCP and policies, pay with x402. From development to production.">
+    <title>AgentRails - AI Agent Infrastructure Consulting</title>
+    <meta name="description" content="We build AI agent infrastructure. MCP servers, x402 payments, agent governance, and Microsoft 365 integration. From architecture to production.">
 
     <!-- Canonical -->
     <link rel="canonical" href="https://www.agentrails.io/">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="AgentRails - AI Agent Infrastructure | Build, Govern, Pay">
-    <meta property="og:description" content="Enterprise AI agent infrastructure for Microsoft 365. Build with Copilot Studio, govern with MCP and policies, pay with x402.">
+    <meta property="og:title" content="AgentRails - AI Agent Infrastructure Consulting">
+    <meta property="og:description" content="We build AI agent infrastructure. MCP servers, x402 payments, agent governance, and Microsoft 365 integration.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.agentrails.io/">
     <meta property="og:image" content="https://www.agentrails.io/og-image.svg">
@@ -19,8 +19,8 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="AgentRails - AI Agent Infrastructure | Build, Govern, Pay">
-    <meta name="twitter:description" content="Enterprise AI agent infrastructure for Microsoft 365. Build with Copilot Studio, govern with MCP and policies, pay with x402.">
+    <meta name="twitter:title" content="AgentRails - AI Agent Infrastructure Consulting">
+    <meta name="twitter:description" content="We build AI agent infrastructure. MCP servers, x402 payments, agent governance, and Microsoft 365 integration.">
     <meta name="twitter:image" content="https://www.agentrails.io/og-image.svg">
 
     <!-- Structured Data -->
@@ -29,50 +29,21 @@
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": "Organization",
+          "@type": "ProfessionalService",
           "name": "AgentRails",
           "url": "https://www.agentrails.io",
           "logo": "https://www.agentrails.io/logo.png",
-          "description": "Enterprise AI agent infrastructure for Microsoft 365. Build, govern, and pay with x402.",
+          "description": "AI agent infrastructure consulting. MCP server development, x402 payment integration, agent governance, and Microsoft 365 integration.",
+          "serviceType": "AI Agent Infrastructure Consulting",
+          "areaServed": "Worldwide",
           "sameAs": [
-            "https://github.com/kmatthewsio/AgenticCommerce",
-            "https://twitter.com/agentrails"
+            "https://github.com/kmatthewsio/AgenticCommerce"
           ]
         },
         {
           "@type": "WebSite",
           "name": "AgentRails",
           "url": "https://www.agentrails.io"
-        },
-        {
-          "@type": "SoftwareApplication",
-          "name": "AgentRails",
-          "applicationCategory": "DeveloperApplication",
-          "operatingSystem": "Cross-platform",
-          "description": "AI agent infrastructure with x402 autonomous payments, governance, and Microsoft 365 integration.",
-          "offers": [
-            {
-              "@type": "Offer",
-              "name": "Sandbox",
-              "price": "0",
-              "priceCurrency": "USD",
-              "description": "Free testnet access"
-            },
-            {
-              "@type": "Offer",
-              "name": "Pro",
-              "price": "49",
-              "priceCurrency": "USD",
-              "description": "Unlimited transactions, 0% fees"
-            },
-            {
-              "@type": "Offer",
-              "name": "Enterprise",
-              "price": "2500",
-              "priceCurrency": "USD",
-              "description": "Self-hosted with full source code, policy engine, and admin dashboard"
-            }
-          ]
         }
       ]
     }
@@ -123,23 +94,13 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
-        /* Custom animations */
         @keyframes fade-up {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
         .animate-fade-up {
             animation: fade-up 0.6s ease-out forwards;
-        }
-
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
         }
 
         .delay-100 { animation-delay: 0.1s; }
@@ -147,7 +108,6 @@
         .delay-300 { animation-delay: 0.3s; }
         .delay-400 { animation-delay: 0.4s; }
 
-        /* Gradient text */
         .gradient-text {
             background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
             -webkit-background-clip: text;
@@ -155,34 +115,16 @@
             background-clip: text;
         }
 
-        /* Gradient border */
-        .gradient-border {
-            position: relative;
-            background: white;
-            border-radius: 12px;
-        }
-
-        .gradient-border::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
-            border-radius: 14px;
-            z-index: -1;
-        }
-
-        /* Code block styling */
-        .code-block {
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-        }
-
-        /* Blob background */
         .blob {
             position: absolute;
             border-radius: 50%;
             filter: blur(80px);
             opacity: 0.4;
             z-index: -1;
+        }
+
+        .code-block {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
         }
     </style>
 </head>
@@ -192,8 +134,7 @@
     <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <a href="#" class="flex items-center gap-2">
+                <a href="/" class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -204,17 +145,13 @@
 
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex items-center gap-8">
-                    <a href="/demo" class="text-primary-600 font-medium hover:text-primary-700 transition">Demo</a>
-                    <a href="#features" class="text-gray-600 hover:text-gray-900 transition">Features</a>
-                    <a href="#use-cases" class="text-gray-600 hover:text-gray-900 transition">Use Cases</a>
-                    <a href="#pricing" class="text-gray-600 hover:text-gray-900 transition">Pricing</a>
+                    <a href="#services" class="text-gray-600 hover:text-gray-900 transition">Services</a>
+                    <a href="#work" class="text-gray-600 hover:text-gray-900 transition">Our Work</a>
                     <a href="/docs" class="text-gray-600 hover:text-gray-900 transition">Docs</a>
                     <a href="/blog/" class="text-gray-600 hover:text-gray-900 transition">Blog</a>
-                    <a href="/enterprise" class="text-gray-600 hover:text-gray-900 transition">Enterprise</a>
-                    <a href="https://app.agentrails.io" target="_blank" class="text-gray-600 hover:text-gray-900 transition">Dashboard</a>
-                    <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="text-gray-600 hover:text-gray-900 transition">GitHub</a>
-                    <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
-                        Try Sandbox
+                    <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="text-gray-600 hover:text-gray-900 transition">Sandbox</a>
+                    <a href="mailto:hello@agentrails.io?subject=AI%20Agent%20Infrastructure%20Project" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition">
+                        Let's Talk
                     </a>
                 </div>
 
@@ -229,16 +166,13 @@
 
             <!-- Mobile Nav -->
             <div x-show="mobileMenu" x-transition class="md:hidden py-4 border-t border-gray-100">
-                <a href="/demo" class="block py-2 text-primary-600 font-medium">Demo</a>
-                <a href="#features" class="block py-2 text-gray-600">Features</a>
-                <a href="#use-cases" class="block py-2 text-gray-600">Use Cases</a>
-                <a href="#pricing" class="block py-2 text-gray-600">Pricing</a>
+                <a href="#services" class="block py-2 text-gray-600">Services</a>
+                <a href="#work" class="block py-2 text-gray-600">Our Work</a>
                 <a href="/docs" class="block py-2 text-gray-600">Docs</a>
-                <a href="/enterprise" class="block py-2 text-gray-600">Enterprise</a>
-                <a href="https://app.agentrails.io" target="_blank" class="block py-2 text-gray-600">Dashboard</a>
-                <a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="block py-2 text-gray-600">GitHub</a>
-                <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="block py-2 mt-2 text-center bg-primary-600 text-white rounded-lg font-medium">
-                    Try Sandbox
+                <a href="/blog/" class="block py-2 text-gray-600">Blog</a>
+                <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="block py-2 text-gray-600">Sandbox</a>
+                <a href="mailto:hello@agentrails.io?subject=AI%20Agent%20Infrastructure%20Project" class="block py-2 mt-2 text-center bg-primary-600 text-white rounded-lg font-medium">
+                    Let's Talk
                 </a>
             </div>
         </div>
@@ -246,826 +180,285 @@
 
     <!-- Hero Section -->
     <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
-        <!-- Background blobs -->
         <div class="blob w-96 h-96 bg-primary-300 top-20 -left-48"></div>
         <div class="blob w-96 h-96 bg-cyan-300 top-40 right-0"></div>
 
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <!-- Left: Content -->
-                <div class="text-center lg:text-left">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 text-primary-700 text-sm font-medium mb-6 animate-fade-up">
-                        <span class="w-2 h-2 rounded-full bg-primary-500"></span>
-                        AI Agent Infrastructure
-                    </div>
-
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fade-up delay-100">
-                        Infrastructure for the <span class="gradient-text">agent economy</span>
-                    </h1>
-
-                    <p class="text-lg sm:text-xl text-gray-600 mb-8 animate-fade-up delay-200">
-                        Build and govern AI agents on Microsoft 365. Give them autonomous payment capabilities via x402 — from Copilot Studio to production, guardrails included.
-                    </p>
-
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-up delay-300">
-                        <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition shadow-lg shadow-primary-500/25">
-                            Try Sandbox Free
-                        </a>
-                        <a href="/demo" class="px-6 py-3 bg-white text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition border border-gray-200">
-                            Try the Demo
-                        </a>
-                    </div>
-
-                    <!-- Stats -->
-                    <div class="flex flex-wrap gap-8 mt-12 justify-center lg:justify-start animate-fade-up delay-400">
-                        <div>
-                            <div class="text-2xl font-bold text-gray-900">5 SDKs</div>
-                            <div class="text-sm text-gray-500">Python, .NET, Copilot Studio</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-bold text-gray-900">x402 V2</div>
-                            <div class="text-sm text-gray-500">Latest protocol spec</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-bold text-gray-900">Instant USDC</div>
-                            <div class="text-sm text-gray-500">On-chain settlement</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right: Code Window -->
-                <div class="relative animate-fade-up delay-300">
-                    <div class="code-block rounded-2xl shadow-2xl overflow-hidden animate-float">
-                        <div class="flex items-center gap-2 px-4 py-3 bg-black/20">
-                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
-                            <span class="ml-2 text-white/60 text-sm">agent.py</span>
-                        </div>
-                        <pre class="p-6 text-sm sm:text-base overflow-x-auto"><code class="text-gray-300"><span class="text-gray-500"># OLD WAY: API keys, subscriptions</span>
-<span class="text-gray-500"># api_key = os.environ["API_KEY"]</span>
-<span class="text-gray-500"># headers = {"Authorization": api_key}</span>
-
-<span class="text-gray-500"># NEW WAY: Just pay and go</span>
-data = agent.<span class="text-cyan-400">get</span>(
-    <span class="text-emerald-400">"https://api.example.com/data"</span>,
-    budget=<span class="text-amber-400">0.05</span>  <span class="text-gray-500"># Max: $0.05</span>
-)
-
-<span class="text-gray-500"># Server returns 402 → Agent pays → Done</span>
-print(data.result)  <span class="text-gray-500"># Your data</span>
-print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Social Proof -->
-    <section class="py-12 border-y border-gray-100 bg-white">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
-            <p class="text-center text-sm text-gray-500 mb-8">Built on trusted infrastructure</p>
-            <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-60">
-                <span class="text-lg font-semibold text-gray-700 tracking-tight">Microsoft</span>
-                <span class="text-lg font-semibold text-gray-700 tracking-tight">Circle</span>
-                <span class="text-lg font-semibold text-gray-700 tracking-tight">Coinbase</span>
-                <span class="text-lg font-semibold text-gray-700 tracking-tight">X402 Protocol</span>
-                <span class="text-lg font-semibold text-gray-700 tracking-tight">USDC</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- SDK Showcase -->
-    <section id="sdks" class="py-20 lg:py-32">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl sm:text-4xl font-bold mb-4">One protocol, every framework</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Add x402 payments to your agents in one line. SDKs for the frameworks you already use.
-                </p>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 text-primary-700 text-sm font-medium mb-6 animate-fade-up">
+                <span class="w-2 h-2 rounded-full bg-primary-500"></span>
+                AI Agent Infrastructure Consulting
             </div>
 
-            <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-                <!-- LangChain -->
-                <div class="bg-gradient-to-br from-primary-500 to-cyan-500 rounded-xl p-6 text-white">
-                    <h3 class="font-semibold mb-2">LangChain</h3>
-                    <div class="bg-black/20 rounded-lg p-3 font-mono text-sm mb-3">
-                        pip install langchain-x402
-                    </div>
-                    <div class="flex gap-3 text-sm">
-                        <a href="https://pypi.org/project/langchain-x402/" target="_blank" class="underline hover:no-underline">PyPI</a>
-                        <a href="https://github.com/kmatthewsio/langchain-x402" target="_blank" class="underline hover:no-underline">GitHub</a>
-                    </div>
-                </div>
-                <!-- CrewAI -->
-                <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl p-6 text-white">
-                    <h3 class="font-semibold mb-2">CrewAI</h3>
-                    <div class="bg-black/20 rounded-lg p-3 font-mono text-sm mb-3">
-                        pip install crewai-x402
-                    </div>
-                    <div class="flex gap-3 text-sm">
-                        <a href="https://pypi.org/project/crewai-x402/" target="_blank" class="underline hover:no-underline">PyPI</a>
-                        <a href="https://github.com/kmatthewsio/crewai-x402" target="_blank" class="underline hover:no-underline">GitHub</a>
-                    </div>
-                </div>
-                <!-- Semantic Kernel -->
-                <div class="bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl p-6 text-white">
-                    <h3 class="font-semibold mb-2">Semantic Kernel</h3>
-                    <div class="bg-black/20 rounded-lg p-3 font-mono text-xs mb-3 break-all">
-                        dotnet add package<br>AgentRails.SemanticKernel.X402
-                    </div>
-                    <div class="flex gap-3 text-sm">
-                        <a href="https://www.nuget.org/packages/AgentRails.SemanticKernel.X402" target="_blank" class="underline hover:no-underline">NuGet</a>
-                        <a href="https://github.com/kmatthewsio/semantickernel-x402" target="_blank" class="underline hover:no-underline">GitHub</a>
-                    </div>
-                </div>
-                <!-- Agent Framework -->
-                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-6 text-white">
-                    <h3 class="font-semibold mb-2">Agent Framework</h3>
-                    <div class="bg-black/20 rounded-lg p-3 font-mono text-xs mb-3 break-all">
-                        dotnet add package<br>AgentRails.AgentFramework.X402
-                    </div>
-                    <div class="flex gap-3 text-sm">
-                        <a href="https://www.nuget.org/packages/AgentRails.AgentFramework.X402" target="_blank" class="underline hover:no-underline">NuGet</a>
-                        <a href="https://github.com/kmatthewsio/agentframework-x402" target="_blank" class="underline hover:no-underline">GitHub</a>
-                    </div>
-                </div>
-                <!-- Copilot Studio -->
-                <div class="bg-gradient-to-br from-teal-500 to-emerald-500 rounded-xl p-6 text-white">
-                    <h3 class="font-semibold mb-2">Copilot Studio</h3>
-                    <div class="bg-black/20 rounded-lg p-3 font-mono text-sm mb-3">
-                        Import .swagger.json
-                    </div>
-                    <div class="flex gap-3 text-sm">
-                        <a href="/docs#copilot-studio" class="underline hover:no-underline">Setup Guide</a>
-                        <a href="https://github.com/kmatthewsio/AgenticCommerce/tree/master/copilot-studio" target="_blank" class="underline hover:no-underline">GitHub</a>
-                    </div>
-                </div>
-            </div>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fade-up delay-100">
+                We build <span class="gradient-text">AI agent infrastructure</span>
+            </h1>
 
-            <div class="text-center">
-                <a href="/docs#client-side" class="text-primary-600 font-medium hover:text-primary-700 transition">
-                    View integration guides &rarr;
+            <p class="text-lg sm:text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-fade-up delay-200">
+                MCP servers, x402 payment integration, agent governance, and Microsoft 365 automation. From architecture to production.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up delay-300">
+                <a href="mailto:hello@agentrails.io?subject=AI%20Agent%20Infrastructure%20Project" class="px-8 py-4 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition shadow-lg shadow-primary-500/25 text-lg">
+                    Start a Conversation
+                </a>
+                <a href="#work" class="px-8 py-4 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition border border-gray-200 text-lg">
+                    See Our Work
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- How It Works -->
-    <section id="how-it-works" class="py-20 lg:py-32 bg-white">
+    <!-- Services Section -->
+    <section id="services" class="py-20 lg:py-32 bg-white">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="text-center mb-16">
-                <h2 class="text-3xl sm:text-4xl font-bold mb-4">How It Works</h2>
-                <p class="text-lg text-gray-600">HTTP 402 is the new API key</p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
-                <!-- Step 1 -->
-                <div class="text-center">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
-                        1
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Agent calls any API</h3>
-                    <p class="text-gray-600">
-                        No signup. No API key. Just a standard HTTP request. The server returns <code class="px-2 py-1 bg-gray-100 rounded text-sm">402 Payment Required</code> with the price.
-                    </p>
-                </div>
-
-                <!-- Step 2 -->
-                <div class="text-center">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
-                        2
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Agent pays instantly</h3>
-                    <p class="text-gray-600">
-                        Our SDK checks budget limits, signs a USDC payment authorization, and retries—all in one round trip. No human approval needed.
-                    </p>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="text-center">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
-                        3
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Data returned, settled on-chain</h3>
-                    <p class="text-gray-600">
-                        The API delivers the response. Payment settles in milliseconds with cryptographic proof. Agent moves to the next task.
-                    </p>
-                </div>
-            </div>
-
-            <div class="text-center mt-12">
-                <a href="/demo" class="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition shadow-lg shadow-primary-500/25">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    See It in Action &mdash; 60 Second Demo
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="py-20 lg:py-32">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Everything agents need</h2>
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">What we build</h2>
                 <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Build, govern, and pay — from development to production.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Feature 1: Enterprise Governance (moved up) -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
-                    <div class="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center mb-6">
-                        <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Enterprise Governance</h3>
-                    <p class="text-gray-600">
-                        Spending limits, approval workflows, and full audit trails. Every payment is cryptographically verifiable on-chain.
-                    </p>
-                </div>
-
-                <!-- Feature 2: Copilot Studio Ready (moved up) -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
-                    <div class="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center mb-6">
-                        <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Copilot Studio Ready</h3>
-                    <p class="text-gray-600">
-                        Import pre-built OpenAPI specs into Microsoft Copilot Studio. Your finance team asks "What's our x402 revenue?" in Teams — the copilot calls the API and answers.
-                    </p>
-                </div>
-
-                <!-- Feature 3: Zero Credential Management -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
-                    <div class="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center mb-6">
-                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Zero Credential Management</h3>
-                    <p class="text-gray-600">
-                        No more provisioning API keys, rotating secrets, or managing subscription tiers. Your agent pays per-request and gets instant access.
-                    </p>
-                </div>
-
-                <!-- Feature 4: Pay Only What You Use -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-6">
-                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Pay Only What You Use</h3>
-                    <p class="text-gray-600">
-                        Stop overpaying for subscriptions you rarely use. $0.001 for one API call. $0.01 for premium data. Pay exactly what each request costs.
-                    </p>
-                </div>
-
-                <!-- Feature 5: Fully Autonomous -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
-                    <div class="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center mb-6">
-                        <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Fully Autonomous</h3>
-                    <p class="text-gray-600">
-                        Agents discover services, check prices, and pay—without waiting for human approval. Set a budget and let them work.
-                    </p>
-                </div>
-
-                <!-- Feature 6: Instant Settlement -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
-                    <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center mb-6">
-                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Instant Settlement</h3>
-                    <p class="text-gray-600">
-                        Payments settle in milliseconds on-chain. No invoices, no reconciliation, no 30-day payment terms. The API responds immediately.
-                    </p>
-                </div>
-
-                <!-- Feature 7: Trust Scoring -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-100 transition">
-                    <div class="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center mb-6">
-                        <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Trust Scoring</h3>
-                    <p class="text-gray-600">
-                        Verify services before paying. Our Trust API combines registry data with on-chain payment history to generate trust scores—high, medium, low, or unknown.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Comparison Section -->
-    <section class="py-20 lg:py-32">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl sm:text-4xl font-bold mb-4">The API subscription model is broken</h2>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <!-- Old Way -->
-                <div class="bg-red-50/50 rounded-2xl p-8 border border-gray-200">
-                    <h3 class="text-xl font-semibold mb-6 text-gray-500">Today's Reality</h3>
-                    <ul class="space-y-4">
-                        <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Sign up, verify email, add credit card</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Generate API key, store it securely, rotate it</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Pay $99/mo for a tier you'll use 10% of</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Human approves each new vendor</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Reconcile invoices across 20 services</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- New Way -->
-                <div class="gradient-border">
-                    <div class="bg-emerald-50/50 rounded-xl p-8">
-                        <h3 class="text-xl font-semibold mb-6 gradient-text">With X402</h3>
-                        <ul class="space-y-4">
-                            <li class="flex items-start gap-3">
-                                <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-gray-600">Agent calls API, gets 402 Payment Required</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-gray-600">Agent pays $0.01, gets instant access</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-gray-600">Pay per-request, not per-month</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-gray-600">No credentials to manage or leak</span>
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-gray-600">Every payment verifiable on-chain</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <p class="text-center text-lg font-medium text-gray-700 mt-10">5 steps vs 1 step. That's the difference x402 makes.</p>
-        </div>
-    </section>
-
-    <!-- Use Cases Section -->
-    <section id="use-cases" class="py-20 lg:py-32 bg-white">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Built for the enterprise agent economy</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    From API monetization to autonomous agent networks, x402 powers the next generation of software commerce.
+                    Your team knows the business problem. We know the AI agent stack.
                 </p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8">
-                <!-- Use Case 1: AI Agent APIs -->
-                <div class="bg-gradient-to-br from-primary-50 to-cyan-50 rounded-2xl p-8 border border-primary-100">
-                    <div class="w-12 h-12 rounded-xl bg-primary-100 flex items-center justify-center mb-6">
-                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                <!-- Service 1 -->
+                <div class="bg-surface-50 rounded-2xl p-8 border border-gray-200 hover:border-primary-300 hover:shadow-lg transition">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">AI Agent APIs</h3>
+                    <h3 class="text-xl font-semibold mb-3">MCP Server Development</h3>
                     <p class="text-gray-600 mb-4">
-                        Monetize your AI models per-inference. No API keys, no subscriptions. Agents pay $0.001-$0.10 per call and get instant access.
+                        Custom Model Context Protocol servers that connect AI agents to your APIs, databases, and internal tools. Azure Functions, local stdio, or HTTP transport.
                     </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">LLM inference</span>
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Image generation</span>
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Embeddings</span>
-                    </div>
+                    <p class="text-sm text-primary-600 font-medium">Azure Foundry catalog published</p>
                 </div>
 
-                <!-- Use Case 2: Data Marketplaces -->
-                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-8 border border-emerald-100">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mb-6">
-                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                <!-- Service 2 -->
+                <div class="bg-surface-50 rounded-2xl p-8 border border-gray-200 hover:border-primary-300 hover:shadow-lg transition">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Data Marketplaces</h3>
+                    <h3 class="text-xl font-semibold mb-3">x402 Payment Integration</h3>
                     <p class="text-gray-600 mb-4">
-                        Sell proprietary data per-query. Financial data, weather APIs, research datasets. Buyers pay only for what they use.
+                        Implement the x402 payment protocol for AI agent micropayments. Facilitator setup, EIP-3009 signing, multi-chain USDC settlement on Base, Ethereum, and Arc.
                     </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Market data</span>
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Geolocation</span>
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Analytics</span>
-                    </div>
+                    <p class="text-sm text-primary-600 font-medium">Full V2 spec implementation</p>
                 </div>
 
-                <!-- Use Case 3: Compute on Demand -->
-                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 border border-amber-100">
-                    <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center mb-6">
-                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                <!-- Service 3 -->
+                <div class="bg-surface-50 rounded-2xl p-8 border border-gray-200 hover:border-primary-300 hover:shadow-lg transition">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Compute on Demand</h3>
+                    <h3 class="text-xl font-semibold mb-3">Agent Governance</h3>
                     <p class="text-gray-600 mb-4">
-                        GPU instances, serverless functions, rendering farms. Agents spin up resources, pay per-second, and release automatically.
+                        Budget caps, approval workflows, anomaly detection, and audit trails for AI agent fleets. Policy engines that keep autonomous agents within guardrails.
                     </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">GPU compute</span>
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Serverless</span>
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Rendering</span>
-                    </div>
+                    <p class="text-sm text-primary-600 font-medium">Enterprise-grade policy engine</p>
                 </div>
 
-                <!-- Use Case 4: Multi-Agent Networks -->
-                <div class="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-8 border border-violet-100">
-                    <div class="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center mb-6">
-                        <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                <!-- Service 4 -->
+                <div class="bg-surface-50 rounded-2xl p-8 border border-gray-200 hover:border-primary-300 hover:shadow-lg transition">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Multi-Agent Networks</h3>
+                    <h3 class="text-xl font-semibold mb-3">AI Agent Integration</h3>
                     <p class="text-gray-600 mb-4">
-                        Agents hiring agents. A research agent pays a search agent, which pays a summarization agent. Autonomous value chains.
+                        End-to-end agent builds on the Microsoft stack. Copilot Studio, Semantic Kernel, LangChain, CrewAI. Connect agents to your tools, APIs, and workflows.
                     </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Agent swarms</span>
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Task delegation</span>
-                        <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-600">Workflows</span>
-                    </div>
+                    <p class="text-sm text-primary-600 font-medium">SDKs published on PyPI &amp; NuGet</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="py-20 lg:py-32 bg-surface-50">
+    <!-- Proof / Our Work Section -->
+    <section id="work" class="py-20 lg:py-32">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="text-center mb-16">
-                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Build agent payment infrastructure</h2>
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">What we've shipped</h2>
                 <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Free on testnet. Pay only for what you use. Scale with predictable pricing.
+                    Not slides. Not mockups. Production systems you can try right now.
                 </p>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-                <!-- Sandbox (Free) -->
-                <div class="bg-surface-50 rounded-2xl p-6 border border-gray-200">
-                    <div class="mb-6">
-                        <h3 class="text-xl font-semibold mb-2">Sandbox</h3>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-4xl font-bold">Free</span>
+            <div class="grid md:grid-cols-3 gap-6 mb-12">
+                <!-- Project 1 -->
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+                    <div class="h-2 bg-gradient-to-r from-primary-500 to-cyan-500"></div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold mb-2">x402 Payment Facilitator</h3>
+                        <p class="text-gray-600 text-sm mb-4">
+                            Full x402 V2 implementation: payment verification, EIP-3009 signature recovery, multi-chain USDC settlement, payment analytics. 38 live API endpoints.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-primary-50 text-primary-700 rounded text-xs font-medium">ASP.NET Core</span>
+                            <span class="px-2 py-1 bg-primary-50 text-primary-700 rounded text-xs font-medium">PostgreSQL</span>
+                            <span class="px-2 py-1 bg-primary-50 text-primary-700 rounded text-xs font-medium">Circle API</span>
                         </div>
-                        <p class="text-gray-500 mt-2">Explore and experiment</p>
+                        <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="text-primary-600 text-sm font-medium hover:text-primary-700">Try it live &rarr;</a>
                     </div>
-                    <ul class="space-y-3 mb-8">
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Full API access on testnet</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">X402 payment demos</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Test USDC (no real money)</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Open source on GitHub</span>
-                        </li>
-                    </ul>
-                    <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="block w-full py-3 text-center rounded-xl border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition">
-                        Try Sandbox
-                    </a>
                 </div>
 
-                <!-- Pay-as-you-go -->
-                <div class="bg-surface-50 rounded-2xl p-6 border border-gray-200">
-                    <div class="mb-6">
-                        <h3 class="text-xl font-semibold mb-2">Pay-as-you-go</h3>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-4xl font-bold">0.5%</span>
-                            <span class="text-gray-500">per tx</span>
+                <!-- Project 2 -->
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+                    <div class="h-2 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold mb-2">Azure MCP Server</h3>
+                        <p class="text-gray-600 text-sm mb-4">
+                            28-tool MCP server on Azure Functions. Agent management, x402 payments, trust layer, blockchain ops. Merged into the Azure Foundry catalog.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-primary-50 text-primary-700 rounded text-xs font-medium">Azure Functions</span>
+                            <span class="px-2 py-1 bg-primary-50 text-primary-700 rounded text-xs font-medium">.NET 8</span>
+                            <span class="px-2 py-1 bg-primary-50 text-primary-700 rounded text-xs font-medium">MCP</span>
                         </div>
-                        <p class="text-gray-500 mt-2">Start on mainnet</p>
+                        <a href="https://github.com/kmatthewsio/AgenticCommerce/tree/master/mcp-server-foundry" target="_blank" class="text-primary-600 text-sm font-medium hover:text-primary-700">View source &rarr;</a>
                     </div>
-                    <ul class="space-y-3 mb-8">
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Real USDC on mainnet</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">No monthly minimum</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Billed monthly via Stripe</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Usage dashboard</span>
-                        </li>
-                    </ul>
-                    <button onclick="startCheckout('payg')" class="block w-full py-3 text-center rounded-xl border-2 border-primary-600 text-primary-600 font-medium hover:bg-primary-50 transition cursor-pointer">
-                        Get Started
-                    </button>
                 </div>
 
-                <!-- Pro ($49/mo) -->
-                <div class="bg-surface-50 rounded-2xl p-6 border-2 border-primary-500 relative">
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary-500 text-white text-xs font-medium rounded-full">
-                        Best Value
-                    </div>
-                    <div class="mb-6">
-                        <h3 class="text-xl font-semibold mb-2">Pro</h3>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-4xl font-bold">$49</span>
-                            <span class="text-gray-500">/month</span>
+                <!-- Project 3 -->
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+                    <div class="h-2 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold mb-2">Enterprise Governance Platform</h3>
+                        <p class="text-gray-600 text-sm mb-4">
+                            Fleet dashboard with per-agent budget caps, approval workflows, anomaly detection, predictive freeze, and email notifications. 187 tests passing.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-primary-50 text-primary-700 rounded text-xs font-medium">Next.js</span>
+                            <span class="px-2 py-1 bg-primary-50 text-primary-700 rounded text-xs font-medium">ASP.NET Core</span>
+                            <span class="px-2 py-1 bg-primary-50 text-primary-700 rounded text-xs font-medium">Resend</span>
                         </div>
-                        <p class="text-gray-500 mt-2">Unlimited transactions</p>
-                    </div>
-                    <ul class="space-y-3 mb-8">
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600"><strong>0% transaction fees</strong></span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Hosted x402 facilitator</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Priority support</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Multi-chain (Arc, Base, Ethereum)</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-600">Full billing dashboard</span>
-                        </li>
-                    </ul>
-                    <p class="text-xs text-gray-500 text-center mb-3">Saves money at $9,800+/mo volume</p>
-                    <button onclick="startCheckout('pro')" class="block w-full py-3 text-center rounded-xl bg-primary-600 text-white font-medium hover:bg-primary-700 transition cursor-pointer">
-                        Upgrade to Pro
-                    </button>
-                </div>
-
-                <!-- Enterprise ($2,500) -->
-                <div class="gradient-border">
-                    <div class="bg-white rounded-xl p-6 relative">
-                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-primary-500 to-cyan-500 text-white text-sm font-medium rounded-full">
-                            Self-Hosted
-                        </div>
-                        <div class="mb-6">
-                            <h3 class="text-xl font-semibold mb-2">Enterprise</h3>
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-4xl font-bold">$2,500</span>
-                                <span class="text-gray-500">one-time</span>
-                            </div>
-                            <p class="text-gray-500 mt-2">Govern agent spend at scale</p>
-                        </div>
-                        <ul class="space-y-3 mb-6">
-                            <li class="flex items-center gap-3">
-                                <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-gray-600">Full source code (server + facilitator)</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-gray-600"><strong>Policy engine</strong> — spend limits, rate controls, destination rules</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-gray-600">Admin dashboard + audit logs</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-gray-600">Copilot Studio plugins (Microsoft Teams)</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-gray-600">Multi-chain (Arc, Base, Ethereum)</span>
-                            </li>
-                            <li class="flex items-center gap-3">
-                                <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-gray-600">90-day support + implementation call</span>
-                            </li>
-                        </ul>
-                        <div class="space-y-3">
-                            <button onclick="startCheckout('enterprise')" class="block w-full py-3 text-center rounded-xl bg-primary-600 text-white font-medium hover:bg-primary-700 transition cursor-pointer" id="checkout-button">
-                                Get Enterprise License
-                            </button>
-                            <a href="mailto:sales@agentrails.io?subject=Enterprise%20Demo%20Request" class="block w-full py-3 text-center rounded-xl border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition">
-                                Book a Demo
-                            </a>
-                        </div>
-                        <p class="text-xs text-gray-500 text-center mt-4">Volume discounts available. <a href="mailto:sales@agentrails.io?subject=Enterprise%20Volume%20Pricing" class="text-primary-600 hover:underline">Contact sales</a></p>
+                        <a href="https://app.agentrails.io" target="_blank" class="text-primary-600 text-sm font-medium hover:text-primary-700">View dashboard &rarr;</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Consulting Option -->
-            <div class="mt-12 max-w-3xl mx-auto">
-                <div class="bg-gradient-to-r from-primary-50 to-cyan-50 rounded-2xl p-8 border border-primary-100">
-                    <div class="flex flex-col md:flex-row items-center gap-6">
-                        <div class="flex-shrink-0">
-                            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
-                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                </svg>
-                            </div>
+            <!-- SDKs -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-8">
+                <h3 class="text-lg font-semibold mb-6">Published SDKs</h3>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="https://pypi.org/project/langchain-x402/" target="_blank" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-50 transition">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-sm font-bold">LC</div>
+                        <div>
+                            <div class="font-medium text-sm">langchain-x402</div>
+                            <div class="text-xs text-gray-500">PyPI</div>
                         </div>
-                        <div class="flex-grow text-center md:text-left">
-                            <h3 class="text-xl font-semibold mb-2">Need Help Building Your Own?</h3>
-                            <p class="text-gray-600">
-                                We offer consulting engagements to help you design and implement custom agent payment infrastructure.
-                                Whether you need architecture guidance or hands-on development, we can help you ship faster.
-                            </p>
+                    </a>
+                    <a href="https://pypi.org/project/crewai-x402/" target="_blank" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-50 transition">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-sm font-bold">CA</div>
+                        <div>
+                            <div class="font-medium text-sm">crewai-x402</div>
+                            <div class="text-xs text-gray-500">PyPI</div>
                         </div>
-                        <div class="flex-shrink-0">
-                            <a href="mailto:sales@agentrails.io?subject=AgentRails%20Consulting%20Inquiry"
-                               class="inline-block px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition whitespace-nowrap">
-                                Book a Call
-                            </a>
+                    </a>
+                    <a href="https://www.nuget.org/packages/AgentRails.SemanticKernel.X402" target="_blank" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-50 transition">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">SK</div>
+                        <div>
+                            <div class="font-medium text-sm">SemanticKernel.X402</div>
+                            <div class="text-xs text-gray-500">NuGet</div>
                         </div>
-                    </div>
+                    </a>
+                    <a href="https://www.nuget.org/packages/AgentRails.AgentFramework.X402" target="_blank" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-50 transition">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">AF</div>
+                        <div>
+                            <div class="font-medium text-sm">AgentFramework.X402</div>
+                            <div class="text-xs text-gray-500">NuGet</div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Blog Preview -->
-    <section class="py-20 lg:py-32">
+    <!-- How we work -->
+    <section class="py-20 lg:py-32 bg-white">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
-            <div class="flex items-center justify-between mb-12">
-                <h2 class="text-3xl sm:text-4xl font-bold">Latest from the blog</h2>
-                <a href="/blog/" class="text-primary-600 font-medium hover:text-primary-700 transition hidden sm:block">
-                    View all &rarr;
-                </a>
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">How we work</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Straightforward engagements. No 90-page proposals.
+                </p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Post 1 -->
-                <a href="/blog/zero-trust-for-ai-agents" class="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg hover:border-primary-200 transition block">
-                    <div class="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                        <time datetime="2026-02-24">Feb 24, 2026</time>
-                        <span>&middot;</span>
-                        <span>8 min read</span>
-                    </div>
-                    <h3 class="text-lg font-semibold mb-2 text-gray-900">Microsoft Says 80% of Fortune 500 Deploy AI Agents — But Only Half Have Security Controls</h3>
-                    <p class="text-gray-600 text-sm">Microsoft's Cyber Pulse report reveals a massive governance gap. Here's how x402 applies Zero Trust to AI agents.</p>
-                </a>
+            <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">1</div>
+                    <h3 class="text-xl font-semibold mb-3">Discovery call</h3>
+                    <p class="text-gray-600">
+                        30-minute call to understand your use case, existing stack, and what "done" looks like. Free, no commitment.
+                    </p>
+                </div>
 
-                <!-- Post 2 -->
-                <a href="/blog/agent-framework-x402" class="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg hover:border-primary-200 transition block">
-                    <div class="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                        <time datetime="2026-02-23">Feb 23, 2026</time>
-                        <span>&middot;</span>
-                        <span>7 min read</span>
-                    </div>
-                    <h3 class="text-lg font-semibold mb-2 text-gray-900">Semantic Kernel Is Legacy. Agent Framework Gets x402 on Day One.</h3>
-                    <p class="text-gray-600 text-sm">Microsoft Agent Framework reached RC. We shipped the first x402 payment package for it before anyone else.</p>
-                </a>
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">2</div>
+                    <h3 class="text-xl font-semibold mb-3">Architecture + scope</h3>
+                    <p class="text-gray-600">
+                        We deliver a technical plan with clear deliverables, timeline, and fixed price. You review before anything starts.
+                    </p>
+                </div>
 
-                <!-- Post 3 -->
-                <a href="/blog/your-finance-team-just-got-an-ai-copilot" class="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg hover:border-primary-200 transition block">
-                    <div class="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                        <time datetime="2026-02-21">Feb 21, 2026</time>
-                        <span>&middot;</span>
-                        <span>6 min read</span>
-                    </div>
-                    <h3 class="text-lg font-semibold mb-2 text-gray-900">Your Finance Team Just Got an AI Copilot for x402</h3>
-                    <p class="text-gray-600 text-sm">Two Copilot Studio plugins that let your team query x402 revenue and manage agents in Microsoft Teams.</p>
-                </a>
+                <div class="text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">3</div>
+                    <h3 class="text-xl font-semibold mb-3">Build + ship</h3>
+                    <p class="text-gray-600">
+                        We build it, test it, deploy it, and hand it off. Working code in your repo, documented and production-ready.
+                    </p>
+                </div>
             </div>
+        </div>
+    </section>
 
-            <div class="text-center mt-8 sm:hidden">
-                <a href="/blog/" class="text-primary-600 font-medium hover:text-primary-700 transition">View all &rarr;</a>
+    <!-- Tech stack -->
+    <section class="py-12 border-y border-gray-100 bg-surface-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <p class="text-center text-sm text-gray-500 mb-8">Technologies we work with</p>
+            <div class="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-60">
+                <span class="text-lg font-semibold text-gray-700 tracking-tight">Microsoft 365</span>
+                <span class="text-lg font-semibold text-gray-700 tracking-tight">Azure</span>
+                <span class="text-lg font-semibold text-gray-700 tracking-tight">Semantic Kernel</span>
+                <span class="text-lg font-semibold text-gray-700 tracking-tight">LangChain</span>
+                <span class="text-lg font-semibold text-gray-700 tracking-tight">x402</span>
+                <span class="text-lg font-semibold text-gray-700 tracking-tight">Circle</span>
+                <span class="text-lg font-semibold text-gray-700 tracking-tight">MCP</span>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section id="cta" class="py-20 lg:py-32 bg-gradient-to-br from-primary-600 to-primary-800">
+    <section class="py-20 lg:py-32 bg-gradient-to-br from-primary-600 to-primary-800">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-            <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to build your agent infrastructure?</h2>
+            <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Have an AI agent project?</h2>
             <p class="text-lg text-primary-100 mb-8">
-                Start free on testnet. Pay 0.5% per transaction on mainnet. No minimums.
+                Tell us what you're building. We'll tell you how we can help.
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                    href="/demo"
+                    href="mailto:hello@agentrails.io?subject=AI%20Agent%20Infrastructure%20Project"
                     class="inline-block px-8 py-4 bg-white text-primary-700 rounded-xl font-semibold hover:bg-primary-50 transition text-lg"
                 >
-                    Watch the Demo
+                    hello@agentrails.io
                 </a>
                 <a
                     href="https://sandbox.agentrails.io/swagger"
                     target="_blank"
                     class="inline-block px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white/10 transition text-lg"
                 >
-                    Try Sandbox Free
-                </a>
-                <a
-                    href="mailto:sales@agentrails.io?subject=AgentRails%20Production%20Access"
-                    class="inline-block px-8 py-4 bg-transparent border-2 border-white/50 text-white rounded-xl font-semibold hover:bg-white/10 transition text-lg"
-                >
-                    Go to Production
+                    Explore the Sandbox
                 </a>
             </div>
 
-            <p class="text-sm text-primary-200 mt-6">High volume? <a href="mailto:sales@agentrails.io?subject=AgentRails%20Pro%20Pricing" class="underline hover:text-white">Upgrade to Pro ($49/mo)</a> for unlimited transactions.</p>
+            <p class="text-sm text-primary-200 mt-6">
+                Or explore our <a href="/docs" class="underline hover:text-white">documentation</a> and <a href="/blog/" class="underline hover:text-white">blog</a> to see how we think about this space.
+            </p>
         </div>
     </section>
 
@@ -1073,9 +466,8 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
     <footer class="py-12 bg-gray-900 text-gray-400">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="grid md:grid-cols-4 gap-8 mb-8">
-                <!-- Brand -->
                 <div class="md:col-span-2">
-                    <a href="#" class="flex items-center gap-2 mb-4">
+                    <a href="/" class="flex items-center gap-2 mb-4">
                         <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-cyan-500 flex items-center justify-center">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -1084,27 +476,26 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
                         <span class="font-semibold text-lg text-white">AgentRails</span>
                     </a>
                     <p class="text-sm max-w-xs">
-                        Enterprise AI agent architecture. Build, govern, and scale AI agents on Microsoft 365 — with x402 autonomous payments built in.
+                        AI agent infrastructure consulting. We build MCP servers, x402 payment integrations, agent governance systems, and Microsoft 365 automations.
                     </p>
                 </div>
 
-                <!-- Links -->
                 <div>
-                    <h4 class="font-semibold text-white mb-4">Product</h4>
+                    <h4 class="font-semibold text-white mb-4">Services</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="/demo" class="hover:text-white transition">Demo</a></li>
-                        <li><a href="#features" class="hover:text-white transition">Features</a></li>
-                        <li><a href="#how-it-works" class="hover:text-white transition">How It Works</a></li>
-                        <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
+                        <li><a href="#services" class="hover:text-white transition">MCP Servers</a></li>
+                        <li><a href="#services" class="hover:text-white transition">x402 Payments</a></li>
+                        <li><a href="#services" class="hover:text-white transition">Agent Governance</a></li>
+                        <li><a href="#services" class="hover:text-white transition">AI Integration</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 class="font-semibold text-white mb-4">Developers</h4>
+                    <h4 class="font-semibold text-white mb-4">Resources</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="https://app.agentrails.io" target="_blank" class="hover:text-white transition">Dashboard</a></li>
-                        <li><a href="https://sandbox.agentrails.io/swagger" target="_blank" class="hover:text-white transition">Sandbox</a></li>
-                        <li><a href="https://api.agentrails.io/swagger" target="_blank" class="hover:text-white transition">API Reference</a></li>
+                        <li><a href="/docs" class="hover:text-white transition">Documentation</a></li>
+                        <li><a href="/blog/" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="https://sandbox.agentrails.io/swagger" target="_blank" class="hover:text-white transition">Sandbox API</a></li>
                         <li><a href="https://github.com/kmatthewsio/AgenticCommerce" target="_blank" class="hover:text-white transition">GitHub</a></li>
                     </ul>
                 </div>
@@ -1119,79 +510,6 @@ print(data.cost)    <span class="text-gray-500"># $0.01 USDC</span></code></pre>
             </div>
         </div>
     </footer>
-
-    <!-- Stripe Checkout Script -->
-    <script>
-        // Store original button text to restore on back navigation
-        const buttonLabels = {
-            'payg': 'Get Started',
-            'pro': 'Upgrade to Pro',
-            'enterprise': 'Get Enterprise License'
-        };
-
-        // Reset all checkout buttons when page becomes visible (back button fix)
-        document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'visible') {
-                resetAllButtons();
-            }
-        });
-
-        // Also reset on pageshow (handles bfcache)
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                resetAllButtons();
-            }
-        });
-
-        function resetAllButtons() {
-            document.querySelectorAll('button[onclick^="startCheckout"]').forEach(btn => {
-                btn.disabled = false;
-                const tier = btn.getAttribute('onclick').match(/startCheckout\('(\w+)'\)/)?.[1];
-                if (tier && buttonLabels[tier]) {
-                    btn.textContent = buttonLabels[tier];
-                }
-            });
-        }
-
-        async function startCheckout(tier = 'enterprise') {
-            // Get the clicked button from the event
-            const clickedBtn = event.target;
-            const originalText = clickedBtn.textContent;
-
-            try {
-                // Only update the clicked button to loading state
-                clickedBtn.disabled = true;
-                clickedBtn.textContent = 'Loading...';
-
-                const response = await fetch('https://api.agentrails.io/api/stripe/create-checkout-session', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ tier: tier })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to create checkout session');
-                }
-
-                const data = await response.json();
-
-                if (data.url) {
-                    window.location.href = data.url;
-                } else {
-                    throw new Error('No checkout URL returned');
-                }
-            } catch (error) {
-                console.error('Checkout error:', error);
-                alert('Something went wrong. Please try again or contact support.');
-
-                // Reset the clicked button to original state
-                clickedBtn.disabled = false;
-                clickedBtn.textContent = originalText;
-            }
-        }
-    </script>
 
 </body>
 </html>
