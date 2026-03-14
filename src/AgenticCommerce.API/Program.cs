@@ -64,9 +64,21 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    // Order tags logically for the Swagger UI
-    c.OrderActionsBy(apiDesc => apiDesc.GroupName);
-    c.TagActionsBy(api => api.GroupName != null ? new[] { api.GroupName } : new[] { api.ActionDescriptor.RouteValues["controller"] });
+    // Map controller names to friendly Swagger tag names
+    c.TagActionsBy(api =>
+    {
+        var controller = api.ActionDescriptor.RouteValues["controller"];
+        return controller switch
+        {
+            "X402" => new[] { "x402 Payments" },
+            "X402Utility" => new[] { "Utility APIs" },
+            "Agents" => new[] { "Agents" },
+            "Transactions" => new[] { "Blockchain" },
+            "Signup" => new[] { "Account" },
+            "Trust" => new[] { "Trust" },
+            _ => new[] { controller ?? "Other" }
+        };
+    });
 });
 
 builder.Services.AddCors(options =>
