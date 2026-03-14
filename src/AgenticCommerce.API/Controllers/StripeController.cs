@@ -26,6 +26,7 @@ namespace AgenticCommerce.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/stripe")]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class StripeController : ControllerBase
 {
     private readonly AgenticCommerceDbContext _db;

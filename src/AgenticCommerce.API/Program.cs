@@ -47,8 +47,26 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "AgentRails Sandbox API",
         Version = "v1",
-        Description = "Sandbox environment for testing x402 payment protocol and AI agent capabilities. For production access, contact sales@agentrails.io"
+        Description = "Free sandbox for the x402 payment protocol — AI agent micropayments over HTTP.\n\n" +
+            "**Getting started:** `POST /api/signup` with your email to get an API key, then explore the endpoints below.\n\n" +
+            "Full documentation: [agentrails.io/docs](https://www.agentrails.io/docs) | " +
+            "Production access: [sales@agentrails.io](mailto:sales@agentrails.io)",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "AgentRails Support",
+            Email = "support@agentrails.io",
+            Url = new Uri("https://www.agentrails.io")
+        },
+        License = new Microsoft.OpenApi.Models.OpenApiLicense
+        {
+            Name = "Proprietary",
+            Url = new Uri("https://www.agentrails.io/terms")
+        }
     });
+
+    // Order tags logically for the Swagger UI
+    c.OrderActionsBy(apiDesc => apiDesc.GroupName);
+    c.TagActionsBy(api => api.GroupName != null ? new[] { api.GroupName } : new[] { api.ActionDescriptor.RouteValues["controller"] });
 });
 
 builder.Services.AddCors(options =>
@@ -150,7 +168,7 @@ builder.Services.AddHealthChecks();
 // Trust Layer Services
 builder.Services.AddScoped<ITrustService, TrustService>();
 
-// Gumroad integration
+// API key provisioning (used by Stripe webhook)
 builder.Services.AddScoped<IApiKeyGenerationService, ApiKeyGenerationService>();
 
 // Stripe + Email integration

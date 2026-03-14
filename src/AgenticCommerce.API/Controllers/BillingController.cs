@@ -13,6 +13,7 @@ namespace AgenticCommerce.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/billing")]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class BillingController : ControllerBase
 {
     private readonly AgenticCommerceDbContext _db;

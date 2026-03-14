@@ -10,6 +10,7 @@ namespace AgenticCommerce.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Tags("Agents")]
 public class AgentsController : ControllerBase
 {
     private readonly IAgentService _agentService;
@@ -175,6 +176,7 @@ public class AgentsController : ControllerBase
     /// </summary>
     // Sandbox: No auth required
     [HttpGet("dashboard")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<ActionResult<object>> ListAgentsForDashboard()
     {
         var orgId = HttpContext.GetOrganizationId();
@@ -238,6 +240,7 @@ public class AgentsController : ControllerBase
     /// </summary>
     // Sandbox: No auth required
     [HttpGet("transactions")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<ActionResult> GetTransactionsForDashboard([FromQuery] int limit = 100)
     {
         var orgId = HttpContext.GetOrganizationId();
@@ -278,6 +281,7 @@ public class AgentsController : ControllerBase
     /// Seed test transactions for dashboard testing (development only)
     /// </summary>
     [HttpPost("seed-transactions")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<ActionResult> SeedTestTransactions()
     {
         var orgId = HttpContext.GetOrganizationId();
@@ -341,6 +345,7 @@ public class AgentsController : ControllerBase
     /// </summary>
     // Sandbox: No auth required
     [HttpPost("claim-orphaned")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<ActionResult> ClaimOrphanedAgents()
     {
         var orgId = HttpContext.GetOrganizationId();

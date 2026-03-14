@@ -14,6 +14,7 @@ namespace AgenticCommerce.API.Controllers;
 [ApiController]
 [Route("api/signup")]
 [EnableRateLimiting("auth")]
+[Tags("Account")]
 public class SignupController : ControllerBase
 {
     private readonly AgenticCommerceDbContext _db;
@@ -106,6 +107,7 @@ public class SignupController : ControllerBase
     }
 
     [HttpPost("upgrade")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> UpgradeToPayg([FromBody] UpgradeRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Email))

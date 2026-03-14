@@ -13,6 +13,7 @@ namespace AgenticCommerce.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/x402/utility")]
+[Tags("Utility APIs")]
 public class X402UtilityController : ControllerBase
 {
     private const int MaxTextLength = 10_000;

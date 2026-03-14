@@ -1352,14 +1352,35 @@ builder.Plugins.AddFromType&lt;X402Plugin&gt;();
                 <section id="api-reference" class="mb-16">
                     <h2 class="text-2xl font-bold mb-4">API Reference</h2>
                     <p class="text-gray-600 mb-6">
-                        Full API documentation is available via Swagger UI.
+                        The sandbox API exposes ~38 endpoints organized into 6 groups. Full interactive docs are available via Swagger UI.
                     </p>
 
-                    <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="inline-block p-6 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition">
+                    <a href="https://sandbox.agentrails.io/swagger" target="_blank" class="inline-block p-6 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition mb-8">
                         <h3 class="font-semibold mb-2">Sandbox API</h3>
                         <p class="text-sm text-gray-600 mb-3">Test with fake USDC on testnet</p>
                         <span class="text-primary-600 text-sm font-medium">Open Swagger UI →</span>
                     </a>
+
+                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="text-left px-6 py-3 font-semibold">Group</th>
+                                    <th class="text-left px-6 py-3 font-semibold">Base Path</th>
+                                    <th class="text-left px-6 py-3 font-semibold">Endpoints</th>
+                                    <th class="text-left px-6 py-3 font-semibold">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr><td class="px-6 py-3 font-medium">Account</td><td class="px-6 py-3 font-mono text-xs">/api/signup</td><td class="px-6 py-3">2</td><td class="px-6 py-3 text-gray-600">Sign up and check account status</td></tr>
+                                <tr><td class="px-6 py-3 font-medium">x402 Payments</td><td class="px-6 py-3 font-mono text-xs">/api/x402</td><td class="px-6 py-3">11</td><td class="px-6 py-3 text-gray-600">Protected endpoints, facilitator, pricing, payments, stats, test tools</td></tr>
+                                <tr><td class="px-6 py-3 font-medium">Utility APIs</td><td class="px-6 py-3 font-mono text-xs">/api/x402/utility</td><td class="px-6 py-3">4</td><td class="px-6 py-3 text-gray-600">Sentiment, summarize, JSON transform, hash (x402 paywalled)</td></tr>
+                                <tr><td class="px-6 py-3 font-medium">Agents</td><td class="px-6 py-3 font-mono text-xs">/api/agents</td><td class="px-6 py-3">6</td><td class="px-6 py-3 text-gray-600">Create, list, get, run, purchase, delete AI agents</td></tr>
+                                <tr><td class="px-6 py-3 font-medium">Blockchain</td><td class="px-6 py-3 font-mono text-xs">/api/transactions</td><td class="px-6 py-3">9</td><td class="px-6 py-3 text-gray-600">Wallet balance, send USDC, chain status, gateway</td></tr>
+                                <tr><td class="px-6 py-3 font-medium">Trust</td><td class="px-6 py-3 font-mono text-xs">/api/trust</td><td class="px-6 py-3">6</td><td class="px-6 py-3 text-gray-600">Service registry, trust checks, verification</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
 
                 <!-- Networks -->

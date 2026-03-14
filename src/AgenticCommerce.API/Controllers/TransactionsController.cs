@@ -5,6 +5,7 @@ namespace AgenticCommerce.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Tags("Blockchain")]
 public class TransactionsController : ControllerBase
 {
     private readonly IArcClient _arcClient;
