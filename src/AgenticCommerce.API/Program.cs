@@ -49,19 +49,7 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "Free sandbox for the x402 payment protocol — AI agent micropayments over HTTP.\n\n" +
             "**Getting started:** `POST /api/signup` with your email to get an API key, then explore the endpoints below.\n\n" +
-            "Full documentation: [agentrails.io/docs](https://www.agentrails.io/docs) | " +
-            "Production access: [sales@agentrails.io](mailto:sales@agentrails.io)",
-        Contact = new Microsoft.OpenApi.Models.OpenApiContact
-        {
-            Name = "AgentRails Support",
-            Email = "support@agentrails.io",
-            Url = new Uri("https://www.agentrails.io")
-        },
-        License = new Microsoft.OpenApi.Models.OpenApiLicense
-        {
-            Name = "Proprietary",
-            Url = new Uri("https://www.agentrails.io/terms")
-        }
+            "Full documentation: [agentrails.io/docs](https://www.agentrails.io/docs)"
     });
 
     // Map controller names to friendly Swagger tag names
