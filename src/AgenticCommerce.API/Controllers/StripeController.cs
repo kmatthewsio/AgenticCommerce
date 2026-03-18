@@ -104,7 +104,7 @@ public class StripeController : ControllerBase
         if (string.IsNullOrEmpty(priceId))
         {
             _logger.LogError("Stripe price not configured for tier {Tier}", tier);
-            return StatusCode(500, new { error = $"Product not configured for tier: {tier}. Please contact sales@agentrails.io" });
+            return StatusCode(500, new { error = $"Product not configured for tier: {tier}. Please contact contact@agentrails.io" });
         }
 
         var domain = _configuration["App:Domain"] ?? "https://agentrails.io";

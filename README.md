@@ -302,7 +302,7 @@ For regulated industries requiring advanced governance:
 - **Multi-Tenant:** Organization-level isolation
 - **Admin Dashboard:** Real-time monitoring
 
-**Contact [sales@agentrails.io](mailto:sales@agentrails.io) for licensing.**
+**Contact [contact@agentrails.io](mailto:contact@agentrails.io) for licensing.**
 
 ## Security
 
@@ -350,7 +350,7 @@ Built with:
 ## Contact
 
 - GitHub Issues: [Create an issue](https://github.com/agentrails/agentrails/issues)
-- Sales: [sales@agentrails.io](mailto:sales@agentrails.io)
+- Sales: [contact@agentrails.io](mailto:contact@agentrails.io)
 - Twitter: [@agentrails](https://x.com/agentrails)
 
 ---
