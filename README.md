@@ -2,7 +2,7 @@
 
 > The orchestration layer between AI agents and the financial system
 
-**[www.agentrails.io](https://www.agentrails.io)** | [Documentation](https://www.agentrails.io/docs) | [Blog](https://www.agentrails.io/blog) | [Microsoft Marketplace](https://marketplace.microsoft.com/en-us/product/saas/agentrails.agentrails-preview)
+**[www.agentrails.io](https://www.agentrails.io)** | [Documentation](https://www.agentrails.io/docs) | [Blog](https://www.agentrails.io/blog) | [Microsoft Marketplace](https://marketplace.microsoft.com/en-us/product/saas/agentrails.agentrails?tab=overview)
 
 **Agent-agnostic. Model-agnostic. Enterprise-ready.**
 
