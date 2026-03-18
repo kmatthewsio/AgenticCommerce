@@ -350,8 +350,7 @@ Built with:
 ## Contact
 
 - GitHub Issues: [Create an issue](https://github.com/agentrails/agentrails/issues)
-- Sales: [contact@agentrails.io](mailto:contact@agentrails.io)
-- Twitter: [@agentrails](https://x.com/agentrails)
+- Contact: [contact@agentrails.io](mailto:contact@agentrails.io)
 
 ---
 
