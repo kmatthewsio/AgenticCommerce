@@ -137,3 +137,8 @@ _ReSharper*/
 # Local reference docs
 docs/AgentRails-Mission-Statement.md
 docs/AgentRails-Mission-Statement.pdf
+
+# Local-only files (not for repo)
+marketplace/
+CLAUDE.md
+mcp-server-foundry/publish/
